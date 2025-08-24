@@ -7,6 +7,7 @@ import { assignTrxNameTable } from "./asign-trx-name";
 import { trxTable } from "./trx";
 import { loanPaymentTable } from "./loan-payment";
 import { shopkeeperPaymentTable } from "./shopkeeper-payment";
+import { monthlyMonitorTable } from "./monthly-monitor";
 
 export const bankAccountTable = pgTable("bank_account", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
@@ -29,13 +30,16 @@ export const bankAccountTableRelation = relations(bankAccountTable, ({ many }) =
     localBankTrx: many(trxTable, { relationName: relationBetween('trx', 'local-bank') }),//'relation-between-trx-and-local-bank'}),
 
     //loan relation
-    loanReceipt:many(loanPaymentTable,{relationName:relationBetween('loan','receive-bank')}),
-    loanSource:many(loanPaymentTable,{relationName:relationBetween('loan','source-bank')}),
-    
-    //loan payment relation
-    loanPaymentReceipt:many(loanPaymentTable,{relationName:relationBetween('loan-payment','receive-bank')}),
-    loanPaymentPaid:many(loanPaymentTable,{relationName:relationBetween('loan-payment','source-bank')}),
+    loanReceipt: many(loanPaymentTable, { relationName: relationBetween('loan', 'receive-bank') }),
+    loanSource: many(loanPaymentTable, { relationName: relationBetween('loan', 'source-bank') }),
 
-    // shopkeeper relation
-    shopkeeperPayments:many(shopkeeperPaymentTable,{relationName:relationBetween('shopkeeper-payment','source-bank')})
+    //loan payment relation
+    loanPaymentReceipt: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'receive-bank') }),
+    loanPaymentPaid: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'source-bank') }),
+
+    // shopkeeper payments relation
+    shopkeeperPayments: many(shopkeeperPaymentTable, { relationName: relationBetween('shopkeeper-payment', 'source-bank') }),
+
+    // monthly monitor relation
+    previousMonthlyMonitories: many(monthlyMonitorTable, { relationName: relationBetween('monthly-monitor', 'bank') })
 }))

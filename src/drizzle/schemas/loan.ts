@@ -38,6 +38,8 @@ export const loanTableRelation = relations(loanTable, ({ one, many }) => ({
         references:[bankAccountTable.id],
         relationName:relationBetween('loan','source-bank')
     }),
+
+    //loan payments relation
     loanPayment: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'loan') }),
 }
 ))

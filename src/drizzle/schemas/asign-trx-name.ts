@@ -13,15 +13,15 @@ export const assignTrxNameTable = pgTable("assign_transaction_name", {
     updatedAt
 })
 
-export const assignTrxNameTableRelation = relations(assignTrxNameTable, ({one}) => ({
-    bankAccount:one(bankAccountTable,{
-        fields:[assignTrxNameTable.bankAccountId],
-        references:[bankAccountTable.id],
-        relationName:relationBetween('assign-trx-name','bank-account')//'relation-between-assign-trx-name-and-bank-account'
+export const assignTrxNameTableRelation = relations(assignTrxNameTable, ({ one }) => ({
+    bankAccount: one(bankAccountTable, {
+        fields: [assignTrxNameTable.bankAccountId],
+        references: [bankAccountTable.id],
+        relationName: relationBetween('assign-trx-name', 'bank-account')//'relation-between-assign-trx-name-and-bank-account'
     }),
-    transactionName:one(trxNameTable,{
-        fields:[assignTrxNameTable.trxNameId],
-        references:[trxNameTable.id],
-        relationName:relationBetween('assign-trx-name','transaction-name')//'relation-between-assign-trx-name-and-transaction-name'
+    transactionName: one(trxNameTable, {
+        fields: [assignTrxNameTable.trxNameId],
+        references: [trxNameTable.id],
+        relationName: relationBetween('assign-trx-name', 'transaction-name')//'relation-between-assign-trx-name-and-transaction-name'
     }),
 }))

@@ -1,5 +1,5 @@
 import { pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { booleans, createdAt,  numericAmount, relationBetween, updatedAt } from "../schema-helpers";
+import { booleans, createdAt, numericAmount, relationBetween, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { shopkeeperPaymentTable } from "./shopkeeper-payment";
 
@@ -18,5 +18,6 @@ export const shopkeeperTable = pgTable('shopkeeper', {
 
 
 export const shopkeeperTableRelation = relations(shopkeeperTable, ({ many }) => ({
-   payments:many(shopkeeperPaymentTable,{relationName:relationBetween('shopkeeper-payment','shopkeeper')})
+    //shopkeepers payments relation
+    payments: many(shopkeeperPaymentTable, { relationName: relationBetween('shopkeeper-payment', 'shopkeeper') })
 }))

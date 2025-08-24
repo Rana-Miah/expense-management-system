@@ -5,24 +5,25 @@ import { relations } from "drizzle-orm";
 
 export const itemTable = pgTable('item', {
     id: uuid('id').unique().notNull().defaultRandom(),
-    trxId:uuid('transaction_id').references(() => trxTable.id),
+    trxId: uuid('transaction_id').references(() => trxTable.id),
     itemUnitId: uuid('item_unit_id').notNull().references(() => itemUnitTable.id),
     name: text('name').notNull(),
     price: numericAmount('price', 7, 2),
+    quantity:numericAmount('quantity',7,2),
     createdAt,
     updatedAt
 })
 
-export const itemTableRelation = relations(itemTable,({one})=>({
-    transaction:one(trxTable,{
-        fields:[itemTable.trxId],
-        references:[trxTable.id],
-        relationName:relationBetween('item','transaction')
+export const itemTableRelation = relations(itemTable, ({ one }) => ({
+    transaction: one(trxTable, {
+        fields: [itemTable.trxId],
+        references: [trxTable.id],
+        relationName: relationBetween('item', 'transaction')
     }),
-    itemUnit:one(itemUnitTable,{
-        fields:[itemTable.itemUnitId],
-        references:[itemUnitTable.id],
-        relationName:relationBetween('item-unite','item')
+    itemUnit: one(itemUnitTable, {
+        fields: [itemTable.itemUnitId],
+        references: [itemUnitTable.id],
+        relationName: relationBetween('item-unite', 'item')
     })
 }))
 
@@ -37,10 +38,10 @@ export const itemUnitTable = pgTable('item-unit', {
     updatedAt
 })
 
-export const itemUnitTableRelation = relations(itemUnitTable,({one})=>({
-    item:one(itemTable,{
-        fields:[itemUnitTable.id],
-        references:[itemTable.itemUnitId],
-        relationName:relationBetween('item-unite','item')
+export const itemUnitTableRelation = relations(itemUnitTable, ({ one }) => ({
+    item: one(itemTable, {
+        fields: [itemUnitTable.id],
+        references: [itemTable.itemUnitId],
+        relationName: relationBetween('item-unite', 'item')
     })
 }))
