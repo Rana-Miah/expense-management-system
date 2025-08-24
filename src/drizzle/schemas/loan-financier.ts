@@ -1,5 +1,8 @@
 import { pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { booleans, createdAt, financierType, numericAmount, updatedAt } from "../schema-helpers";
+import { booleans, createdAt, financierType, numericAmount, relationBetween, updatedAt } from "../schema-helpers";
+import { relations } from "drizzle-orm";
+import { loanPaymentTable } from "./loan-payment";
+import { loanTable } from "./loan";
 
 
 export const loanFinancierTable = pgTable('loan_financier', {
@@ -18,3 +21,9 @@ export const loanFinancierTable = pgTable('loan_financier', {
     createdAt,
     updatedAt
 })
+
+
+export const loanFinancierTableRelation = relations(loanFinancierTable,({many})=>({
+    loans:many(loanTable,{relationName:relationBetween('loan', 'loan-financier')}),
+    loanPayments:many(loanPaymentTable,{relationName:relationBetween('loan-payment','loan-financier')}),
+}))

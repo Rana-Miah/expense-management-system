@@ -11,7 +11,11 @@ export const numericAmount = (
 ) => numeric(name, { mode:'number', precision, scale }).notNull()
 export const booleans = (name:string,defaults:boolean)=>boolean(name).notNull().default(defaults)
 
-export const trxNameVariant = ['SOURCE', 'RECEIVE', 'BOTH'] as const
-export const trxType = ['Internal','Local'] as const
+export const trxType = ['Debit', 'Credit','Both'] as const
+export const trxVariant = ['Internal','Local'] as const
+
 export const financierType = ['Provider', 'Recipient'] as const
-export const loanStatus = ['FULLY-PAID', 'DUE'] as const
+export const loanStatus = ['Repaid','Settled','Closed'] as const
+export const paymentType = ['Receipt','Paid'] as const
+
+export const relationBetween = (firstTable:string,secondTable:string)=>`relation-between-${firstTable}-and-${secondTable}`

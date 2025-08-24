@@ -1,14 +1,16 @@
 import { pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { booleans, createdAt, numericAmount, times, trxType, updatedAt } from "../schema-helpers";
+import { booleans, createdAt, numericAmount, relationBetween, times, trxType, trxVariant, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { trxNameTable } from "./trx-name";
 import { bankAccountTable } from "./bank-account";
+import { itemTable } from "./item";
 
 
 export const trxTable = pgTable("trx", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull().unique(),
     type:text('type',{enum:trxType}).notNull(),
+    trxVariant:text('type',{enum:trxVariant}).notNull(),
     trxNameId: uuid('transaction_name_id').notNull().references(() => trxNameTable.id),
     sourceBankId:uuid('source_bank_id').references(() => bankAccountTable.id),
     receiveBankId:uuid('receive_bank_id').references(() => bankAccountTable.id),
@@ -17,30 +19,32 @@ export const trxTable = pgTable("trx", {
     trxDescription: text('transaction_description'),
     amount: numericAmount('amount', 7, 2),
     isReversed:booleans('is_reversed',false),
+    isIncludedItems:booleans('is_included_items',false),
     reasonOfReversed:text('reason_of_reversed'),
     createdAt,
     updatedAt
 })
 
-export const trxTableRelation = relations(trxTable, ({ one }) => ({
+export const trxTableRelation = relations(trxTable, ({ one ,many}) => ({
     trxName:one(trxNameTable,{
         fields:[trxTable.trxNameId],
         references:[trxNameTable.id],
-        relationName:'relation-between-trx-and-trx-name'
+        relationName:relationBetween('trx', 'trx-name')//'relation-between-trx-and-trx-name'
     }),
     sourceBank:one(bankAccountTable,{
         fields:[trxTable.sourceBankId],
         references:[bankAccountTable.id],
-        relationName:'relation-between-trx-and-source-bank'
+        relationName:relationBetween('trx', 'source-bank')//'relation-between-trx-and-source-bank'
     }),
     receiveBank:one(bankAccountTable,{
         fields:[trxTable.receiveBankId],
         references:[bankAccountTable.id],
-        relationName:'relation-between-trx-and-receive-bank'
+        relationName:relationBetween('trx', 'receive-bank')//'relation-between-trx-and-receive-bank'
     }),
     localBankNumber:one(bankAccountTable,{
         fields:[trxTable.localBankNumber],
         references:[bankAccountTable.id],
-        relationName:'relation-between-trx-and-local-bank'
+        relationName:relationBetween('trx', 'local-bank')//'relation-between-trx-and-local-bank'
     }),
+    items:many(itemTable,{relationName:relationBetween('item','transaction')})
 }))
