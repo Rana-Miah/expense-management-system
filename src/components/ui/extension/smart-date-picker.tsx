@@ -572,7 +572,7 @@ type DateTimeLocalInputProps = {
   disabled?: boolean | ((date: Date) => boolean);
 } & React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
-};
+}
  
 const DateTimeLocalInput = ({
   className,
@@ -580,27 +580,31 @@ const DateTimeLocalInput = ({
   ...props
 }: DateTimeLocalInputProps) => {
   const { value, onValueChange, Time } = useSmartDateInput();
- 
+
  const formateSelectedDate = React.useCallback(
-  (selectedDate: Date | undefined) => {
-    if (!selectedDate) return;
-
-    // if fully disabled, do nothing
-    if (typeof disabled === "boolean" && disabled) return;
-    if (typeof disabled === "function" && disabled(selectedDate)) return;
-
-    const parsedDateTime = parseDateTime(selectedDate);
-
-    if (parsedDateTime) {
-      parsedDateTime.setHours(
-        parseInt(Time.split(":")[0]),
-        parseInt(Time.split(":")[1]),
-      );
-      onValueChange(parsedDateTime);
-    }
-  },
-  [value, Time],
-);
+    (
+      date: Date | undefined,
+      selectedDate: Date,
+      m: ActiveModifiers,
+      e: React.MouseEvent,
+    ) => {
+      // if fully disabled, do nothing
+      if (typeof disabled === "boolean" && disabled) return;
+      // if disabled is a matcher function and selected date should be disabled, do nothing
+      if (typeof disabled === "function" && disabled(selectedDate)) return;
+ 
+      const parsedDateTime = parseDateTime(selectedDate);
+ 
+      if (parsedDateTime) {
+        parsedDateTime.setHours(
+          parseInt(Time.split(":")[0]),
+          parseInt(Time.split(":")[1]),
+        );
+        onValueChange(parsedDateTime);
+      }
+    },
+    [value, Time],
+  );
 
  
   return (

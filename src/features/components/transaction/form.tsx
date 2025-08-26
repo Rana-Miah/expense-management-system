@@ -1,11 +1,12 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -14,7 +15,7 @@ import {
 import { Bank, findBanksByClerkUserId } from "@/constant/dummy-db/bank-account"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import { findAssignedTrxNamesByBankId } from "@/constant/dummy-db/asign-trx-name"
-import { Cable } from "lucide-react"
+import { Cable, CalendarIcon, Trash } from "lucide-react"
 import { TrxName } from "@/constant/dummy-db/trx-name"
 import { transactionFormSchema, TransactionFormValue } from "@/features/schemas/transaction"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -24,6 +25,14 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { SmartDatetimeInput } from "@/components/ui/extension/smart-date-picker"
+import { Calendar } from "@/components/ui/calendar"
+import { DateTimePicker } from "@/components/ui/extension/date-picker"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import { dummyItemUnits } from "@/constant/dummy-db/item"
+import { CardWrapper } from "@/components"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns"
 
 export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxName[] }) => {
 
@@ -32,13 +41,20 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
     const [selectedTrxType, setSeletedTrxType] = useState<typeof trxType[number] | null>(null)
     const [selectedTrxVariant, setSeletedTrxVariant] = useState<typeof trxVariant[number] | null>(null)
     const [selectedTrxName, setSeletedTrxName] = useState<string | null>(null)
+    const [isIncludeItems, setIsIncludeItems] = useState<boolean>()
 
     // 1. Define your form.
     const form = useForm<TransactionFormValue>({
         resolver: zodResolver(transactionFormSchema),
         defaultValues: {
             isIncludedItems: false,
+            trxDate: new Date()
         },
+    })
+
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: 'items'
     })
 
     // 2. Define a submit handler.
@@ -52,7 +68,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
     const isAssigned = (id: string) => !!assignedTrxName.find(item => item.trxNameId === id)
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-3xs">
+            <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4 max-w-full", isIncludeItems && "pb-14")}>
 
                 {/* transaction name */}
                 <FormField
@@ -61,12 +77,12 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Transaction Name</FormLabel>
-                            <FormControl className="min-w-3xs">
+                            <FormControl className="w-full">
                                 <Select onValueChange={(value) => {
                                     field.onChange(value)
                                     setSeletedTrxName(value)
                                 }} defaultValue={field.value} >
-                                    <SelectTrigger className="min-w-3xs">
+                                    <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select a Transaction Name" />
                                     </SelectTrigger>
                                     <SelectContent className="w-full">
@@ -86,6 +102,98 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                     )}
                 />
 
+                {/* Transaction Variant & bank */}
+
+
+                {selectedTrxName && (
+                    <FormField
+                        control={form.control}
+                        name="trxVariant"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Transaction Variant</FormLabel>
+                                <FormControl className="w-full">
+                                    <RadioGroup defaultValue={field.value} onValueChange={(value) => {
+                                        setSeletedTrxVariant(value as typeof trxVariant[number])
+                                        field.onChange(value)
+                                    }} className="flex items-center justify-between">
+                                        {
+                                            trxVariant.map(variant => (
+                                                <div className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxVariant === variant && "border-primary")} key={variant}>
+                                                    <RadioGroupItem value={variant} id={variant} hidden />
+                                                    <Label htmlFor={variant}>{variant}</Label>
+                                                </div>
+                                            ))
+                                        }
+
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
+
+
+                {
+                    selectedTrxType === 'Both' && (
+                        <>
+
+
+                            {
+                                selectedTrxVariant === 'Internal' && (
+                                    <FormField
+                                        control={form.control}
+                                        name="receiveBankId"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Receive Bank</FormLabel>
+                                                <FormControl className="w-full">
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Select a Receive Bank" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="w-full">
+                                                            {
+                                                                banks.map(receiveBank => (
+                                                                    <SelectItem key={receiveBank.id} value={receiveBank.id} className="relative" >
+                                                                        {receiveBank.name}
+                                                                    </SelectItem>
+                                                                ))
+                                                            }
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )
+                            }
+
+                            {
+                                selectedTrxVariant === 'Local' && (
+                                    <FormField
+                                        control={form.control}
+                                        name="localBankNumber"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Local Bank Number Banks</FormLabel>
+                                                <FormControl className="w-full">
+                                                    <Input type='text' placeholder="e.g. Cash-01xxxxxxxxx" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )
+                            }
+
+
+                        </>
+                    )
+                }
+
                 {/* transaction type */}
                 {
                     selectedTrxName && (
@@ -95,7 +203,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Transaction Type</FormLabel>
-                                    <FormControl className="min-w-3xs">
+                                    <FormControl className="w-full">
                                         <RadioGroup defaultValue={field.value} onValueChange={(value) => {
                                             setSeletedTrxType(value as typeof trxType[number])
                                             field.onChange(value)
@@ -128,7 +236,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Transaction Variant</FormLabel>
-                                        <FormControl className="min-w-3xs">
+                                        <FormControl className="w-full">
                                             <RadioGroup defaultValue={field.value} onValueChange={(value) => {
                                                 setSeletedTrxVariant(value as typeof trxVariant[number])
                                                 field.onChange(value)
@@ -157,9 +265,9 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Receive Bank</FormLabel>
-                                                <FormControl className="min-w-3xs">
+                                                <FormControl className="w-full">
                                                     <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                        <SelectTrigger className="min-w-3xs">
+                                                        <SelectTrigger className="w-full">
                                                             <SelectValue placeholder="Select a Receive Bank" />
                                                         </SelectTrigger>
                                                         <SelectContent className="w-full">
@@ -188,7 +296,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Local Bank Number Banks</FormLabel>
-                                                <FormControl className="min-w-3xs">
+                                                <FormControl className="w-full">
                                                     <Input type='text' placeholder="e.g. Cash-01xxxxxxxxx" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
@@ -210,7 +318,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Transaction Amount</FormLabel>
-                            <FormControl className="min-w-3xs">
+                            <FormControl className="w-full">
                                 <Input type='number' placeholder="e.g. 15"{...field} />
                             </FormControl>
                             <FormMessage />
@@ -221,80 +329,211 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                 {/* date */}
                 <FormField
                     control={form.control}
-                    name="trxNameId"
+                    name="trxDate"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Date of birth</FormLabel>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                        >
+                                            {field.value ? (
+                                                format(field.value, "PPP")
+                                            ) : (
+                                                <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        disabled={(date) =>
+                                            date > new Date() || date < new Date("1900-01-01")
+                                        }
+                                        captionLayout="dropdown"
+                                        className="w-full"
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="trxDescription"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Transaction Name</FormLabel>
-                            <FormControl className="min-w-3xs">
-                                <SmartDatetimeInput
-                                    onValueChange={field.onChange}
-                                    name="datetime"
-                                    value={new Date(field.value)}
-                                    onChange={field.onChange}
-                                    placeholder="e.g. tomorrow at 3pm"
-                                    disabled={(date) => date < new Date()}
+                            <FormControl className="w-full">
+                                <Textarea {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="isIncludedItems"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                                <FormLabel>Purchase Items Details</FormLabel>
+                                <FormDescription>
+                                    Add items details
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={(value) => {
+                                        setIsIncludeItems(value)
+                                        field.onChange(value)
+                                    }}
                                 />
                             </FormControl>
-                            <FormMessage />
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name="trxNameId"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Transaction Name</FormLabel>
-                            <FormControl className="min-w-3xs">
-                                <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                    <SelectTrigger className="min-w-3xs">
-                                        <SelectValue placeholder="Select a Transaction Name" />
-                                    </SelectTrigger>
-                                    <SelectContent className="w-full">
-                                        {
-                                            trxsName.map(item => (
-                                                <SelectItem key={item.id} value={item.id} className="relative" disabled={isAssigned(item.id)}>
-                                                    {item.name}
-                                                </SelectItem>
-                                            )
-                                            )
+
+
+                {
+                    isIncludeItems && (
+                        <>
+                            {
+                                fields.map((_, index) => (
+                                    <CardWrapper
+                                        title={`Item #${index + 1}`}
+                                        description='Purchase Item'
+                                        headerElement={
+                                            <Button variant='destructive' onClick={() => remove(index)}>
+                                                <Trash />
+                                            </Button>
                                         }
-                                    </SelectContent>
-                                </Select>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="trxNameId"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Transaction Name</FormLabel>
-                            <FormControl className="min-w-3xs">
-                                <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                    <SelectTrigger className="min-w-3xs">
-                                        <SelectValue placeholder="Select a Transaction Name" />
-                                    </SelectTrigger>
-                                    <SelectContent className="w-full">
-                                        {
-                                            trxsName.map(item => (
-                                                <SelectItem key={item.id} value={item.id} className="relative" disabled={isAssigned(item.id)}>
-                                                    {item.name}
-                                                </SelectItem>
-                                            )
-                                            )
-                                        }
-                                    </SelectContent>
-                                </Select>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <Button type="submit">Submit</Button>
+                                    >
+                                        <div className="flex flex-col items-center gap-2">
+                                            <div className="flex items-center justify-center gap-1">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`items.${index}.name`}
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+
+                                                            <FormControl>
+                                                                <Input type='text' placeholder="e.g. Tomato" {...field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`items.${index}.itemUnitId`}
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                                            <FormControl>
+                                                                <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                                    <SelectTrigger className="flex-1">
+                                                                        <SelectValue placeholder="Unit" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent className="w-full">
+                                                                        {
+                                                                            dummyItemUnits.map(unit => (
+                                                                                <SelectItem key={unit.id} value={unit.id} className="relative" >
+                                                                                    {unit.unit}
+                                                                                </SelectItem>
+                                                                            ))
+                                                                        }
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+
+
+                                            </div>
+
+                                            <div className="flex items-center justify-center gap-1">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`items.${index}.price`}
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                                            <Label>Price</Label>
+                                                            <FormControl>
+                                                                <Input type='number' placeholder="Price" className="flex-1" {...field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`items.${index}.quantity`}
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                                            <Label>Quantity</Label>
+                                                            <FormControl>
+                                                                <Input type='number' placeholder="Quantity" className="flex-1" {...field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                    </CardWrapper>
+                                ))
+                            }
+                        </>
+                    )
+                }
+
+                {isIncludeItems && fields.length > 1 ? (
+                    <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-3 flex justify-between gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                                append({ itemUnitId: "", name: "", quantity: 0, price: 0 })
+                            }
+                        >
+                            Add Item
+                        </Button>
+
+                        <Button type="submit" className={cn()}>Submit</Button>
+                    </div>
+                ) :
+                    <>
+                        {isIncludeItems && fields.length < 2 && <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                                append({ itemUnitId: "", name: "", quantity: 0, price: 0 })
+                            }
+                            className="w-full"
+                        >
+                            Add Item
+                        </Button>}
+                        <Button type="submit" className={'w-full'}>Submit</Button>
+
+                    </>
+                }
+
             </form>
-        </Form>
+        </Form >
     )
 }

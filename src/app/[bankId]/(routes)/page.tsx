@@ -17,9 +17,7 @@ const BankPage = async ({ params }: { params: Promise<{ bankId: string }> }) => 
         <>
 
             <div>
-                {
-                    JSON.stringify(bank)
-                }
+                
             </div>
 
             <ReuseableTab
