@@ -102,9 +102,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                     )}
                 />
 
-                {/* Transaction Variant & bank */}
-
-
+                {/* Transaction Variant */}
                 {selectedTrxName && (
                     <FormField
                         control={form.control}
@@ -116,7 +114,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                     <RadioGroup defaultValue={field.value} onValueChange={(value) => {
                                         setSeletedTrxVariant(value as typeof trxVariant[number])
                                         field.onChange(value)
-                                    }} className="flex items-center justify-between">
+                                    }} className="flex items-center gap-3">
                                         {
                                             trxVariant.map(variant => (
                                                 <div className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxVariant === variant && "border-primary")} key={variant}>
@@ -134,69 +132,9 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                     />
                 )}
 
-
-                {
-                    selectedTrxType === 'Both' && (
-                        <>
-
-
-                            {
-                                selectedTrxVariant === 'Internal' && (
-                                    <FormField
-                                        control={form.control}
-                                        name="receiveBankId"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Receive Bank</FormLabel>
-                                                <FormControl className="w-full">
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Select a Receive Bank" />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="w-full">
-                                                            {
-                                                                banks.map(receiveBank => (
-                                                                    <SelectItem key={receiveBank.id} value={receiveBank.id} className="relative" >
-                                                                        {receiveBank.name}
-                                                                    </SelectItem>
-                                                                ))
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                )
-                            }
-
-                            {
-                                selectedTrxVariant === 'Local' && (
-                                    <FormField
-                                        control={form.control}
-                                        name="localBankNumber"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Local Bank Number Banks</FormLabel>
-                                                <FormControl className="w-full">
-                                                    <Input type='text' placeholder="e.g. Cash-01xxxxxxxxx" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                )
-                            }
-
-
-                        </>
-                    )
-                }
-
                 {/* transaction type */}
                 {
-                    selectedTrxName && (
+                    selectedTrxVariant && (
                         <FormField
                             control={form.control}
                             name="type"
@@ -207,11 +145,15 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                         <RadioGroup defaultValue={field.value} onValueChange={(value) => {
                                             setSeletedTrxType(value as typeof trxType[number])
                                             field.onChange(value)
-                                        }} className="flex items-center justify-between">
+                                        }} className="flex items-center gap-3">
                                             {
                                                 trxType.map(trx => (
-                                                    <div className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxType === trx && "border-primary")} key={trx}>
-                                                        <RadioGroupItem value={trx} id={trx} hidden />
+                                                    <div
+                                                        key={trx}
+                                                        className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxType === trx && "border-primary")}
+                                                        hidden={trx !== 'Both' && selectedTrxVariant === 'Local'}
+                                                    >
+                                                        <RadioGroupItem value={trx} id={trx} hidden disabled={trx !== 'Both' && selectedTrxVariant === 'Local'} />
                                                         <Label htmlFor={trx}>{trx}</Label>
                                                     </div>
                                                 ))
@@ -228,88 +170,54 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
 
                 {/* Transaction Variant & bank */}
                 {
-                    selectedTrxType === 'Both' && (
-                        <>
-                            <FormField
-                                control={form.control}
-                                name="trxVariant"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Transaction Variant</FormLabel>
-                                        <FormControl className="w-full">
-                                            <RadioGroup defaultValue={field.value} onValueChange={(value) => {
-                                                setSeletedTrxVariant(value as typeof trxVariant[number])
-                                                field.onChange(value)
-                                            }} className="flex items-center justify-between">
+                    selectedTrxType === 'Both' && selectedTrxVariant === 'Internal' && (
+                        <FormField
+                            control={form.control}
+                            name="receiveBankId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Receive Bank</FormLabel>
+                                    <FormControl className="w-full">
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select a Receive Bank" />
+                                            </SelectTrigger>
+                                            <SelectContent className="w-full">
                                                 {
-                                                    trxVariant.map(variant => (
-                                                        <div className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxVariant === variant && "border-primary")} key={variant}>
-                                                            <RadioGroupItem value={variant} id={variant} hidden />
-                                                            <Label htmlFor={variant}>{variant}</Label>
-                                                        </div>
+                                                    banks.map(receiveBank => (
+                                                        <SelectItem key={receiveBank.id} value={receiveBank.id} className="relative" >
+                                                            {receiveBank.name}
+                                                        </SelectItem>
                                                     ))
                                                 }
-
-                                            </RadioGroup>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            {
-                                selectedTrxVariant === 'Internal' && (
-                                    <FormField
-                                        control={form.control}
-                                        name="receiveBankId"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Receive Bank</FormLabel>
-                                                <FormControl className="w-full">
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Select a Receive Bank" />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="w-full">
-                                                            {
-                                                                banks.map(receiveBank => (
-                                                                    <SelectItem key={receiveBank.id} value={receiveBank.id} className="relative" >
-                                                                        {receiveBank.name}
-                                                                    </SelectItem>
-                                                                ))
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                )
-                            }
-
-                            {
-                                selectedTrxVariant === 'Local' && (
-                                    <FormField
-                                        control={form.control}
-                                        name="localBankNumber"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Local Bank Number Banks</FormLabel>
-                                                <FormControl className="w-full">
-                                                    <Input type='text' placeholder="e.g. Cash-01xxxxxxxxx" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                )
-                            }
-
-
-                        </>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     )
                 }
+
+                {
+                    selectedTrxType === 'Both' && selectedTrxVariant === 'Local' && (
+                        <FormField
+                            control={form.control}
+                            name="localBankNumber"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Local Bank Number Banks</FormLabel>
+                                    <FormControl className="w-full">
+                                        <Input type='text' placeholder="e.g. Cash-01xxxxxxxxx" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    )
+                }
+
 
                 {/* amount */}
                 <FormField
@@ -319,7 +227,12 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                         <FormItem>
                             <FormLabel>Transaction Amount</FormLabel>
                             <FormControl className="w-full">
-                                <Input type='number' placeholder="e.g. 15"{...field} />
+                                <Input
+                                    type='number'
+                                    placeholder="e.g. 15"
+                                    {...field}
+                                    value={field.value}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -430,7 +343,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
 
                                                             <FormControl>
-                                                                <Input type='text' placeholder="e.g. Tomato" {...field} />
+                                                                <Input type='text' placeholder="e.g. Tomato" {...field}value={field.value} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -473,7 +386,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                                             <Label>Price</Label>
                                                             <FormControl>
-                                                                <Input type='number' placeholder="Price" className="flex-1" {...field} />
+                                                                <Input type='number' placeholder="Price" className="flex-1" {...field} value={field.value}/>
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -487,7 +400,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                                             <Label>Quantity</Label>
                                                             <FormControl>
-                                                                <Input type='number' placeholder="Quantity" className="flex-1" {...field} />
+                                                                <Input type='number' placeholder="Quantity" className="flex-1" {...field} value={field.value}/>
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
