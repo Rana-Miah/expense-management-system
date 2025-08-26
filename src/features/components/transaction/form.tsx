@@ -343,7 +343,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
 
                                                             <FormControl>
-                                                                <Input type='text' placeholder="e.g. Tomato" {...field}value={field.value} />
+                                                                <Input type='text' placeholder="e.g. Tomato" {...field} value={field.value} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -386,7 +386,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                                             <Label>Price</Label>
                                                             <FormControl>
-                                                                <Input type='number' placeholder="Price" className="flex-1" {...field} value={field.value}/>
+                                                                <Input type='number' placeholder="Price" className="flex-1" {...field} value={field.value} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -400,7 +400,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                                             <Label>Quantity</Label>
                                                             <FormControl>
-                                                                <Input type='number' placeholder="Quantity" className="flex-1" {...field} value={field.value}/>
+                                                                <Input type='number' placeholder="Quantity" className="flex-1" {...field} value={field.value} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
