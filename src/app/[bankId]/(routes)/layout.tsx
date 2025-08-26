@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
-const BankLayout = () => {
+const BankLayout = ({ children }: { children: ReactNode }) => {
     return (
-        <div>BankLayout</div>
+        <>{
+            children
+        }</>
     )
 }
 

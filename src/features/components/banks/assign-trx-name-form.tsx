@@ -8,29 +8,34 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
+import { assignTrxNameFormSchema } from "@/features/schemas/transaction-name"
 import { Bank } from "@/constant/dummy-db/bank-account"
-import { Select, SelectContent, SelectItem,  SelectTrigger, SelectValue, } from "@/components/ui/select"
+import { dummyTrxNames, TrxName } from "@/constant/dummy-db/trx-name"
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select"
 import { findAssignedTrxNamesByBankId } from "@/constant/dummy-db/asign-trx-name"
-import { Cable } from "lucide-react"
-import { transactionFormSchema } from "@/features/schemas/transaction"
-import { TrxName } from "@/constant/dummy-db/trx-name"
+import { Cable, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-export const BankForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxName[] }) => {
+export const AssignTrxNameForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxName[] }) => {
+
+    //TODO : REMOVE trxsName, it will included in banks
+
     // 1. Define your form.
-    const form = useForm<z.infer<typeof transactionFormSchema>>({
-        resolver: zodResolver(transactionFormSchema),
+    const form = useForm<z.infer<typeof assignTrxNameFormSchema>>({
+        resolver: zodResolver(assignTrxNameFormSchema),
         defaultValues: {
             trxNameId: ""
         },
     })
 
     // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof transactionFormSchema>) {
+    function onSubmit(values: z.infer<typeof assignTrxNameFormSchema>) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         console.log(values)

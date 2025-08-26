@@ -1,9 +1,11 @@
-import { dummyBanks } from "@/constant/dummy-db/bank"
+import { dummyBanks, findBankById } from "@/constant/dummy-db/bank-account"
 import { redirect } from "next/navigation"
 import { ReactNode } from "react"
 const StartUpLayout = ({ children }: { children: ReactNode }) => {
 
-    // if (dummyBanks.length > 0) redirect(`/${dummyBanks[0].id}`)
+    const existBank = findBankById("b2c3d4e5-f6a7-8901-2345-67890abcdef1")
+
+    if (existBank) redirect(`/${existBank.id}`)
 
 
     return (
