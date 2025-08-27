@@ -7,7 +7,7 @@ type AlertModalProps = {
     title: string;
     description: string;
     open: boolean;
-    disabled?:boolean
+    disabled?: boolean
     onCancel: () => void;
     onConfirm: () => void;
     cancelBtnLabel?: string;
@@ -33,9 +33,23 @@ export const AlertModal = ({
             onClose={onCancel}
 
         >
-            <DialogFooter>
-                <Button onClick={onCancel} variant={'secondary'} disabled={disabled}>{cancelBtnLabel || 'Cancel'}</Button>
-                <Button onClick={onConfirm} variant={'destructive'} disabled={disabled}>{confirmBtnLabel || "Continue"}</Button>
+            <DialogFooter className="flex flex-row items-center justify-end gap-4">
+                <Button
+                    type="button"
+                    onClick={onCancel}
+                    variant={'secondary'}
+                    disabled={disabled}
+                >
+                    {cancelBtnLabel || 'Cancel'}
+                </Button>
+                <Button
+                    type="button"
+                    onClick={onConfirm}
+                    variant={'destructive'}
+                    disabled={disabled}
+                >
+                    {confirmBtnLabel || "Continue"}
+                </Button>
             </DialogFooter>
         </Modal>
     )

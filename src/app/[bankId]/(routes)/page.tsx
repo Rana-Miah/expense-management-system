@@ -3,6 +3,7 @@ import { findBankById } from '@/constant/dummy-db/bank-account'
 import { dummyTrxNames, findTrxNamesByClerkUserId } from '@/constant/dummy-db/trx-name'
 import { AssignTrxNameForm } from '@/features/components/banks/assign-trx-name-form'
 import { TransactionForm } from '@/features/components/transaction/form'
+import { TransactionTable } from '@/features/components/transaction/table'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
@@ -32,7 +33,7 @@ const BankPage = async ({ params }: { params: Promise<{ bankId: string }> }) => 
                         {
                             value: 'transaction',
                             label: 'Transaction',
-                            content: <TransactionForm bank={bank} trxsName={trxNames}/>
+                            content: <TransactionTable/>
                         }
                     ]
                 }

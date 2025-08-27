@@ -4,6 +4,7 @@ import z from "zod";
 export const transactionFormSchema = z.object({
     trxNameId: z.string().nonempty(),
     receiveBankId: z.string().optional(),
+    sourceBankId: z.string().optional(),
     localBankNumber: z.string().optional(),
     type: z.enum(trxType, { error: 'Variant must be "Debit" , "Credit" , "Both"' }),
     trxVariant: z.enum(trxVariant, { error: 'Variant must be "Internal" or "Local"' }),

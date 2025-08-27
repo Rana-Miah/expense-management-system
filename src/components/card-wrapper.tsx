@@ -9,7 +9,7 @@ type CardWrapperProps = {
 }
 
 export const CardWrapper = ({ title, description, children ,headerElement}: CardWrapperProps) => {
-    return <Card className="p-1.5 gap-2">
+    return <Card className="p-1.5 gap-2 w-full">
         <CardHeader className="p-1.5">
             <div className="flex items-center justify-between">
                 <div className="space-y-1.5">
