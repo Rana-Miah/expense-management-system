@@ -6,6 +6,8 @@ export const overtimeTable = pgTable('overtime', {
     clerkUserId: text('clerk_user_id').notNull(),
     month: text('month').notNull(),
     year: text('year').notNull(),
+    overtimeHour:numericAmount('overtime_hour',7,2),
+    expectedOvertimeRate:numericAmount('expected_overtime_rate', 7, 2),
     isCollected: booleans('is_collected', false).notNull(),
     collectedDate: times('collected_date'),
     collectedMoney: numericAmount('collected_money', 7, 2),
