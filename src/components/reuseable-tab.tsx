@@ -38,11 +38,11 @@ export const ReuseableTab = <T extends string>({
   className,
 }: TabsProps<T>) => {
   const safeDefault = defaultValue ?? items[0]?.value
-  const { rowSearchParams, setQueryParams } = useQueryString()
+  const { rawSearchParams, setQueryParams } = useQueryString()
   const isClient = useClient()
 
   // get the tab query
-  const isTabSearchQuery = rowSearchParams.has('tab')
+  const isTabSearchQuery = rawSearchParams.has('tab')
 
   if (!isClient) return null
 
