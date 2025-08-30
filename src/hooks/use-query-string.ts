@@ -5,9 +5,9 @@ import qs from 'query-string'
 
 export const useQueryString = () => {
     const router = useRouter()
-    const rowSearchParams = useSearchParams()
-    const stringifyRowSearchParams = rowSearchParams.toString()
-    const parsedSearchParams = qs.parse(stringifyRowSearchParams)
+    const rawSearchParams = useSearchParams()
+    const stringifyRawSearchParams = rawSearchParams.toString()
+    const parsedSearchParams = qs.parse(stringifyRawSearchParams)
 
     const searchQuery = { ...parsedSearchParams }
 
@@ -18,9 +18,9 @@ export const useQueryString = () => {
         } else {
             searchQuery[key] = value
         }
-        const stringifyParams = qs.stringifyUrl({ url: window.location.href, query: searchQuery }, { skipNull: true })
-        router.push(stringifyParams)
+        const stringifyUrl = qs.stringifyUrl({ url: window.location.href, query: searchQuery }, { skipNull: true })
+        router.push(stringifyUrl)
     }
 
-    return {rowSearchParams,setQueryParams}
+    return {rawSearchParams,setQueryParams}
 }

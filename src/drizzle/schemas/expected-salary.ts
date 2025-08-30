@@ -19,13 +19,14 @@ export const overtimeTable = pgTable('overtime', {
 export const calculateExpectedSalary = pgTable('calculate_expected_salary', {
     id: uuid('id').notNull().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
-    currentDate: times('current_date').notNull(),
     targetDate: times('target_date').notNull(),
-    numberOfremainingMonth: numericAmount('remaining_month', 3, 2),
-    numberOfDeductedSalaryMonth: numericAmount('number_of_deducted_salary_month', 3, 2),
-    numberOfFullSalaryMonth: numericAmount('number_of_full_salary_month', 3, 2),
-    overTimeRatePerHour: numericAmount('remaining_month', 3, 2),
-    minimumOvertimeHourPerMonth: numericAmount('remaining_month', 3, 2),
+    minMonthlyOverTimeHour: numericAmount('min_monthly_over_time_hour', 3, 2),
+    expectedOvertimeRatePerHour: numericAmount('expected_overtime_rate_per_hour', 3, 2),
+    renewedIqamaDuration:numericAmount('renewed_iqama_duration', 3, 2),
+    savingsAfterFullSalary:numericAmount('savings_after_full_salary', 3, 2),
+    savingsAfterDeductedSalary:numericAmount('savings_after_deducted_salary', 3, 2),
     createdAt,
     updatedAt
 })
+
+
