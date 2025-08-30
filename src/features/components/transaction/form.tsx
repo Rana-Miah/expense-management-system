@@ -57,12 +57,12 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
     const form = useForm<TransactionFormValue>({
         resolver: zodResolver(transactionFormSchema),
         defaultValues: {
-            sourceBankId:"",
-            localBankNumber:"",
-            receiveBankId:"",
-            trxDescription:"",
-            trxNameId:"",
-            amount:0,
+            sourceBankId: "",
+            localBankNumber: "",
+            receiveBankId: "",
+            trxDescription: "",
+            trxNameId: "",
+            amount: 0,
             isIncludedItems: false,
             trxDate: new Date()
         },
@@ -106,7 +106,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
             />
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4 max-w-full", isIncludeItems && "pb-14")}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4 max-w-full", isIncludeItems && "pb-24")}>
 
                     {/* transaction name */}
                     <FormField
@@ -387,12 +387,13 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                             key={index}
                                         >
                                             <div className="flex flex-col items-center gap-2">
-                                                <div className="flex items-center justify-center gap-1">
+                                                <div className="space-y-2 w-full">
                                                     <FormField
                                                         control={form.control}
                                                         name={`items.${index}.name`}
                                                         render={({ field }) => (
-                                                            <FormItem className="flex flex-col items-center justify-between rounded-lg border p-3 shadow-sm">
+                                                            <FormItem className="w-full">
+                                                                <Label>Item Name</Label>
                                                                 <FormControl>
                                                                     <Input type='text' placeholder="e.g. Tomato" {...field} value={field.value} />
                                                                 </FormControl>
@@ -404,16 +405,17 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         control={form.control}
                                                         name={`items.${index}.itemUnitId`}
                                                         render={({ field }) => (
-                                                            <FormItem className="flex flex-col items-center justify-between rounded-lg border p-3 shadow-sm">
+                                                            <FormItem >
+                                                                <Label>Item Unit</Label>
                                                                 <FormControl>
                                                                     <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                                        <SelectTrigger className="flex-1">
+                                                                        <SelectTrigger className="w-full">
                                                                             <SelectValue placeholder="Unit" />
                                                                         </SelectTrigger>
                                                                         <SelectContent className="w-full">
                                                                             {
                                                                                 dummyItemUnits.map(unit => (
-                                                                                    <SelectItem key={unit.id} value={unit.id} className="relative" >
+                                                                                    <SelectItem key={unit.id} value={unit.id} >
                                                                                         {unit.unit}
                                                                                     </SelectItem>
                                                                                 ))
@@ -425,19 +427,17 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                             </FormItem>
                                                         )}
                                                     />
-
-
                                                 </div>
 
-                                                <div className="flex items-center justify-center gap-1">
+                                                <div className="flex items-center justify-center gap-2">
                                                     <FormField
                                                         control={form.control}
                                                         name={`items.${index}.price`}
                                                         render={({ field }) => (
-                                                            <FormItem className="flex flex-col items-start justify-between rounded-lg border p-3 shadow-sm">
+                                                            <FormItem>
                                                                 <Label>Price</Label>
                                                                 <FormControl>
-                                                                    <Input type='number' placeholder="Price" className="flex-1" {...field} value={field.value} />
+                                                                    <Input type='number' placeholder="Price"{...field} value={field.value} />
                                                                 </FormControl>
                                                                 <FormMessage />
                                                             </FormItem>
@@ -448,10 +448,10 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                                         control={form.control}
                                                         name={`items.${index}.quantity`}
                                                         render={({ field }) => (
-                                                            <FormItem className="flex flex-col items-start justify-between rounded-lg border p-3 shadow-sm">
+                                                            <FormItem>
                                                                 <Label>Quantity</Label>
                                                                 <FormControl>
-                                                                    <Input type='number' placeholder="Quantity" className="flex-1" {...field} value={field.value} />
+                                                                    <Input type='number' placeholder="Quantity"{...field} value={field.value} />
                                                                 </FormControl>
                                                                 <FormMessage />
                                                             </FormItem>
@@ -470,7 +470,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
 
                     <div className={cn(
                         "w-full flex flex-col gap-2",
-                        fields.length > 1 && "fixed bottom-0 left-0 right-0 bg-background border-t px-7 py-4 flex flex-row justify-between"
+                        fields.length >= 1 && "fixed bottom-0 left-0 right-0 bg-background border-t px-7 py-3"
                     )}>
                         {
                             isIncludeItems && (
@@ -486,7 +486,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                             )
                         }
 
-                        <Button type="submit" className={cn()}>Submit</Button>
+                        <Button type="submit">Submit</Button>
                     </div>
                 </form>
             </Form >
