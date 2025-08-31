@@ -12,7 +12,7 @@ const AccountsPage = () => {
           items={banks.map(item=>({
             ...item,
             content:<>hello content</>
-          }))}
+          }))}          
           />
         </div>
     )

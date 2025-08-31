@@ -2,11 +2,10 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { dummyBanks } from '@/constant/dummy-db/bank-account'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
+import { Card} from "./card";
 import { Badge } from "./badge";
 import { CardWrapper } from "../card-wrapper";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { Button } from "./button";
 
 
@@ -30,7 +29,7 @@ export const CardStack = ({
   const [cards, setCards] = useState<Card[]>(items);
 
   return (
-    <div className="relative h-60 w-60 md:h-60 md:w-96">
+    <div className="relative h-60 w-full md:h-60 md:w-96">
       {cards.map((card, index) => {
         return (
           <motion.div
@@ -60,7 +59,7 @@ export const CardStack = ({
             >
               <div className="flex items-center justify-between">
                 <div>{card.lban}</div>
-                <Link href={`/${card.id}`}>
+                <Link href={`/accounts/${card.id}`}>
                   <Button variant={'secondary'} className="rounded-full border px-4 w-full">
                     Let's go
                   </Button>
