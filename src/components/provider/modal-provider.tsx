@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from "react"
 import { BankAccountModal } from "../modals/bank-account-modal"
+import { TraxNameModal } from "../modals"
 
 export const ModalProvider = () => {
     const [isMounted, setIsMounted] = useState(false)
@@ -14,6 +15,7 @@ export const ModalProvider = () => {
     return (
         <>
             <BankAccountModal />
+            <TraxNameModal />
         </>
     )
 }

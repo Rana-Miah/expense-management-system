@@ -6,14 +6,15 @@ import {
   SheetTrigger,
   SheetClose
 } from "@/components/ui/sheet"
-import { UserButton, } from "@clerk/nextjs"
+// import { UserButton, } from "@clerk/nextjs"
 import { Home, Menu } from "lucide-react"
 import { NavItem } from "./nav-item"
+import Link from "next/link"
 
 export const MobileNavbar = async () => {
 
   return (
-    <nav className="flex items-center justify-between py-4">
+    <nav className="flex items-center justify-between p-4 border-b bg-white fixed top-0 left-0 right-0 w-full shadow-sm z-50">
       <Sheet>
         <SheetTrigger>
           <Menu />
@@ -35,11 +36,30 @@ export const MobileNavbar = async () => {
                 label: "Dashboard",
                 Icon: <Home size={18} />
               },
+              {
+                href: '/accounts',
+                label: "Banks",
+                Icon: <Home size={18} />
+              },
+              {
+                href: '/transactions',
+                label: "Transactions",
+                Icon: <Home size={18} />
+              },
+              {
+                href: '/transaction-name',
+                label: "Transaction Name",
+                Icon: <Home size={18} />
+              },
 
             ].map(
               item => (
                 <SheetClose key={item.label}>
-                  <NavItem nav={item} />
+                  <Link
+                    href={item.href}
+                  >
+                    <NavItem nav={item} />
+                  </Link>
                 </SheetClose>
               )
             )
@@ -48,7 +68,8 @@ export const MobileNavbar = async () => {
         </SheetContent>
       </Sheet>
       <div>
-        <UserButton />
+        {/* <UserButton /> */}
+        User button
       </div>
     </nav>
   )

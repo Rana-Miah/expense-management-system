@@ -5,7 +5,7 @@ const StartUpLayout = ({ children }: { children: ReactNode }) => {
 
     const existBank = findBankById("b2c3d4e5-f6a7-8901-2345-67890abcdef1")
 
-    if (existBank) redirect(`/${existBank?.id}`)
+    if (existBank) redirect(`/accounts/${existBank?.id}`)
 
 
     return (
