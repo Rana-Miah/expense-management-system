@@ -14,18 +14,33 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { transactionFormSchema } from "@/features/schemas/transaction"
-import { TrxName } from "@/constant/dummy-db/trx-name"
 import MultipleSelector from "@/components/ui/extension/multi-select"
-import { bankCreateFormSchema, BankCreateFormValue } from "@/features/schemas/banks"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { useState } from "react"
 import { dummyBanks } from "@/constant/dummy-db/bank-account"
 
+
+
+const optionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  disable: z.boolean().optional(),
+});
+
+
+export const bankCreateFormSchema = z.object({
+    name: z.string().nonempty('Bank Name is required!').min(3, 'Bank Name must be 3 characters long!'),
+    balance: z.string(),
+    // phone: z.string().nonempty('Phone is required!').min(11, 'Phone must be 11 characters long!').max(11, 'Phone must be less than 12 characters!'),
+    assignAbleTrxsName: z.array(optionSchema).optional()
+})
+export type BankCreateFormValue = z.infer<typeof bankCreateFormSchema>
+
 export const TraxNameForm = () => {
 
     const [isAssignEnable, setIsAssignEnable] = useState(false)
+    const [numOfMultiSelectedValue, setNumOfMultiSelectedValue] = useState<number>(0)
 
 
     // 1. Define your form.
@@ -34,7 +49,7 @@ export const TraxNameForm = () => {
         defaultValues: {
             balance: "0",
             name: "",
-            phone: ""
+            assignAbleTrxsName:[]
         },
     })
 
@@ -44,8 +59,6 @@ export const TraxNameForm = () => {
         // ✅ This will be type-safe and validated.
         console.log(values)
     }
-
-    // const trxsName = []
 
     const modifiedTrxsName = dummyBanks.map(bank => ({ label: bank.name, value: bank.id }))
 
@@ -93,11 +106,12 @@ export const TraxNameForm = () => {
                             <div className="space-y-0.5">
                                 <FormLabel>Assign</FormLabel>
                                 <FormDescription>
-                                   Assignable this transaction name for future
+                                    Assignable this transaction name for future
                                 </FormDescription>
                             </div>
                             <Switch
                                 checked={isAssignEnable}
+                                disabled={numOfMultiSelectedValue >= 1 || dummyBanks.length <= 0}
                                 onCheckedChange={(value) => {
                                     setIsAssignEnable(value)
                                 }}
@@ -118,10 +132,14 @@ export const TraxNameForm = () => {
                                         {...field}
                                         defaultOptions={modifiedTrxsName}
                                         placeholder="Select one or multiple banks"
+                                        onChange={(value) => {
+                                            field.onChange(value)
+                                            setNumOfMultiSelectedValue(value.length)
+                                        }}
                                     />
                                 </FormControl>
                                 <FormDescription>
-                                  Assign this transaction name under selected banks
+                                    Assign this transaction name under selected banks
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>
