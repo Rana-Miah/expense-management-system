@@ -20,7 +20,7 @@ export const TransactionTable = () => {
             description="Your daily transaction"
 
             headerElement={
-                <Link href={`/${params.bankId}/transactions/new`}>
+                <Link href={`/accounts/${params.bankId}/transactions/new`}>
                     <Button
                         type="button"
                     >
