@@ -15,7 +15,7 @@ import {
 import { Bank, findBanksByClerkUserId } from "@/constant/dummy-db/bank-account"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import { findAssignedTrxNamesByBankId } from "@/constant/dummy-db/asign-trx-name"
-import { Cable, CalendarIcon, Trash } from "lucide-react"
+import { Cable, CalendarIcon, Plus, PlusCircle, Trash } from "lucide-react"
 import { TrxName } from "@/constant/dummy-db/trx-name"
 import { transactionFormSchema, TransactionFormValue } from "@/features/schemas/transaction"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -37,6 +37,19 @@ import { useAppDispatch, useModal } from "@/hooks/redux"
 import { MODAL_TYPE } from "@/constant"
 import { onClose, onOpen } from "@/lib/redux/slice/modal-slice"
 
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import { CardContent } from "@/components/ui/card"
+
+
+
+
 export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxName[] }) => {
 
     //TODO : REMOVE trxsName, it will included in banks
@@ -44,7 +57,8 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
     const [selectedTrxType, setSeletedTrxType] = useState<typeof trxType[number] | null>(null)
     const [selectedTrxVariant, setSeletedTrxVariant] = useState<typeof trxVariant[number] | null>(null)
     const [selectedTrxName, setSeletedTrxName] = useState<string | null>(null)
-    const [isIncludeItems, setIsIncludeItems] = useState<boolean>()
+    const [isIncludeItems, setIsIncludeItems] = useState<boolean>(false)
+    const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [inx, setInx] = useState<number>()
 
 
@@ -64,7 +78,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
             trxNameId: "",
             amount: 0,
             isIncludedItems: false,
-            trxDate: new Date()
+            trxDate: new Date(),
         },
     })
 
@@ -102,11 +116,14 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                 onConfirm={() => {
                     remove(inx)
                     dispatch(onClose())
+                    if (fields.length === 1) {
+                        setIsOpenSheet(false)
+                    }
                 }}
             />
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4 max-w-full", isIncludeItems && "pb-24")}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className={cn("space-y-4 max-w-full")}>
 
                     {/* transaction name */}
                     <FormField
@@ -355,6 +372,15 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                         onCheckedChange={(value) => {
                                             setIsIncludeItems(value)
                                             field.onChange(value)
+                                            if (value) {
+                                                append({
+                                                    name: "",
+                                                    price: 0,
+                                                    quantity: 0,
+                                                    itemUnitId: ""
+                                                })
+                                                setIsOpenSheet(true)
+                                            }
                                         }}
                                         disabled={fields.length >= 1}
                                     />
@@ -367,101 +393,137 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                     {
                         isIncludeItems && (
                             <>
-                                {
-                                    fields.map((_, index) => (
-                                        <CardWrapper
-                                            title={`Item #${index + 1}`}
-                                            description='Purchase Item'
-                                            headerElement={
-                                                <Button
-                                                    type='button'
-                                                    variant='destructive'
-                                                    onClick={() => {
-                                                        setInx(index)
-                                                        dispatch(onOpen(MODAL_TYPE.ALERT_MODAL))
-                                                    }}
-                                                >
-                                                    <Trash />
-                                                </Button>
-                                            }
-                                            key={index}
+
+                                <Sheet
+                                    open={isOpenSheet}
+                                    onOpenChange={() => setIsOpenSheet(false)}
+                                >
+                                    <SheetContent className="max-h-screen overflow-y-auto px-4">
+                                        <SheetHeader
+                                            className="px-0"
                                         >
-                                            <div className="flex flex-col items-center gap-2">
-                                                <div className="space-y-2 w-full">
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`items.${index}.name`}
-                                                        render={({ field }) => (
-                                                            <FormItem className="w-full">
-                                                                <Label>Item Name</Label>
-                                                                <FormControl>
-                                                                    <Input type='text' placeholder="e.g. Tomato" {...field} value={field.value} />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`items.${index}.itemUnitId`}
-                                                        render={({ field }) => (
-                                                            <FormItem >
-                                                                <Label>Item Unit</Label>
-                                                                <FormControl>
-                                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                                        <SelectTrigger className="w-full">
-                                                                            <SelectValue placeholder="Unit" />
-                                                                        </SelectTrigger>
-                                                                        <SelectContent className="w-full">
-                                                                            {
-                                                                                dummyItemUnits.map(unit => (
-                                                                                    <SelectItem key={unit.id} value={unit.id} >
-                                                                                        {unit.unit}
-                                                                                    </SelectItem>
-                                                                                ))
-                                                                            }
-                                                                        </SelectContent>
-                                                                    </Select>
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </div>
+                                            <SheetTitle>Are you absolutely sure?</SheetTitle>
+                                            <SheetDescription>
+                                                This action cannot be undone. This will permanently delete your account
+                                                and remove your data from our servers.
+                                            </SheetDescription>
+                                        </SheetHeader>
+                                        {
+                                            fields.map((_, index) => (
+                                                <CardWrapper
+                                                    title={`Item #${index + 1}`}
+                                                    description='Purchase Item'
+                                                    headerElement={
+                                                        <Button
+                                                            type='button'
+                                                            variant='destructive'
+                                                            onClick={() => {
+                                                                setInx(index)
+                                                                dispatch(onOpen(MODAL_TYPE.ALERT_MODAL))
+                                                            }}
+                                                        >
+                                                            <Trash />
+                                                        </Button>
+                                                    }
+                                                    key={index}
+                                                >
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <div className="space-y-2 w-full">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name={`items.${index}.name`}
+                                                                render={({ field }) => (
+                                                                    <FormItem className="w-full">
+                                                                        <Label>Item Name</Label>
+                                                                        <FormControl>
+                                                                            <Input type='text' placeholder="e.g. Tomato" {...field} value={field.value} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                control={form.control}
+                                                                name={`items.${index}.itemUnitId`}
+                                                                render={({ field }) => (
+                                                                    <FormItem >
+                                                                        <Label>Item Unit</Label>
+                                                                        <FormControl>
+                                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                                                <SelectTrigger className="w-full">
+                                                                                    <SelectValue placeholder="Unit" />
+                                                                                </SelectTrigger>
+                                                                                <SelectContent className="w-full">
+                                                                                    {
+                                                                                        dummyItemUnits.map(unit => (
+                                                                                            <SelectItem key={unit.id} value={unit.id} >
+                                                                                                {unit.unit}
+                                                                                            </SelectItem>
+                                                                                        ))
+                                                                                    }
+                                                                                </SelectContent>
+                                                                            </Select>
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
 
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`items.${index}.price`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <Label>Price</Label>
-                                                                <FormControl>
-                                                                    <Input type='number' placeholder="Price"{...field} value={field.value} />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
+                                                        <div className="flex items-center justify-center gap-2">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name={`items.${index}.price`}
+                                                                render={({ field }) => (
+                                                                    <FormItem>
+                                                                        <Label>Price</Label>
+                                                                        <FormControl>
+                                                                            <Input type='number' placeholder="Price"{...field} value={field.value} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
 
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={`items.${index}.quantity`}
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <Label>Quantity</Label>
-                                                                <FormControl>
-                                                                    <Input type='number' placeholder="Quantity"{...field} value={field.value} />
-                                                                </FormControl>
-                                                                <FormMessage />
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </CardWrapper>
-                                    ))
-                                }
+                                                            <FormField
+                                                                control={form.control}
+                                                                name={`items.${index}.quantity`}
+                                                                render={({ field }) => (
+                                                                    <FormItem>
+                                                                        <Label>Quantity</Label>
+                                                                        <FormControl>
+                                                                            <Input type='number' placeholder="Quantity"{...field} value={field.value} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </CardWrapper>
+                                            ))
+                                        }
+                                        <div
+                                            className="sticky bottom-0 left-0 right-0 bg-background rounded-t-md py-5 px-3 w-full z-40"
+                                        >
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                className="w-full flex items-center gap-1.5"
+                                                onClick={() =>
+                                                    append({ itemUnitId: "", name: "", quantity: 0, price: 0 })
+                                                }
+                                            >
+                                                <span>
+                                                    <PlusCircle />
+                                                </span>
+                                                <span>
+                                                    Add Item
+                                                </span>
+                                            </Button>
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
                             </>
                         )
                     }
@@ -470,7 +532,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
 
                     <div className={cn(
                         "w-full flex flex-col gap-2",
-                        fields.length >= 1 && "fixed bottom-0 left-0 right-0 bg-background border-t px-7 py-3"
+                        fields.length >= 1 && ""
                     )}>
                         {
                             isIncludeItems && (
@@ -478,10 +540,13 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                     type="button"
                                     variant="outline"
                                     onClick={() =>
-                                        append({ itemUnitId: "", name: "", quantity: 0, price: 0 })
+                                        setIsOpenSheet(true)
                                     }
                                 >
-                                    Add Item
+                                    {fields.length > 0
+                                        ? "Add More Items"
+                                        : "Add Item"
+                                    }
                                 </Button>
                             )
                         }
