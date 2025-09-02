@@ -10,6 +10,42 @@ import {
 import { Home, Menu } from "lucide-react"
 import { NavItem } from "./nav-item"
 import Link from "next/link"
+import { JSX } from "react"
+
+type Route<T extends string = string> = {
+  href: T;
+  label: Capitalize<T>;
+  Icon: JSX.Element;
+}
+
+const routes: Route[] = [
+  {
+    href: '/dashboard',
+    label: "Dashboard",
+    Icon: <Home size={18} />
+  },
+  {
+    href: '/accounts',
+    label: "Banks",
+    Icon: <Home size={18} />
+  },
+  {
+    href: '/transactions',
+    label: "Transactions",
+    Icon: <Home size={18} />
+  },
+  {
+    href: '/transaction-name',
+    label: "Transaction Name",
+    Icon: <Home size={18} />
+  },
+  {
+    href: '/shopkeepers',
+    label: "Shopkeepers",
+    Icon: <Home size={18} />
+  },
+]
+
 
 export const MobileNavbar = async () => {
 
@@ -25,36 +61,9 @@ export const MobileNavbar = async () => {
           </SheetHeader>
 
           {
-            [
-              {
-                href: '/',
-                label: "Home",
-                Icon: <Home size={18} />
-              },
-              {
-                href: '/dashboard',
-                label: "Dashboard",
-                Icon: <Home size={18} />
-              },
-              {
-                href: '/accounts',
-                label: "Banks",
-                Icon: <Home size={18} />
-              },
-              {
-                href: '/transactions',
-                label: "Transactions",
-                Icon: <Home size={18} />
-              },
-              {
-                href: '/transaction-name',
-                label: "Transaction Name",
-                Icon: <Home size={18} />
-              },
-
-            ].map(
+            routes.map(
               item => (
-                <SheetClose key={item.label}>
+                <SheetClose asChild>
                   <Link
                     href={item.href}
                   >

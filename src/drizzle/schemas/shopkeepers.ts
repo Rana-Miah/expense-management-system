@@ -22,5 +22,5 @@ export const shopkeeperTableRelation = relations(shopkeeperTable, ({ many }) => 
     //shopkeepers payments relation
     payments: many(shopkeeperPaymentTable, { relationName: relationBetween('shopkeeper-payment', 'shopkeeper') }),
 
-    shopkeeperSalesItems: many(shopKeeperItemTable, { relationName: relationBetween('shopkeeper-item', 'shopkeeper') })
+    shopkeeperSalesItems: many(shopKeeperItemTable, { relationName: relationBetween('shopkeeper-item', 'shopkeeper-purchase') })
 }))

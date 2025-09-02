@@ -33,3 +33,5 @@ export const dummyShopkeepers = [
     "updatedAt": "2025-08-25T11:47:00Z"
   }
 ]
+
+export type Shopkeeper = typeof dummyShopkeepers[number]

@@ -539,13 +539,15 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                 <Button
                                     type="button"
                                     variant="outline"
+                                    className="flex items-center gap-1.5"
                                     onClick={() =>
                                         setIsOpenSheet(true)
                                     }
                                 >
+                                    <PlusCircle />
                                     {fields.length > 0
-                                        ? "Add More Items"
-                                        : "Add Item"
+                                        ? <span>Add More Items</span>
+                                        : <span>Add Item</span>
                                     }
                                 </Button>
                             )

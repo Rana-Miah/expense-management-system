@@ -3,6 +3,7 @@ import { createdAt, updatedAt, numericAmount, relationBetween } from "../schema-
 import { trxTable } from "./trx";
 import { relations } from "drizzle-orm";
 import { shopkeeperTable } from "./shopkeepers";
+import {  shopkeeperPurchaseTable } from "./shopkeeper-purchase";
 
 
 // Transaction Item Lists table
@@ -34,8 +35,7 @@ export const itemTableRelation = relations(itemTable, ({ one }) => ({
 
 export const shopKeeperItemTable = pgTable('shopkeeper-item', {
     id: uuid('id').unique().notNull().defaultRandom(),
-    clerkUserId: text('clerk_user_id').notNull(),
-    shopkeeperId: uuid('shopkeeper_id').notNull().references(() => shopkeeperTable.id),
+    shopkeeperPurchaseId: uuid('shopkeeper_purchase_id').notNull().references(() => shopkeeperPurchaseTable.id),
     itemUnitId: uuid('item_unit_id').notNull().references(() => itemUnitTable.id),
     name: text('name').notNull(),
     price: numericAmount('price', 7, 2),
@@ -47,9 +47,9 @@ export const shopKeeperItemTable = pgTable('shopkeeper-item', {
 
 export const shopKeeperItemTableRelation = relations(shopKeeperItemTable, ({ one }) => ({
     shopkeeper: one(shopkeeperTable, {
-        fields: [shopKeeperItemTable.shopkeeperId],
+        fields: [shopKeeperItemTable.shopkeeperPurchaseId],
         references: [shopkeeperTable.id],
-        relationName: relationBetween('shopkeeper-item', 'shopkeeper')
+        relationName: relationBetween('shopkeeper-item', 'shopkeeper-purchase')
     }),
     itemUnit: one(itemUnitTable, {
         fields: [shopKeeperItemTable.itemUnitId],
