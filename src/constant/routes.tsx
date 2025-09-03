@@ -29,7 +29,6 @@ export const appRouteIcon : Partial<Record<AppRouteKey,JSX.Element>> = {
     MEMBER:<User size={20}/>,
     PUBLIC:<Globe size={20}/>,
     NOT_PUBLIC:<GlobeLock size={20}/>
-
 }
 
 type AppRoute = typeof appRoute[keyof typeof appRoute]
