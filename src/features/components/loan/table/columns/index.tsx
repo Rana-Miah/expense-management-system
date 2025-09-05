@@ -36,6 +36,12 @@ const due: ColumnDef<Loan> = {
     header: "Due",
     // cell: Cell
 }
+const loanDate: ColumnDef<Loan> = {
+    accessorKey: "loanDate",
+    header: "Loan Date",
+    // cell: Cell
+}
+
 const detailsOfLoan: ColumnDef<Loan> = {
     accessorKey: "detailsOfLoan",
     header: "Loan Details",
@@ -61,6 +67,7 @@ export const loanColumns: ColumnDef<Loan>[] = [
     title,
     amount,
     due,
+    loanDate,
     loanType,
     loanStatus,
     financierId,

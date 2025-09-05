@@ -20,7 +20,7 @@ import { TrxName } from "@/constant/dummy-db/trx-name"
 import { transactionFormSchema, TransactionFormValue } from "@/features/schemas/transaction"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { trxType, trxVariant } from "@/drizzle/schema-helpers"
+import { trxTypeWithBoth, trxVariant } from "@/drizzle/schema-helpers"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -54,7 +54,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
 
     //TODO : REMOVE trxsName, it will included in banks
 
-    const [selectedTrxType, setSeletedTrxType] = useState<typeof trxType[number] | null>(null)
+    const [selectedtrxTypeWithBoth, setSeletedtrxTypeWithBoth] = useState<typeof trxTypeWithBoth[number] | null>(null)
     const [selectedTrxVariant, setSeletedTrxVariant] = useState<typeof trxVariant[number] | null>(null)
     const [selectedTrxName, setSeletedTrxName] = useState<string | null>(null)
     const [isIncludeItems, setIsIncludeItems] = useState<boolean>(false)
@@ -198,14 +198,14 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                         <FormLabel>Transaction Type</FormLabel>
                                         <FormControl className="w-full">
                                             <RadioGroup defaultValue={field.value} onValueChange={(value) => {
-                                                setSeletedTrxType(value as typeof trxType[number])
+                                                setSeletedtrxTypeWithBoth(value as typeof trxTypeWithBoth[number])
                                                 field.onChange(value)
                                             }} className="flex items-center gap-3">
                                                 {
-                                                    trxType.map(trx => (
+                                                    trxTypeWithBoth.map(trx => (
                                                         <div
                                                             key={trx}
-                                                            className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxType === trx && "border-primary")}
+                                                            className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedtrxTypeWithBoth === trx && "border-primary")}
                                                             hidden={trx !== 'Both' && selectedTrxVariant === 'Local'}
                                                         >
                                                             <RadioGroupItem value={trx} id={trx} hidden disabled={trx !== 'Both' && selectedTrxVariant === 'Local'} />
@@ -225,7 +225,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
 
                     {/* Transaction Variant & bank */}
                     {
-                        selectedTrxType === 'Both' && selectedTrxVariant === 'Internal' && (
+                        selectedtrxTypeWithBoth === 'Both' && selectedTrxVariant === 'Internal' && (
                             <FormField
                                 control={form.control}
                                 name="receiveBankId"
@@ -256,7 +256,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                     }
 
                     {
-                        selectedTrxType === 'Both' && selectedTrxVariant === 'Local' && (
+                        selectedtrxTypeWithBoth === 'Both' && selectedTrxVariant === 'Local' && (
                             <FormField
                                 control={form.control}
                                 name="localBankNumber"
