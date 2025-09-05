@@ -45,3 +45,6 @@ export const dummyLoans = [
     "updatedAt": "2025-08-25T10:55:00Z"
   }
 ]
+
+
+export type Loan = typeof dummyLoans[number]
