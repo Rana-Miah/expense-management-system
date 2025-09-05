@@ -12,7 +12,8 @@ export const shopkeeperPurchaseTable = pgTable('shopkeeper_purchase', {
     paidAmount: numericAmount('total_amount', 7, 2),
     dueAmount: numericAmount('total_amount', 7, 2),
     purchaseDate: times('purchase_date'),
-    isIncludedItems:booleans('is_included_items',false),
+    description: text('description'),
+    isIncludedItems: booleans('is_included_items', false),
     createdAt,
     updatedAt
 })

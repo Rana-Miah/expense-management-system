@@ -16,7 +16,7 @@ export const transactionFormSchema = z.object({
 
         return inputTime <= currentTime
 
-    }, 'Very early transaction date. Must be today or before today date.'),
+    }, 'Date must be today or before today date.'),
     trxDescription: z.string().optional(),
     amount: z.coerce.number<number>().gt(0, 'Amount must grater than or equal 1'),
     isIncludedItems: z.boolean().nonoptional(),

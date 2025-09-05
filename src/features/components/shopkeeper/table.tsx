@@ -6,8 +6,14 @@ import { pluralize } from "@/lib/helpers"
 import { shopkeeperColumns } from "./columns"
 import { Button } from "@/components/ui/button"
 import { PlusCircle } from "lucide-react"
+import { useAppDispatch } from "@/hooks/redux"
+import { onOpen } from "@/lib/redux/slice/modal-slice"
+import { MODAL_TYPE } from "@/constant"
 
 export const ShopkeeperTable = ({shopkeepers}:{shopkeepers:Shopkeeper[]}) => {
+
+    const dispatch = useAppDispatch()
+    const onOpenHandler = ()=>dispatch(onOpen(MODAL_TYPE.SHOPKEEPER))
 
     return (
         <CardWrapper
@@ -16,9 +22,7 @@ export const ShopkeeperTable = ({shopkeepers}:{shopkeepers:Shopkeeper[]}) => {
             headerElement={
                 <Button
                 className="flex items-center gap-1.5"
-                onClick={
-                    ()=>alert('TODO: Open modal for new shopkeeper form')
-                }
+                onClick={onOpenHandler}
                 >
                     <PlusCircle/>
                     <span>
