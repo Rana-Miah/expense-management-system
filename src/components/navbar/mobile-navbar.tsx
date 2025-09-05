@@ -44,6 +44,11 @@ const routes: Route[] = [
     label: "Shopkeepers",
     Icon: <Home size={18} />
   },
+  {
+    href: '/loans',
+    label: "Loan",
+    Icon: <Home size={18} />
+  },
 ]
 
 

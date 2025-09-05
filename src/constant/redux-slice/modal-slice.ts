@@ -5,4 +5,6 @@ export const MODAL_TYPE = {
     TRX_NAME: 'TRX_NAME',
     SHOPKEEPER: 'SHOPKEEPER',
     SHOPKEEPER_PAYMENT: 'SHOPKEEPER_PAYMENT',
+    LOAN: 'LOAN',
+
 } as const

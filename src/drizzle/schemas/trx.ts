@@ -1,5 +1,5 @@
 import { pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { booleans, createdAt, numericAmount, relationBetween, times, trxType, trxVariant, updatedAt } from "../schema-helpers";
+import { booleans, createdAt, numericAmount, relationBetween, times, trxTypeWithBoth, trxVariant, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { trxNameTable } from "./trx-name";
 import { bankAccountTable } from "./bank-account";
@@ -14,7 +14,7 @@ export const trxTable = pgTable("trx", {
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),
     localBankNumber: text('local_bank_number').references(() => bankAccountTable.lban),
 
-    type: text('type', { enum: trxType }).notNull(),
+    type: text('type', { enum: trxTypeWithBoth }).notNull(),
     trxVariant: text('type', { enum: trxVariant }).notNull(),
     trxDate: times('transaction_date'),
     trxDescription: text('transaction_description'),

@@ -11,7 +11,8 @@ export const numericAmount = (
 ) => numeric(name, { mode:'number', precision, scale }).notNull()
 export const booleans = (name:string,defaults:boolean)=>boolean(name).notNull().default(defaults)
 
-export const trxType = ['Debit', 'Credit','Both'] as const
+export const trxType = ['Debit', 'Credit'] as const
+export const trxTypeWithBoth = [...trxType,'Both'] as const
 export const trxVariant = ['Internal','Local'] as const
 
 export const financierType = ['Provider', 'Recipient'] as const

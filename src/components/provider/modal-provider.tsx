@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { BankAccountModal } from "../modals/bank-account-modal"
 import { ShopkeeperModal, TraxNameModal } from "../modals"
+import { LoanModal } from "../modals/loan-modal"
 
 export const ModalProvider = () => {
     const [isMounted, setIsMounted] = useState(false)
@@ -16,7 +17,8 @@ export const ModalProvider = () => {
         <>
             <BankAccountModal />
             <TraxNameModal />
-            <ShopkeeperModal/>
+            <ShopkeeperModal />
+            <LoanModal />
         </>
     )
 }
