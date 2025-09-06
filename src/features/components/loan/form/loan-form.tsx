@@ -81,7 +81,6 @@ export const LoanForm = () => {
           )}
         />
 
-
         {/* Loan Type */}
         {
           selectedLoanFinancier && (
@@ -266,9 +265,12 @@ export const LoanForm = () => {
           name="detailsOfLoan"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Description (Optional)</FormLabel>
               <FormControl className="w-full">
-                <Textarea {...field} />
+                <Textarea
+                 {...field}
+                placeholder='Description'
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -276,7 +278,12 @@ export const LoanForm = () => {
         />
 
         {/* button */}
-        <Button type="submit">Submit</Button>
+        <Button 
+        type="submit"
+        className="w-full"
+        >
+          Create a loan
+        </Button>
       </form>
     </Form >
   )
