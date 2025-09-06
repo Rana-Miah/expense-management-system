@@ -6,9 +6,10 @@ import { ReceiveBankColumnCell, SourceBankColumnCell } from "./bank-column-cell"
 import { LoanTypeColumnCell } from "./loan-type-column-cell";
 import { AmountColumnCell } from "./amount-column-cell";
 import { LoanDateColumnCell } from "./loan-date-column-cell";
-import { UpdateDateColumnCell } from "./update-date-column-cell";
+import { LoanUpdateDateColumnCell } from "./update-date-column-cell";
 import { LoanTitleColumnCell } from "./loan-title-column-cell";
 import { LoanDetailsColumnCell } from "./loan-details-column-cell";
+import { LoanActionsColumnCell } from "./actions-column-cell";
 
 export type LoanTableCellContext = CellContext<Loan, unknown>
 
@@ -61,13 +62,11 @@ const loanStatus: ColumnDef<Loan> = {
 const updatedAt: ColumnDef<Loan> = {
     accessorKey: "updatedAt",
     header: "Last Update",
-    cell: UpdateDateColumnCell
+    cell: LoanUpdateDateColumnCell
 }
 const moreAction: ColumnDef<Loan> = {
     id: "Actions",
-    cell: () => {
-        return <MoreHorizontal />
-    }
+    cell: LoanActionsColumnCell
 }
 
 export const loanColumns: ColumnDef<Loan>[] = [

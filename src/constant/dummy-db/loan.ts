@@ -42,7 +42,7 @@ export const dummyLoans = [
     "title": "Car Purchase Loan",
     "amount": 3000.00,
     "due": 0.00,
-    "detailsOfLoan": "Received a loan to purchase a car. Fully repaid.",
+    "detailsOfLoan": "Received a loan to purchase a car. Fully repaid. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam veniam temporibus pariatur alias consectetur ea fuga reiciendis maxime est ab officia cupiditate placeat, aspernatur quibusdam vero? Nisi autem doloremque facere?",
     "loanStatus": "Repaid",
     "createdAt": "2025-08-25T10:55:00Z",
     "updatedAt": "2025-08-25T10:55:00Z"
