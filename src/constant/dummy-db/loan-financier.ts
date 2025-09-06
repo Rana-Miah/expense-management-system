@@ -49,3 +49,13 @@ export const dummyLoanFinanciers = [
     "updatedAt": "2025-08-25T10:37:00Z"
   }
 ]
+
+export type Financier = typeof dummyLoanFinanciers[number]
+
+export const getFinancierById = (id:string)=>{
+  return dummyLoanFinanciers.find(financier=>financier.id===id)
+}
+
+export const getFinancierByPhone = (phone:string)=>{
+  return dummyLoanFinanciers.find(financier=>financier.phone===phone)
+}

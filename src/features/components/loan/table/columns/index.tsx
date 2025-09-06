@@ -1,72 +1,78 @@
 import { Loan } from "@/constant/dummy-db/loan";
-import { ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
+import { FinancierColumnCell } from "./financier-column-cell";
+import { ReceiveBankColumnCell, SourceBankColumnCell } from "./bank-column-cell";
+import { LoanTypeColumnCell } from "./loan-type-column-cell";
+import { AmountColumnCell } from "./amount-column-cell";
+import { LoanDateColumnCell } from "./loan-date-column-cell";
+import { UpdateDateColumnCell } from "./update-date-column-cell";
+import { LoanTitleColumnCell } from "./loan-title-column-cell";
+import { LoanDetailsColumnCell } from "./loan-details-column-cell";
+
+export type LoanTableCellContext = CellContext<Loan, unknown>
 
 const financierId: ColumnDef<Loan> = {
     accessorKey: "financierId",
     header: "Financier",
-    // cell: Cell
+    cell: FinancierColumnCell
 }
 const receiveBankId: ColumnDef<Loan> = {
     accessorKey: "receiveBankId",
     header: "Receive Bank",
-    // cell: Cell
+    cell: ReceiveBankColumnCell
 }
 const sourceBankId: ColumnDef<Loan> = {
     accessorKey: "sourcebankId",
     header: "Source Bank",
-    // cell: Cell
+    cell: SourceBankColumnCell
 }
 const loanType: ColumnDef<Loan> = {
     accessorKey: "loanType",
     header: "Loan Type",
-    // cell: Cell
+    cell: LoanTypeColumnCell
 }
 const title: ColumnDef<Loan> = {
     accessorKey: "title",
     header: "Title",
-    // cell: Cell
+    cell: LoanTitleColumnCell
 }
 const amount: ColumnDef<Loan> = {
     accessorKey: "amount",
     header: "Amount",
-    // cell: Cell
-}
-const due: ColumnDef<Loan> = {
-    accessorKey: "due",
-    header: "Due",
-    // cell: Cell
+    cell: AmountColumnCell
 }
 const loanDate: ColumnDef<Loan> = {
     accessorKey: "loanDate",
     header: "Loan Date",
-    // cell: Cell
+    cell: LoanDateColumnCell
 }
 
 const detailsOfLoan: ColumnDef<Loan> = {
     accessorKey: "detailsOfLoan",
     header: "Loan Details",
-    // cell: Cell
+    cell: LoanDetailsColumnCell
 }
 const loanStatus: ColumnDef<Loan> = {
     accessorKey: "loanStatus",
     header: "Status",
     // cell: Cell
 }
-const createdAt: ColumnDef<Loan> = {
-    accessorKey: "createdAt",
-    header: "Create",
-    // cell: Cell
-}
 const updatedAt: ColumnDef<Loan> = {
     accessorKey: "updatedAt",
     header: "Last Update",
-    // cell: Cell
+    cell: UpdateDateColumnCell
+}
+const moreAction: ColumnDef<Loan> = {
+    id: "Actions",
+    cell: () => {
+        return <MoreHorizontal />
+    }
 }
 
 export const loanColumns: ColumnDef<Loan>[] = [
     title,
     amount,
-    due,
     loanDate,
     loanType,
     loanStatus,
@@ -74,6 +80,6 @@ export const loanColumns: ColumnDef<Loan>[] = [
     receiveBankId,
     sourceBankId,
     detailsOfLoan,
-    createdAt,
     updatedAt,
+    moreAction
 ]
