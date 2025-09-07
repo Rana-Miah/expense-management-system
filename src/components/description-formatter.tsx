@@ -16,39 +16,49 @@ type DescriptionFormatterProps = {
 
 export function DescriptionFormatter({ maxLength, description }: DescriptionFormatterProps) {
     const [open, setOpen] = useState(false)
-    const { coolDown,setCoolDown } = useCoolDown()
+    const { coolDown, setCoolDown } = useCoolDown()
 
     const length = description?.length ?? 0
     const modifiedDescription = length > maxLength && description
-        ?
-        description.slice(0, maxLength)
+        ? description.slice(0, maxLength)
         : description
 
+    const duration = Math.round(length * .035)
 
-        console.log({
-            coolDown
-        })
+    useEffect(
+        () => {
+            if (coolDown <= 0) {
+                setOpen(false)
+            }
+        },
+        [coolDown, setOpen]
+    )
 
-    useEffect(() => {
-        if (coolDown <= 0) {
-            setOpen(false)
-        }
-    }, [coolDown, setOpen])
 
     return (
         <Tooltip
             open={open}
         >
-            <TooltipTrigger asChild>
-                <Button variant="outline"
-                    onClick={() => {
-                        setOpen(pre => !pre)
-                        setCoolDown(5)
-                    }}
-                >{modifiedDescription}...See more</Button>
+            <TooltipTrigger
+                onClick={() => {
+                    setOpen(pre => !pre)
+                    setCoolDown(
+                        duration < 3
+                            ? 5
+                            : duration > 15
+                                ? 15
+                                : duration
+                    )
+                }}
+            >
+                {modifiedDescription}...<span
+                    className="font-semibold"
+                >See more</span>
             </TooltipTrigger>
-            <TooltipContent>
-                <p>{description}</p>
+            <TooltipContent
+                className="max-w-3xs"
+            >
+                <p className="text-wrap">{description}</p>
             </TooltipContent>
         </Tooltip>
     )
