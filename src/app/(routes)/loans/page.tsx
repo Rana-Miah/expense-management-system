@@ -2,7 +2,7 @@ import { dummyLoans } from '@/constant/dummy-db/loan'
 import { LoanTable } from '@/features/components/loan/table'
 import React from 'react'
 
-const LoanPage = () => {
+const LoansPage = () => {
   return (
     <div>
       <LoanTable
@@ -12,4 +12,4 @@ const LoanPage = () => {
   )
 }
 
-export default LoanPage
+export default LoansPage

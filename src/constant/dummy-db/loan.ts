@@ -6,7 +6,7 @@ export const dummyLoans = [
     "receiveBankId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
     "sourceBankId": null,
     "loanType": "Credit",
-    "loanDate":"2025-08-25T10:50:00Z",
+    "loanDate": "2025-08-25T10:50:00Z",
     "title": "House Renovation Loan",
     "amount": 5000.00,
     "due": 2000.00,
@@ -22,7 +22,7 @@ export const dummyLoans = [
     "receiveBankId": null,
     "sourceBankId": "e5f6a7b8-c9d0-1234-5678-90abcdef1234",
     "loanType": "Debit",
-    "loanDate":"2025-08-25T10:52:00Z",
+    "loanDate": "2025-08-25T10:52:00Z",
     "title": "Business Startup Loan",
     "amount": 1500.00,
     "due": 1500.00,
@@ -38,7 +38,7 @@ export const dummyLoans = [
     "receiveBankId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
     "sourceBankId": null,
     "loanType": "Credit",
-    "loanDate":"2025-08-25T10:55:00Z",
+    "loanDate": "2025-08-25T10:55:00Z",
     "title": "Car Purchase Loan",
     "amount": 3000.00,
     "due": 0.00,
@@ -51,3 +51,5 @@ export const dummyLoans = [
 
 
 export type Loan = typeof dummyLoans[number]
+
+export const getLoanById = (id: string) => dummyLoans.find(loan => loan.id === id)

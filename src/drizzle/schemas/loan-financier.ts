@@ -1,5 +1,5 @@
 import { pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { booleans, createdAt, financierType, numericAmount, relationBetween, updatedAt } from "../schema-helpers";
+import { booleans, createdAt, financierTypeWithBoth, numericAmount, relationBetween, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { loanPaymentTable } from "./loan-payment";
 import { loanTable } from "./loan";
@@ -10,7 +10,7 @@ export const loanFinancierTable = pgTable('loan_financier', {
     clerUserId: text('clerk_user_id').notNull().unique(),
     name: text('name').notNull(),
     phone: text('phone').notNull().unique(),
-    financierType: text('financier_type', { enum: financierType }).notNull(),
+    financierType: text('financier_type', { enum: financierTypeWithBoth }).notNull(),
     toatlProvided: numericAmount('total_provided', 7, 2).default(0),
     toatlReceipt: numericAmount('total_receipt', 7, 2).default(0),
     providedtDuo: numericAmount('provided_due', 7, 2).default(0),
