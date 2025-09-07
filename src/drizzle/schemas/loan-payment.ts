@@ -47,3 +47,6 @@ export const loanPaymentTableRelation = relations(loanPaymentTable, ({ one }) =>
         relationName: relationBetween('loan-payment', 'source-bank')
     }),
 }))
+
+
+export type LoanPayment = typeof loanPaymentTable.$inferSelect

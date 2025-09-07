@@ -1,3 +1,4 @@
+'use client'
 import { loanCreateFormSchema, LoanCreateFormValue } from '@/features/schemas/loan/loan-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
@@ -16,7 +17,8 @@ import { dummyBanks } from '@/constant/dummy-db/bank-account'
 import { trxType as loanType } from '@/drizzle/schema-helpers'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { dummyLoanFinanciers } from '@/constant/dummy-db/loan-financier'
+import { dummyLoanFinanciers, getFinancierById } from '@/constant/dummy-db/loan-financier'
+import { Badge } from '@/components/ui/badge'
 
 export const LoanForm = () => {
 
@@ -46,6 +48,12 @@ export const LoanForm = () => {
     console.log({ value })
   })
 
+  const selectedFinancier = getFinancierById(selectedLoanFinancier ?? "")
+
+  const isBoth = selectedFinancier?.financierType === 'Both'
+  const isProvider = selectedFinancier?.financierType === 'Provider' || isBoth
+  const isRecipient = selectedFinancier?.financierType === 'Recipient' || isBoth
+
   return (
     <Form {...form}>
       <form onSubmit={onSubmitHandler} className={cn("space-y-4 max-w-full")}>
@@ -68,8 +76,15 @@ export const LoanForm = () => {
                   <SelectContent className="w-full">
                     {
                       dummyLoanFinanciers.map(item => (
-                        <SelectItem key={item.id} value={item.id} className="relative">
-                          {item.name}
+                        <SelectItem key={item.id} value={item.id} className="relative flex items-center justify-between">
+                          <span>
+                            {item.name}
+                          </span>
+                          <Badge
+                            className='rounded-full'
+                          >
+                            {item.financierType}
+                          </Badge>
                         </SelectItem>
                       ))
                     }
@@ -96,15 +111,31 @@ export const LoanForm = () => {
                       field.onChange(value)
                     }} className="flex items-center gap-3">
                       {
-                        loanType.map(type => (
-                          <div
-                            key={type}
-                            className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedLoanType === type && "border-primary")}
-                          >
-                            <RadioGroupItem value={type} id={type} hidden />
-                            <Label htmlFor={type}>{type}</Label>
-                          </div>
-                        ))
+                        loanType.map(type => {
+                          const isDebit = type === 'Debit'
+                          const isCredit = type === 'Credit'
+
+                          const hideCredit = isCredit && !isRecipient && !isBoth
+                          const hideDebit = isDebit && !isProvider && !isBoth
+
+                          return (
+                            <div
+                              key={type}
+                              className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedLoanType === type
+                                ? type === 'Debit'
+                                  ? "border-success"
+                                  : 'border-destructive'
+                                : ""
+                              )}
+                              hidden={hideCredit || hideDebit}
+                            >
+                              <RadioGroupItem value={type} id={type} hidden disabled={hideCredit || hideDebit} />
+                              <Label htmlFor={type}
+                                hidden={hideCredit || hideDebit}
+                              >{type}</Label>
+                            </div>
+                          )
+                        })
                       }
 
                     </RadioGroup>
@@ -268,8 +299,8 @@ export const LoanForm = () => {
               <FormLabel>Description (Optional)</FormLabel>
               <FormControl className="w-full">
                 <Textarea
-                 {...field}
-                placeholder='Description'
+                  {...field}
+                  placeholder='Description'
                 />
               </FormControl>
               <FormMessage />
@@ -278,9 +309,9 @@ export const LoanForm = () => {
         />
 
         {/* button */}
-        <Button 
-        type="submit"
-        className="w-full"
+        <Button
+          type="submit"
+          className="w-full"
         >
           Create a loan
         </Button>

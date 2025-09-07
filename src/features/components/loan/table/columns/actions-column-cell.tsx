@@ -8,6 +8,7 @@ import { CardDescription, CardTitle } from '@/components/ui/card'
 import { amountFormatter } from '@/lib/helpers'
 import { getFinancierById } from '@/constant/dummy-db/loan-financier'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 
 export const LoanActionsColumnCell = ({ row: { original: { id, due, financierId, loanType } } }: LoanTableCellContext) => {
 
@@ -54,20 +55,28 @@ export const LoanActionsColumnCell = ({ row: { original: { id, due, financierId,
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {isDebit && (
-          <DropdownMenuItem className='flex items-center justify-between'>
-            <span>
-              Pay Loan
-            </span>
-            <BanknoteArrowDown className='text-destructive'/>
-          </DropdownMenuItem>
+          <Link
+            href={`/loans/${id}/payment`}
+          >
+            <DropdownMenuItem className='flex items-center justify-between'>
+              <span>
+                Pay Loan
+              </span>
+              <BanknoteArrowDown className='text-destructive' />
+            </DropdownMenuItem>
+          </Link>
         )}
         {isCredit && (
-          <DropdownMenuItem className='flex items-center justify-between'>
-            <span>
-              Get Paid
-            </span>
-            <BanknoteArrowUp className='text-success'/>
-          </DropdownMenuItem>
+          <Link
+            href={`/loans/${id}/payment`}
+          >
+            <DropdownMenuItem className='flex items-center justify-between'>
+              <span>
+                Get Paid
+              </span>
+              <BanknoteArrowUp className='text-success' />
+            </DropdownMenuItem>
+          </Link>
         )}
         <DropdownMenuItem>View payment details</DropdownMenuItem>
       </DropdownMenuContent>

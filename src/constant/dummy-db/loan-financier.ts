@@ -37,7 +37,7 @@ export const dummyLoanFinanciers = [
     "clerUserId": "user_2a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p",
     "name": "Defaulted Loans Inc.",
     "phone": "7654321098",
-    "financierType": "Provider",
+    "financierType": "Both",
     "toatlProvided": 10000.00,
     "toatlReceipt": 0.00,
     "providedtDuo": 10000.00,

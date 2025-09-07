@@ -16,6 +16,7 @@ export const trxTypeWithBoth = [...trxType,'Both'] as const
 export const trxVariant = ['Internal','Local'] as const
 
 export const financierType = ['Provider', 'Recipient'] as const
+export const financierTypeWithBoth = [...financierType, 'Both'] as const
 export const loanStatus = ['Repaid','Settled','Closed'] as const
 export const paymentType = ['Receipt','Paid'] as const
 

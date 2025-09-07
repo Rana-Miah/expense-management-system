@@ -9,7 +9,15 @@ export const loanCreateFormSchema = z.object({
     sourceBankId:z.string().optional(),
     financierId:z.string().optional(),
     amount:z.coerce.number<number>().nonnegative(),
-    loanDate:z.coerce.date<Date>(),
+    loanDate:z.coerce.date<Date>().refine(date => {
+        const currentDate = new Date()
+        const inputDate = new Date(date)
+        const inputTime = inputDate.getTime()
+        const currentTime = currentDate.getTime()
+
+        return inputTime <= currentTime
+
+    }, 'Date must be today or before today.'),
     detailsOfLoan:z.string().optional()
 })
 
