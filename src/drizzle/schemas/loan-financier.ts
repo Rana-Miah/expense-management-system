@@ -7,14 +7,14 @@ import { loanTable } from "./loan";
 
 export const loanFinancierTable = pgTable('loan_financier', {
     id: uuid('id').notNull().unique().defaultRandom(),
-    clerUserId: text('clerk_user_id').notNull().unique(),
+    clerkUserId: text('clerk_user_id').notNull().unique(),
     name: text('name').notNull(),
     phone: text('phone').notNull().unique(),
     financierType: text('financier_type', { enum: financierTypeWithBoth }).notNull(),
-    toatlProvided: numericAmount('total_provided', 7, 2).default(0),
-    toatlReceipt: numericAmount('total_receipt', 7, 2).default(0),
-    providedtDuo: numericAmount('provided_due', 7, 2).default(0),
-    receiptDuo: numericAmount('receipt_due', 7, 2).default(0),
+    totalProvided: numericAmount('total_provided', 7, 2),
+    totalReceipt: numericAmount('total_receipt', 7, 2),
+    providedDuo: numericAmount('provided_due', 7, 2),
+    receiptDuo: numericAmount('receipt_due', 7, 2),
     isBan: booleans('is_ban', false),
     reasonOfBan: text('reason_of_ban'),
     iaBothFinancierBan: booleans('is_both_financier_ban', false),
@@ -30,3 +30,6 @@ export const loanFinancierTableRelation = relations(loanFinancierTable, ({ many 
     // loan payments relation
     loanPayments: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'loan-financier') }),
 }))
+
+export type Financier = typeof loanFinancierTable.$inferSelect
+export type NewFinancier = typeof loanFinancierTable.$inferInsert

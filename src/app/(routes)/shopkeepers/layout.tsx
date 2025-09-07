@@ -1,13 +1,12 @@
+import { ShopkeeperLink } from '@/features/components/shopkeeper/shopkeeper-nav'
 import React, { ReactNode } from 'react'
 
 const ShopkeeperLayout = ({ children }: { children: ReactNode }) => {
     return (
-        <div>
-            <h1>
-                Shopkeeper Page Layout
-            </h1>
+        <>
+            <ShopkeeperLink />
             {children}
-        </div>
+        </>
     )
 }
 

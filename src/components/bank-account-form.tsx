@@ -8,13 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { onClose } from "@/lib/redux/slice/modal-slice"
 import z from "zod"
 
 const bankAccountFormSchema = z.object({
-    name: z.string().min(1,'Name is required!'),
-    balance: z.string().min(1,'Balance is required!'),
-    lbn: z.string().min(1,'LBN is required!')
+    name: z.string().min(1, 'Name is required!'),
+    balance: z.string().min(1, 'Balance is required!'),
+    lbn: z.string().min(1, 'LBN is required!')
 })
 
 type BankAccountFormValue = z.infer<typeof bankAccountFormSchema>

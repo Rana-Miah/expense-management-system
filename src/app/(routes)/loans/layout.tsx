@@ -1,11 +1,11 @@
+import { LoanNav } from '@/features/components/loan/loan-nav'
 import React, { ReactNode } from 'react'
 
-const LoanLayout = ({ children }: { children: ReactNode }) => {
+const LoanLayout = async ({ children, params }: { children: ReactNode, params: Promise<{ loanId: string }> }) => {
+    const param = await params
     return (
         <div>
-            <h1>
-                Loan Page Layout
-            </h1>
+            <LoanNav param={param} />
             {children}
         </div>
     )

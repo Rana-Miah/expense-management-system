@@ -43,6 +43,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
 
   const onSubmitHandler = handleSubmit((value) => {
     console.log({ value })
+    alert(JSON.stringify(value, null, 2))
   })
 
 
@@ -57,8 +58,12 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
     <Form
       {...form}
     >
-      <form className='space-y-4'>
+      <form
+        className='space-y-4'
+        onSubmit={onSubmitHandler}
+      >
         {/* Financier */}
+
         < FormField
           control={control}
           name="financierId"
@@ -88,9 +93,8 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
             </FormItem>
           )}
         />
+        {/*  Loan */}
 
-
-        {/* Loan */}
         < FormField
           control={control}
           name="loanId"
@@ -120,6 +124,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
             </FormItem>
           )}
         />
+
 
         {/* Payment Type */}
         <FormField

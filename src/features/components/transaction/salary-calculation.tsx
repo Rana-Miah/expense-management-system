@@ -17,7 +17,6 @@ import { CalendarIcon } from "lucide-react"
 import { Calendar } from "@/components/ui/calendar"
 import { useState } from "react"
 import { DummyOvertime, dummyOvertimeSeed } from "@/constant/dummy-db/overtime-salary"
-import { months } from "@/constant/month"
 import { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -65,7 +64,7 @@ export const SalaryCalculation = () => {
         const monthsDiff = targetDate.getMonth() - now.getMonth();
 
         // total months difference
-        let totalMonths = yearsDiff * 12 + monthsDiff;
+        const totalMonths = yearsDiff * 12 + monthsDiff;
 
         return totalMonths < 0 ? 0 : totalMonths;
     }
@@ -84,20 +83,6 @@ export const SalaryCalculation = () => {
                 fullSalary: numberOfFullSalary * Math.abs(value.deductedSalarySaving),
             }
         })
-
-        console.log(
-            {
-                ...value,
-                remainingMonth,
-                numberOfDeductedSalary,
-                numberOfFullSalary,
-                dudectedSalary: numberOfDeductedSalary * Math.abs(value.deductedSalarySaving),
-                fullSalary: numberOfFullSalary * Math.abs(value.deductedSalarySaving),
-            }
-        )
-
-
-
     })
 
 
@@ -485,7 +470,7 @@ const salaryCalculationTableColumns: ColumnDef<DummyOvertime>[] = [
                 <Badge
                     variant={isCollected ? "success" : "destructive"}
                     className="rounded-full curser-pointer"
-                    onClick={()=>alert('Collection Money modal open')}
+                    onClick={() => alert('Collection Money modal open')}
                 >
                     {collectedMoney
                         ? amountFormatter(collectedMoney)
@@ -502,7 +487,7 @@ const salaryCalculationTableColumns: ColumnDef<DummyOvertime>[] = [
         accessorKey: 'overtimeRate',
         header: "Rate",
         cell: ({ row: { original: { overtimeRate } } }) => {
-            return (overtimeRate?`${amountFormatter(overtimeRate)}/h`:null)
+            return (overtimeRate ? `${amountFormatter(overtimeRate)}/h` : null)
         }
     },
     {

@@ -1,17 +1,7 @@
-'use client'
-
-import { Button } from "@/components/ui/button"
-import { Shopkeeper } from "@/constant/dummy-db/shopkeepers"
-import { CellContext } from "@tanstack/react-table"
 import { Copy } from "lucide-react"
+import { Button } from "./ui/button"
 
-export const ShopkeeperPhoneColumnCell = ({ row: { original: { phone } } }: CellContext<Shopkeeper, unknown>) => {
-    return <PhoneColumnCell phone={phone} />
-}
-
-
-
-const PhoneColumnCell = ({ phone }: { phone: string }) => {
+export const PhoneColumnCell = ({ phone }: { phone: string }) => {
     const onCopyHandler = async () => {
         await navigator.clipboard.writeText(phone)
         alert('Copied ' + phone)
