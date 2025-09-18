@@ -12,8 +12,13 @@ export const ShopkeeperLink = () => {
         { label: 'Purchase', href: '/shopkeepers/shopkeeper-purchase', Icon: <Banknote /> },
     ]
 
+    const header = {
+        title: "Shopkeeper Navigations",
+        description: 'Direct links to navigate'
+    }
     return (
         <LayoutNav
+            header={header}
             links={loanRoutes}
         />
     )

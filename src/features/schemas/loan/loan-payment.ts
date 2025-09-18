@@ -1,4 +1,3 @@
-import { LoanPayment } from "@/drizzle/schema";
 import { paymentType } from "@/drizzle/schema-helpers";
 import z from "zod";
 
