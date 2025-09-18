@@ -1,3 +1,4 @@
+'use client'
 import { Loan } from "@/constant/dummy-db/loan";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { FinancierColumnCell } from "./financier-column-cell";

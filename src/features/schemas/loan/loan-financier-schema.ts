@@ -1,9 +1,9 @@
 import { financierTypeWithBoth } from "@/drizzle/schema-helpers";
 import z from "zod";
-
+import { Financier } from "@/drizzle/schema";
 
 const loanProvidedBalance = z.object({
-    totalProvided: z.coerce.number<number>(),
+    totalProvided: z.coerce.number<number>().refine(v=>v<=1,'Amount must be grater than 1'),
 }).optional()
 
 const loanReceiptBalance = z.object({
@@ -17,13 +17,13 @@ export const loanFinancierCreateFormSchema = z.object({
         .min(3, 'Name must be 3 characters long!'),
     phone: z.coerce
         .string<string>()
-        .nonempty('')
+        .nonempty()
         .trim()
         .min(11, 'Phone must be 11 characters long!')
         .max(11, 'Phone must be less than 12 characters!'),
     financierType: z.enum(financierTypeWithBoth).nonoptional(),
-    provided: loanProvidedBalance,
-    Receipt: loanReceiptBalance,
+    totalProvided: z.coerce.number<number>().optional(),
+    totalReceipt: z.coerce.number<number>().optional(),
 })
 
 export type LoanFinancierCreateFormValue = z.infer<typeof loanFinancierCreateFormSchema>

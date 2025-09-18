@@ -14,14 +14,16 @@ const LoanPaymentPage = async ({ params }: { params: Promise<{ loanId: string }>
     const cardTitle = isDebit ? 'Pay your previous loan bill' : 'Receive your previous loan bill'
 
     return (
-        <CardWrapper
-            title={cardTitle}
-            description="Happy to see you here!"
-        >
-            <LoanPaymentForm
-                loan={currentLoan}
-            />
-        </CardWrapper>
+        <div className="h-screen">
+            <CardWrapper
+                title={cardTitle}
+                description="Happy to see you here!"
+            >
+                <LoanPaymentForm
+                    loan={currentLoan}
+                />
+            </CardWrapper>
+        </div>
     )
 }
 

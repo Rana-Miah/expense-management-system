@@ -19,8 +19,15 @@ export const BankNav = async ({ params }: { params: { bankId: string } }) => {
             label: 'Bank Transactions', href: `/accounts/${bankId}/transactions`
         },
     ]
+
+    const header = {
+        title:"Bank Navigations",
+        description:'Direct induvisual bank link'
+    }
+
     return (
         <LayoutNav
+            header={header}
             links={bankNav}
         />
     )

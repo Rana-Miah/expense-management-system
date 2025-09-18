@@ -1,8 +1,12 @@
-import React from 'react'
+import { dummyLoanPayment } from "@/constant/dummy-db/loan-payment"
+import { LoanPaymentsTable } from "@/features/components/loan/table"
 
 const LoanPaymentsPage = () => {
+
     return (
-        <div>LoanPaymentsPage</div>
+       <LoanPaymentsTable
+        loanPayments={dummyLoanPayment}
+       />
     )
 }
 

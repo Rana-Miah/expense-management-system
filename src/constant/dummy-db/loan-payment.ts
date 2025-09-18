@@ -8,7 +8,7 @@ export const dummyLoanPayment =[
     "sourceBankId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
     "paymentDate": "2025-08-25T11:00:00Z",
     "amount": 1000.00,
-    "paymentType": "Paid",
+    "paymentType": "Receipt",
     "createdAt": "2025-08-25T11:00:00Z",
     "updatedAt": "2025-08-25T11:00:00Z"
   },
@@ -21,7 +21,7 @@ export const dummyLoanPayment =[
     "sourceBankId": null,
     "paymentDate": "2025-08-25T11:05:00Z",
     "amount": 500.00,
-    "paymentType": "Receipt",
+    "paymentType": "Paid",
     "createdAt": "2025-08-25T11:05:00Z",
     "updatedAt": "2025-08-25T11:05:00Z"
   },
@@ -34,7 +34,7 @@ export const dummyLoanPayment =[
     "sourceBankId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
     "paymentDate": "2025-08-25T11:10:00Z",
     "amount": 500.00,
-    "paymentType": "Paid",
+    "paymentType": "Receipt",
     "createdAt": "2025-08-25T11:10:00Z",
     "updatedAt": "2025-08-25T11:10:00Z"
   },
@@ -47,8 +47,13 @@ export const dummyLoanPayment =[
     "sourceBankId": "b2c3d4e5-f6a7-8901-2345-67890abcdef1",
     "paymentDate": "2025-08-25T11:15:00Z",
     "amount": 3000.00,
-    "paymentType": "Paid",
+    "paymentType": "Receipt",
     "createdAt": "2025-08-25T11:15:00Z",
     "updatedAt": "2025-08-25T11:15:00Z"
   }
 ]
+
+
+export type LoanPayment = typeof dummyLoanPayment[number]
+
+export const getLoanPaymentById =  (id:string)=>dummyLoanPayment.find(loan=>id===loan.id)
