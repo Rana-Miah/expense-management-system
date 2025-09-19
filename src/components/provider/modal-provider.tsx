@@ -4,6 +4,7 @@ import { BankAccountModal } from "../modals/bank-account-modal"
 import { ShopkeeperModal, TraxNameModal } from "../modals"
 import { LoanModal } from "../modals/loan-modal"
 import { FinancierModal } from "../modals/financier-modal"
+import { LoanPaymentModal } from "../modals/loan-payment-modaL"
 
 export const ModalProvider = () => {
     const [isMounted, setIsMounted] = useState(false)
@@ -21,6 +22,7 @@ export const ModalProvider = () => {
             <ShopkeeperModal />
             <BankAccountModal />
             <FinancierModal />
+            <LoanPaymentModal/>
         </>
     )
 }
