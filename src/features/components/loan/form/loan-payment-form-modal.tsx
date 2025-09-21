@@ -10,18 +10,15 @@ import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from '
 import { Label } from '@/components/ui/label'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, DollarSign, Landmark, Receipt, User } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
 import { paymentType } from '@/drizzle/schema-helpers'
 import { getFinancierById } from '@/constant/dummy-db/loan-financier'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { dummyBanks } from '@/constant/dummy-db/bank-account'
-import { InputField } from '@/components/input'
+import { InputField, SelectInput, SelectInputItem } from '@/components/input'
 
 export const LoanPaymentFormModal = () => {
 
@@ -31,14 +28,17 @@ export const LoanPaymentFormModal = () => {
 
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null)
 
+  //TODO: financier should included with loan
+  const loan = getLoanById(selectedLoanId ?? "")
+  const financierUnderLoan = getFinancierById(loan?.financierId ?? "")
 
   const form = useForm<LoanPaymentCreateFormValue>({
     resolver: zodResolver(loanPaymentCreateFormSchema),
     defaultValues: {
-      financierId:"",
-      loanId:"",
-      receiveBankId:"",
-      sourceBankId:"",
+      financierId: loan?.financierId,
+      loanId: "",
+      receiveBankId: "",
+      sourceBankId: "",
       amount: 0,
       paymentDate: new Date(),
     }
@@ -52,12 +52,14 @@ export const LoanPaymentFormModal = () => {
 
 
 
-  //TODO: financier should included with loan
-  const loan = getLoanById(selectedLoanId??"")
-  const financierUnderLoan = getFinancierById(loan?.financierId??"")
 
   const isDebit = loan?.loanType == 'Debit'
   const isCredit = loan?.loanType == 'Credit'
+
+  const modifieldSelectInputValue: SelectInputItem[] = dummyBanks.map(({ name, id }) => ({
+    label: name,
+    value: id
+  }))
 
   return (
     <Form
@@ -68,44 +70,39 @@ export const LoanPaymentFormModal = () => {
         onSubmit={onSubmitHandler}
       >
 
-
-
-
         {/*  Loan */}
         < FormField
           control={control}
           name="loanId"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>All Loans</FormLabel>
-              <FormControl className="w-full">
-                <Select onValueChange={(value)=>{
-                  field.onChange(value)
-                  setSelectedLoanId(value)
-                  }} defaultValue={field.value}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={'Select a loan to pay'} />
-                  </SelectTrigger>
-                  <SelectContent className="w-full">
-                    {
-                      dummyLoans.map(loan => (
-                        <SelectItem key={loan.id} value={loan.id} className="relative flex items-center justify-between">
-                          <span>
-                            {loan.title}
-                          </span>
-                          <Badge
-                            className='rounded-full'
-                          >
-                            {loan.loanType}
-                          </Badge>
-                        </SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <SelectInput
+              field={field}
+              label='All Loans'
+              placeholder='Select a loan to pay'
+              items={dummyLoans.map(({ id, title, loanType }) => {
+                const isDebit = loanType === 'Debit'
+                const isCredit = loanType === 'Credit'
+                return {
+                  value: id,
+                  label: title,
+                  badgeLabel: loanType,
+                  badgeProp: {
+                    className: 'rounded-full',
+                    variant: isDebit
+                      ? 'success'
+                      : isCredit
+                        ? 'destructive'
+                        : 'default'
+                  }
+                }
+              })}
+              onValueChange={(v) => {
+                field.onChange(v)
+                setSelectedLoanId(v)
+              }}
+              Icon={<Receipt size={16} />
+              }
+            />
           )}
         />
 
@@ -115,29 +112,22 @@ export const LoanPaymentFormModal = () => {
           control={control}
           name="financierId"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Financier</FormLabel>
-              <FormControl className="w-full">
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={financierUnderLoan?.name} />
-                  </SelectTrigger>
-                  <SelectContent className="w-full">
-                    <SelectItem value={loan?.financierId??"NotFound"} className="relative flex items-center justify-between">
-                      <span>
-                        {financierUnderLoan?.name}
-                      </span>
-                      <Badge
-                        className='rounded-full'
-                      >
-                        {financierUnderLoan?.financierType}
-                      </Badge>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <SelectInput
+              field={field}
+              label='Financier'
+              defaultValue={field.value}
+              placeholder={financierUnderLoan?.name ?? "Depended input not selected!"}
+              // disabled
+              Icon={<User size={16} />}
+              items={[{
+                label: financierUnderLoan?.name ?? "not-found",
+                value: loan?.financierId ?? "not-found",
+                badgeLabel: "hello",
+                badgeProp: {
+                  className: 'rounded-full'
+                }
+              }]}
+            />
           )}
         />
 
@@ -183,6 +173,7 @@ export const LoanPaymentFormModal = () => {
               </FormControl>
               <FormMessage />
             </FormItem>
+
           )}
         />
 
@@ -195,33 +186,19 @@ export const LoanPaymentFormModal = () => {
                   control={control}
                   name="sourceBankId"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Source Bank</FormLabel>
-                      <FormControl className="w-full">
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value)
-                            setSelectedBank(value)
-                          }}
-                          defaultValue={field.value}
-                          disabled={amount > 0}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a source bank" />
-                          </SelectTrigger>
-                          <SelectContent className="w-full">
-                            {
-                              dummyBanks.map(bank => (
-                                <SelectItem key={bank.id} value={bank.id} className="relative">
-                                  {bank.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <SelectInput
+                      field={field}
+                      label='Source Bank'
+                      placeholder='Select a source bank'
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        setSelectedBank(value)
+                      }}
+                      defaultValue={field.value}
+                      disabled={amount > 0}
+                      items={modifieldSelectInputValue}
+                      Icon={<Landmark size={16} />}
+                    />
                   )}
                 />
               )}
@@ -231,33 +208,19 @@ export const LoanPaymentFormModal = () => {
                   control={control}
                   name="receiveBankId"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Receive Bank</FormLabel>
-                      <FormControl className="w-full">
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value)
-                            setSelectedBank(value)
-                          }}
-                          defaultValue={field.value}
-                          disabled={amount > 0}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a receive bank" />
-                          </SelectTrigger>
-                          <SelectContent className="w-full">
-                            {
-                              dummyBanks.map(item => (
-                                <SelectItem key={item.id} value={item.id} className="relative">
-                                  {item.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <SelectInput
+                      field={field}
+                      label='Receive Bank'
+                      placeholder='Select a receive bank'
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        setSelectedBank(value)
+                      }}
+                      defaultValue={field.value}
+                      disabled={amount > 0}
+                      items={modifieldSelectInputValue}
+                      Icon={<Landmark size={16} />}
+                    />
                   )}
                 />
               )}
@@ -283,6 +246,7 @@ export const LoanPaymentFormModal = () => {
                       setAmount(e.target.valueAsNumber)
                       field.onChange(e)
                     }}
+                    Icon={<DollarSign size={16} className={cn(isCredit ? 'text-success' : 'text-destructive')} />}
                   />
                 )}
               />

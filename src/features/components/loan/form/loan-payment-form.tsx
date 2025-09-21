@@ -1,31 +1,31 @@
 'use client'
-import { Loan } from '@/constant/dummy-db/loan'
-import { loanPaymentCreateFormSchema, LoanPaymentCreateFormValue } from '@/features/schemas/loan/loan-payment'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CalendarIcon, DollarSign, Landmark,Receipt,User } from 'lucide-react'
 
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from '@/components/ui/form'
+import { Loan } from '@/constant/dummy-db/loan'
+import {
+  loanPaymentCreateFormSchema,
+  LoanPaymentCreateFormValue
+} from '@/features/schemas/loan/loan-payment'
+
+import { cn } from '@/lib/utils'
 import { Label } from '@/components/ui/label'
-
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
 import { paymentType } from '@/drizzle/schema-helpers'
-import { getFinancierById } from '@/constant/dummy-db/loan-financier'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { InputField, SelectInput } from '@/components/input'
 import { dummyBanks } from '@/constant/dummy-db/bank-account'
+import { getFinancierById } from '@/constant/dummy-db/loan-financier'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from '@/components/ui/form'
+
 
 export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
   const { id, financierId } = loan
-
-  const [selectedLoanFinancier, setSelectedLoanFinancier] = useState<string>()
   const [selectedBank, setSelectedBank] = useState<string>()
   const [selectedPaymentType, setSelectedPaymentType] = useState<typeof paymentType[number]>()
   const [amount, setAmount] = useState<number>(0)
@@ -68,60 +68,37 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
           control={control}
           name="financierId"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Financier</FormLabel>
-              <FormControl className="w-full">
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={financierUnderLoan?.name} />
-                  </SelectTrigger>
-                  <SelectContent className="w-full">
-                    <SelectItem value={loan.financierId} className="relative flex items-center justify-between">
-                      <span>
-                        {financierUnderLoan?.name}
-                      </span>
-                      <Badge
-                        className='rounded-full'
-                      >
-                        {financierUnderLoan?.financierType}
-                      </Badge>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <SelectInput
+              field={field}
+              label='Financier'
+              defaultValue={field.value}
+              placeholder={financierUnderLoan?.name??""}
+              disabled
+              Icon={
+                <User size={16} />
+              }
+              items={[{value:loan?.financierId??"not found",label:financierUnderLoan?.name??"not found",badgeLabel:financierUnderLoan?.financierType}]}
+            />
           )}
         />
-        {/*  Loan */}
 
+
+        {/*  Loan */}
         < FormField
           control={control}
           name="loanId"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Loan</FormLabel>
-              <FormControl className="w-full">
-                <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={loan.title} />
-                  </SelectTrigger>
-                  <SelectContent className="w-full">
-                    <SelectItem value={loan.id} className="relative flex items-center justify-between">
-                      <span>
-                        {loan.title}
-                      </span>
-                      <Badge
-                        className='rounded-full'
-                      >
-                        {loan.loanType}
-                      </Badge>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+            <SelectInput
+              field={field}
+              label='Loan'
+              defaultValue={field.value}
+              placeholder={loan.title}
+              disabled
+              Icon={
+                <Receipt size={16}/>
+              }
+              items={[{value:loan.id,label:loan.title,badgeLabel:loan.loanType}]}
+            />
           )}
         />
 
@@ -133,7 +110,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Loan Type</FormLabel>
-              <FormControl className="w-full">
+              <FormControl className="w-full te">
                 <RadioGroup defaultValue={field.value} onValueChange={(value) => {
                   setSelectedPaymentType(value as typeof paymentType[number])
                   field.onChange(value)
@@ -180,33 +157,19 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
                   control={control}
                   name="sourceBankId"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Source Bank</FormLabel>
-                      <FormControl className="w-full">
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value)
-                            setSelectedBank(value)
-                          }}
-                          defaultValue={field.value}
-                          disabled={amount > 0}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a source bank" />
-                          </SelectTrigger>
-                          <SelectContent className="w-full">
-                            {
-                              dummyBanks.map(bank => (
-                                <SelectItem key={bank.id} value={bank.id} className="relative">
-                                  {bank.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <SelectInput
+                      field={field}
+                      items={dummyBanks.map(({ id, name }) => ({ value: id, label: name }))}
+                      placeholder='Select a source bank'
+                      label='Source Bank'
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        setSelectedBank(value)
+                      }}
+                      disabled={amount > 0}
+                      Icon={<Landmark size={16} />}
+                    />
+
                   )}
                 />
               )}
@@ -216,33 +179,18 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
                   control={control}
                   name="receiveBankId"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Receive Bank</FormLabel>
-                      <FormControl className="w-full">
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value)
-                            setSelectedBank(value)
-                          }}
-                          defaultValue={field.value}
-                          disabled={amount > 0}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a receive bank" />
-                          </SelectTrigger>
-                          <SelectContent className="w-full">
-                            {
-                              dummyBanks.map(item => (
-                                <SelectItem key={item.id} value={item.id} className="relative">
-                                  {item.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <SelectInput
+                      items={dummyBanks.map(({ id, name }) => ({ value: id, label: name }))}
+                      label='Receive Bank'
+                      placeholder='Select a receive bank'
+                      disabled={amount > 0}
+                      field={field}
+                      Icon={<Landmark size={16}/>}
+                      onValueChange={(value) => {
+                        field.onChange(value)
+                        setSelectedBank(value)
+                      }}
+                    />
                   )}
                 />
               )}
@@ -257,22 +205,17 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
               control={control}
               name="amount"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Payment Amount</FormLabel>
-                  <FormControl className="w-full">
-                    <Input
-                      type='number'
-                      placeholder="e.g. 150"
-                      {...field}
-                      onChange={(e) => {
-                        setAmount(e.target.valueAsNumber)
-                        field.onChange(e)
-                      }}
-                      value={field.value}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <InputField
+                  field={field}
+                  label='Payment Amount'
+                  type='number'
+                  placeholder='e.g. 150'
+                  onChange={(e) => {
+                    setAmount(e.target.valueAsNumber)
+                    field.onChange(e)
+                  }}
+                  Icon={<DollarSign size={16} className={cn(isCredit ? 'text-success' : 'text-destructive')} />}
+                />
               )}
             />
           )
@@ -284,7 +227,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
           name="paymentDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Purchase date</FormLabel>
+              <FormLabel>Payment date</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Bank } from "@/constant/dummy-db/bank-account"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
-import { ArrowLeft, CalendarIcon, PlusCircle, Trash } from "lucide-react"
+import { ArrowLeft, CalendarIcon, PlusCircle, Trash, User } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
@@ -39,7 +39,10 @@ import {
 import { shopkeeperPurchaseItemFormSchema, ShopkeeperPurchaseItemFormValue } from "@/features/schemas/shopkeeper/purchase-item"
 import { useLocalStorage } from "@/hooks/use-local-store"
 import { tryCatch } from "@/lib/helpers"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { InputField, SelectInput } from "@/components/input"
+import { getShopkeeperById } from "@/constant/dummy-db/shopkeepers"
+import { DynamicFormSheet } from "@/components/dynamic-fields"
 
 
 
@@ -54,6 +57,8 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [inx, setInx] = useState<number>()
     const [paidAmountValue, setpaidAmountValue] = useState<number>(0)
+    const router = useRouter()
+    const params = useParams()
 
     const { isOpen, type } = useModal()
     const open = isOpen && type === MODAL_TYPE.ALERT_MODAL
@@ -63,6 +68,7 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
     const form = useForm<ShopkeeperPurchaseItemFormValue>({
         resolver: zodResolver(shopkeeperPurchaseItemFormSchema),
         defaultValues: {
+            shopkeeperId: params.shopkeeperId as string,
             sourceBankId: "",
             description: "",
             totalAmount: 0,
@@ -74,11 +80,12 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
 
     const { control, handleSubmit, reset } = form
 
-    const { fields, append, remove } = useFieldArray({
-        control: control,
+    const fieldArray = useFieldArray({
+        control,
         name: 'items'
     })
 
+    const { fields, append, remove } = fieldArray
 
 
     // 2. Define a submit handler.
@@ -87,7 +94,6 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
     })
 
     const appendHandler = () => {
-        console.log({ fields })
         append({
             name: "",
             price: 0,
@@ -96,7 +102,9 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
         })
     }
 
-    const router = useRouter()
+    const shopkeeper = getShopkeeperById(params.shopkeeperId as string)
+    if (!shopkeeper) return router.push('/shopkeepers')
+
     return (
         <>
             <AlertModal
@@ -117,6 +125,25 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
 
             <Form {...form}>
                 <form onSubmit={onSubmitHandler} className={cn("space-y-4 max-w-full")}>
+
+                    <FormField
+                        control={control}
+                        name="shopkeeperId"
+                        render={({ field }) => (
+                            <SelectInput
+                                field={field}
+                                label="Shopkeeper"
+                                disabled
+                                placeholder="Select a shopkeeper"
+                                items={[
+                                    {
+                                        label: `${shopkeeper.name} - ${shopkeeper.phone.slice(6, shopkeeper.phone.length)}`,
+                                        value: shopkeeper.id
+                                    }
+                                ]}
+                            />
+                        )}
+                    />
 
                     {/* total amount */}
                     <FormField
@@ -286,144 +313,75 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
                     {
                         isIncludeItems && (
                             <>
-
-                                <Sheet
+                                <DynamicFormSheet
+                                    title="title"
+                                    description="description"
                                     open={isOpenSheet}
-                                    onOpenChange={() => setIsOpenSheet(false)}
-                                >
-                                    <SheetContent
-                                        className="gap-0"
-                                    >
-                                        <SheetHeader
-                                            className="sticky top-0 left-0 right-0 bg-background rounded-b-md py-5 px-4 w-full z-40 border-b-2"
-                                        >
-                                            <SheetTitle>Purchase Items Entry</SheetTitle>
-                                            <SheetDescription>
-                                                What item you purchase today!
-                                            </SheetDescription>
-                                        </SheetHeader>
-                                        <div
-                                            className="max-h-screen overflow-y-auto px-4 mt-4"
-                                        >
-                                            <div className="space-y-4 mb-4">
-                                                {
-                                                    fields.map((_, index) => (
-                                                        <CardWrapper
-                                                            title={`Item #${index + 1}`}
-                                                            description='Purchase Item'
-                                                            headerElement={
-                                                                <Button
-                                                                    type='button'
-                                                                    variant='destructive'
-                                                                    onClick={() => {
-                                                                        setInx(index)
-                                                                        dispatch(onOpen(MODAL_TYPE.ALERT_MODAL))
-                                                                    }}
-                                                                >
-                                                                    <Trash />
-                                                                </Button>
-                                                            }
-                                                            key={index}
-                                                        >
-                                                            <div className="flex flex-col items-center gap-2">
-                                                                <div className="space-y-2 w-full">
-                                                                    <FormField
-                                                                        control={control}
-                                                                        name={`items.${index}.name`}
-                                                                        render={({ field }) => (
-                                                                            <FormItem className="w-full">
-                                                                                <Label>Item Name</Label>
-                                                                                <FormControl>
-                                                                                    <Input type='text' placeholder="e.g. Tomato" {...field} value={field.value} />
-                                                                                </FormControl>
-                                                                                <FormMessage />
-                                                                            </FormItem>
-                                                                        )}
-                                                                    />
-                                                                    <FormField
-                                                                        control={control}
-                                                                        name={`items.${index}.itemUnitId`}
-                                                                        render={({ field }) => (
-                                                                            <FormItem >
-                                                                                <Label>Item Unit</Label>
-                                                                                <FormControl>
-                                                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                                                        <SelectTrigger className="w-full">
-                                                                                            <SelectValue placeholder="Unit" />
-                                                                                        </SelectTrigger>
-                                                                                        <SelectContent className="w-full">
-                                                                                            {
-                                                                                                dummyItemUnits.map(unit => (
-                                                                                                    <SelectItem key={unit.id} value={unit.id} >
-                                                                                                        {unit.unit}
-                                                                                                    </SelectItem>
-                                                                                                ))
-                                                                                            }
-                                                                                        </SelectContent>
-                                                                                    </Select>
-                                                                                </FormControl>
-                                                                                <FormMessage />
-                                                                            </FormItem>
-                                                                        )}
-                                                                    />
-                                                                </div>
+                                    fieldArrayValue={fieldArray}
+                                    appendHandler={appendHandler}
+                                    onOpenChange={setIsOpenSheet}
+                                    renderItem={(index) => {
+                                        return (
+                                            <div className="flex flex-col items-center gap-2">
+                                                <div className="space-y-2 w-full">
+                                                    <FormField
+                                                        control={control}
+                                                        name={`items.${index}.name`}
+                                                        render={({ field }) => (
+                                                            <InputField
+                                                                field={field}
+                                                                label="Item Name"
+                                                                type="text"
+                                                                placeholder="e.g. Tomato"
+                                                            />
+                                                        )}
+                                                    />
+                                                    <FormField
+                                                        control={control}
+                                                        name={`items.${index}.itemUnitId`}
+                                                        render={({ field }) => (
+                                                            <SelectInput
+                                                                field={field}
+                                                                label="Item Unit"
+                                                                placeholder="Select Unit"
+                                                                items={dummyItemUnits.map(({id,unit})=>({value:id,label:unit}))}
 
-                                                                <div className="flex items-center justify-center gap-2">
-                                                                    <FormField
-                                                                        control={control}
-                                                                        name={`items.${index}.price`}
-                                                                        render={({ field }) => (
-                                                                            <FormItem>
-                                                                                <Label>Price</Label>
-                                                                                <FormControl>
-                                                                                    <Input type='number' placeholder="Price"{...field} value={field.value} />
-                                                                                </FormControl>
-                                                                                <FormMessage />
-                                                                            </FormItem>
-                                                                        )}
-                                                                    />
+                                                            />
+                                                        )}
+                                                    />
+                                                </div>
 
-                                                                    <FormField
-                                                                        control={control}
-                                                                        name={`items.${index}.quantity`}
-                                                                        render={({ field }) => (
-                                                                            <FormItem>
-                                                                                <Label>Quantity</Label>
-                                                                                <FormControl>
-                                                                                    <Input type='number' placeholder="Quantity"{...field} value={field.value} />
-                                                                                </FormControl>
-                                                                                <FormMessage />
-                                                                            </FormItem>
-                                                                        )}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </CardWrapper>
-                                                    ))
-                                                }
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <FormField
+                                                        control={control}
+                                                        name={`items.${index}.price`}
+                                                        render={({ field }) => (
+                                                            <InputField
+                                                                field={field}
+                                                                label="Price"
+                                                                type="number"
+                                                                placeholder="Price"
+                                                            />
+                                                        )}
+                                                    />
 
+                                                    <FormField
+                                                        control={control}
+                                                        name={`items.${index}.quantity`}
+                                                        render={({ field }) => (
+                                                            <InputField
+                                                                field={field}
+                                                                label="Quantity"
+                                                                type="number"
+                                                                placeholder="Quantity"
+                                                            />
+                                                        )}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        <div
-                                            className="sticky bottom-0 left-0 right-0 bg-background rounded-t-md py-5 px-4 w-full z-40 border-t-2"
-                                        >
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                className="w-full flex items-center gap-1.5"
-                                                onClick={appendHandler}
-                                            >
-                                                <span>
-                                                    <PlusCircle />
-                                                </span>
-                                                <span>
-                                                    Add Item
-                                                </span>
-                                            </Button>
-                                        </div>
-                                    </SheetContent>
-                                </Sheet>
+                                        )
+                                    }}
+                                />
                             </>
                         )
                     }
