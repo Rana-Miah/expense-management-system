@@ -4,8 +4,8 @@ import z from "zod";
 
 //TODO: change all reference id to uuid
 export const loanPaymentCreateFormSchema = z.object({
-    financierId: z.string(),
-    loanId: z.string(),
+    financierId: z.string().nonempty(),
+    loanId: z.string().nonempty(),
     receiveBankId: z.string().optional(),
     sourceBankId: z.string().optional(),
     amount: z.coerce.number<number>().nonnegative(),

@@ -8,6 +8,7 @@ const purchaseItemSchema = z.object({
 })
 
 export const shopkeeperPurchaseItemFormSchema = z.object({
+    shopkeeperId:z.string().nonempty(),
     sourceBankId: z.string().optional(),
     totalAmount: z.coerce.number<number>(),
     paidAmount: z.coerce.number<number>(),

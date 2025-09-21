@@ -35,3 +35,5 @@ export const dummyShopkeepers = [
 ]
 
 export type Shopkeeper = typeof dummyShopkeepers[number]
+
+export const getShopkeeperById = (id:string)=>dummyShopkeepers.find(s=>s.id===id)
