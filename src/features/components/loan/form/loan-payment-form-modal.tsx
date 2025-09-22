@@ -122,7 +122,7 @@ export const LoanPaymentFormModal = () => {
               items={[{
                 label: financierUnderLoan?.name ?? "not-found",
                 value: loan?.financierId ?? "not-found",
-                badgeLabel: "hello",
+                badgeLabel: financierUnderLoan?.financierType,
                 badgeProp: {
                   className: 'rounded-full'
                 }

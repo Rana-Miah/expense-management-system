@@ -40,3 +40,9 @@ export const dummyShopkeeperPayments = [
     "updatedAt": "2025-08-25T11:58:00Z"
   }
 ]
+
+export type ShopkeeperPayment = typeof dummyShopkeeperPayments[number]
+
+export const getShopkeeperPaymentById = (id: string) => dummyShopkeeperPayments.find(sp => sp.id === id)
+export const getShopkeeperPaymentsByShopkeeperId = (shopkeeperId: string) => dummyShopkeeperPayments.filter(sp => sp.shopkeeperId === shopkeeperId)
+export const getShopkeeperPaymentsByClerkUserId = (clerkUserId: string) => dummyShopkeeperPayments.filter(sp => sp.clerkUserId === clerkUserId)

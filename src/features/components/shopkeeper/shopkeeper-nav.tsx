@@ -8,8 +8,8 @@ export const ShopkeeperLink = () => {
 
     const loanRoutes = [
         { label: 'Shopkeepers', href: '/shopkeepers', Icon: <Banknote /> },
-        { label: 'Payments', href: '/shopkeepers/shopkeeper-payments', },
-        { label: 'Purchase', href: '/shopkeepers/shopkeeper-purchase', Icon: <Banknote /> },
+        { label: 'Payments', href: '/shopkeepers/payments', },
+        { label: 'Purchases', href: '/shopkeepers/purchases', Icon: <Banknote /> },
     ]
 
     const header = {
