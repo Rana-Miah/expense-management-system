@@ -17,14 +17,6 @@ export const ShopkeeperPaymentColumnCell = ({ row: { original: { id, totalDue, i
 
             const condition = banButHasTotalDue || notBanAlsoHasTotalDue
 
-            console.log({
-                totalDue,
-                isBan,
-                condition,
-                banButHasTotalDue,
-                notBanAlsoHasTotalDue,
-            })
-
             return (
                 <>
                     {

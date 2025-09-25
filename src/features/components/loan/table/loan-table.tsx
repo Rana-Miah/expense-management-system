@@ -31,6 +31,11 @@ export const LoanTable = ({ loans }: { loans: Loan[] }) => {
             <DataTable
                 data={loans}
                 columns={loanColumns}
+                pagination={{
+                    page:1,
+                    limit:1,
+                    total:2
+                }}
             />
         </CardWrapper>
     )

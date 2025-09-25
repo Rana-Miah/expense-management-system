@@ -28,6 +28,12 @@ export type OptionalOnly<T> = {
   [K in keyof T as {} extends Pick<T, K> ? K : never]: T[K];
 }
 
+export type Pagination = {
+  page:number
+  limit:number;
+  total:number;
+}
+
 
 
 export type FirstCharacter<Character extends string> = Character extends `${infer F}${string}` ? F : never
