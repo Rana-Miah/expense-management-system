@@ -6,7 +6,7 @@ import { bankAccountTable } from "./bank-account";
 import { relations } from "drizzle-orm";
 
 export const loanPaymentTable = pgTable('loan_payment', {
-    id: uuid('id').unique().notNull().defaultRandom(),
+    id: uuid('id').primaryKey().unique().notNull().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
     financierId: uuid('financier_id').notNull().references(() => loanFinancierTable.id),
     loanId: uuid('loan_id').notNull().references(() => loanTable.id),

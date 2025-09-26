@@ -4,7 +4,7 @@ import { bankAccountTable } from "./bank-account";
 import { relations } from "drizzle-orm";
 
 export const monthlyMonitorTable = pgTable('monthly-monitor',{
-    id:uuid('id').unique().notNull().defaultRandom(),
+    id:uuid('id').primaryKey().unique().notNull().defaultRandom(),
     clerkUserId:text('clerk_user_id').notNull(),
     bankId:uuid('id').notNull().references(()=>bankAccountTable.id),
     lastRemaininBalance : numericAmount('last_remain_balance',7,0),

@@ -5,8 +5,8 @@ import { loanFinancierTable } from "./loan-financier";
 import { loanPaymentTable } from "./loan-payment";
 import { bankAccountTable } from "./bank-account";
 
-export const loanTable = pgTable('loan_table', {
-    id: uuid('id').notNull().unique().defaultRandom(),
+export const loanTable = pgTable('loan', {
+    id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
     clerUserId: text('clerk_user_id').notNull().unique(),
     financierId: uuid('financier_id').notNull(),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),

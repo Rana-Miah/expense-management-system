@@ -4,8 +4,8 @@ import { bankAccountTable } from "./bank-account";
 import { relations } from "drizzle-orm";
 import { shopkeeperTable } from "./shopkeepers";
 
-export const shopkeeperPaymentTable = pgTable('loan_payment', {
-    id: uuid('id').unique().notNull().defaultRandom(),
+export const shopkeeperPaymentTable = pgTable('shopkeeper_payment', {
+    id: uuid('id').primaryKey().unique().notNull().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
     shopkeeperId: uuid('shopkeeper_id').notNull().references(() => shopkeeperTable.id),
     sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
