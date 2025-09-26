@@ -6,7 +6,7 @@ import {
   SheetTrigger,
   SheetClose
 } from "@/components/ui/sheet"
-// import { UserButton, } from "@clerk/nextjs"
+import { UserButton, } from "@clerk/nextjs"
 import { Home, Menu } from "lucide-react"
 import { NavItem } from "./nav-item"
 import Link from "next/link"
@@ -84,8 +84,7 @@ export const MobileNavbar = async () => {
         </SheetContent>
       </Sheet>
       <div>
-        {/* <UserButton /> */}
-        User button
+        <UserButton />
       </div>
     </nav>
   )

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-// import { ClerkProvider, } from '@clerk/nextjs'
+import { ClerkProvider, } from '@clerk/nextjs'
 
 import "./globals.css";
 import StoreProvider from "@/components/provider/redux-store-provider";
@@ -17,20 +17,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // <ClerkProvider>
-    <StoreProvider>
-      <ModalProvider />
-      <html lang="en">
-        <body
-          className={` antialiased`}
-        >
-          <section className="container mx-auto max-w-7xl px-4 md:px-6 h-screen">
-            {children}
-          </section>
-        </body>
-      </html>
+    <ClerkProvider
+    afterSignOutUrl={'/sign-in'}
+    signInForceRedirectUrl={'/'}
+    signInFallbackRedirectUrl={'/'}
+    >
+      <StoreProvider>
+        <ModalProvider />
+        <html lang="en">
+          <body
+            className={` antialiased`}
+          >
+            <section className="container mx-auto max-w-7xl px-4 md:px-6 h-screen">
+              {children}
+            </section>
+          </body>
+        </html>
 
-    </StoreProvider>
-    // </ClerkProvider>
+      </StoreProvider>
+    </ClerkProvider>
   );
 }
