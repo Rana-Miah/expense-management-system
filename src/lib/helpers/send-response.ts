@@ -1,6 +1,6 @@
-import { SendResponse } from "@/interface"
+import { SendFailureResponse, SendResponse, SendSuccessResponse } from "@/interface"
 
-export function successResponse<T>(message: string, data: T): SendResponse<T, never> {
+export function successResponse<T>(message: string, data: T): SendSuccessResponse<T> {
   return {
     success: true,
     message,
@@ -12,7 +12,7 @@ export function successResponse<T>(message: string, data: T): SendResponse<T, ne
 export function failureResponse<E extends Error>(
   message: string,
   error: E | unknown | null = null
-): SendResponse<null, E> {
+): SendFailureResponse<E> {
   return {
     success: false,
     message,

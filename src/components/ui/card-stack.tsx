@@ -2,16 +2,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { dummyBanks } from '@/constant/dummy-db/bank-account'
-import { Card} from "./card";
+import { Card } from "./card";
 import { Badge } from "./badge";
 import { CardWrapper } from "../card-wrapper";
 import Link from "next/link";
 import { Button } from "./button";
+import { BankSelectValue } from "@/drizzle/type";
 
 
 let interval: any;
 
-type Card = typeof dummyBanks[0] & {
+type Card = BankSelectValue & {
   content: React.ReactNode;
 };
 
@@ -47,6 +48,7 @@ export const CardStack = ({
               setCards((prev) => {
                 const newCards = [...prev];
                 const [selected] = newCards.splice(index, 1); // remove clicked card
+                if (!selected) return newCards;
                 newCards.unshift(selected); // put it at the front
                 return newCards;
               });

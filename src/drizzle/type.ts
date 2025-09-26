@@ -1,3 +1,10 @@
-import { trxTable } from "./schema";
+import { assignTrxNameTable, bankAccountTable, trxNameTable, trxTable } from "./schema";
 
-export type TransactionSelect = typeof trxTable.$inferSelect
+export type BankInsertValue = typeof bankAccountTable.$inferInsert
+export type BankSelectValue = typeof bankAccountTable.$inferSelect
+
+export type TrxNameInsertValue = typeof trxNameTable.$inferInsert
+export type TrxNameSelectValue = typeof trxNameTable.$inferSelect
+
+export type AssignTrxNameInsertValue = typeof assignTrxNameTable.$inferInsert
+export type AssignTrxNameSelectValue = typeof assignTrxNameTable.$inferSelect

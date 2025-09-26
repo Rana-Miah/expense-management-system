@@ -1,0 +1,1720 @@
+{
+  "id": "f7e45779-6e6a-4456-9005-f3e3dd184822",
+  "prevId": "054f1b11-1f98-48f3-902e-c64a6635a670",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.assign_transaction_name": {
+      "name": "assign_transaction_name",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bank_account_id": {
+          "name": "bank_account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_name_id": {
+          "name": "transaction_name_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "assign_transaction_name_bank_account_id_bank_account_id_fk": {
+          "name": "assign_transaction_name_bank_account_id_bank_account_id_fk",
+          "tableFrom": "assign_transaction_name",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "bank_account_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "assign_transaction_name_transaction_name_id_trx_name_id_fk": {
+          "name": "assign_transaction_name_transaction_name_id_trx_name_id_fk",
+          "tableFrom": "assign_transaction_name",
+          "tableTo": "trx_name",
+          "columnsFrom": [
+            "transaction_name_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "assign_transaction_name_id_unique": {
+          "name": "assign_transaction_name_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "assign_transaction_name_clerk_user_id_unique": {
+          "name": "assign_transaction_name_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.bank_account": {
+      "name": "bank_account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "balance": {
+          "name": "balance",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "local_bank_account_number": {
+          "name": "local_bank_account_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "bank_account_id_unique": {
+          "name": "bank_account_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "bank_account_clerk_user_id_unique": {
+          "name": "bank_account_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        },
+        "bank_account_local_bank_account_number_unique": {
+          "name": "bank_account_local_bank_account_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "local_bank_account_number"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.monthly_budget": {
+      "name": "monthly_budget",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_of_month": {
+          "name": "budget_of_month",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "monthly_budget_id_unique": {
+          "name": "monthly_budget_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.calculate_expected_salary": {
+      "name": "calculate_expected_salary",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_date": {
+          "name": "target_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "min_monthly_over_time_hour": {
+          "name": "min_monthly_over_time_hour",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expected_overtime_rate_per_hour": {
+          "name": "expected_overtime_rate_per_hour",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "renewed_iqama_duration": {
+          "name": "renewed_iqama_duration",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "savings_after_full_salary": {
+          "name": "savings_after_full_salary",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "savings_after_deducted_salary": {
+          "name": "savings_after_deducted_salary",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "calculate_expected_salary_id_unique": {
+          "name": "calculate_expected_salary_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.overtime": {
+      "name": "overtime",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "month": {
+          "name": "month",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "year": {
+          "name": "year",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "overtime_hour": {
+          "name": "overtime_hour",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expected_overtime_rate": {
+          "name": "expected_overtime_rate",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_collected": {
+          "name": "is_collected",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "collected_date": {
+          "name": "collected_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "collected_money": {
+          "name": "collected_money",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "overtime_rate": {
+          "name": "overtime_rate",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "overtime_id_unique": {
+          "name": "overtime_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.item_unit": {
+      "name": "item_unit",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "item_unit_id_unique": {
+          "name": "item_unit_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.item": {
+      "name": "item",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "item_unit_id": {
+          "name": "item_unit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "item_transaction_id_trx_id_fk": {
+          "name": "item_transaction_id_trx_id_fk",
+          "tableFrom": "item",
+          "tableTo": "trx",
+          "columnsFrom": [
+            "transaction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "item_item_unit_id_item_unit_id_fk": {
+          "name": "item_item_unit_id_item_unit_id_fk",
+          "tableFrom": "item",
+          "tableTo": "item_unit",
+          "columnsFrom": [
+            "item_unit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "item_id_unique": {
+          "name": "item_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.loan_financier": {
+      "name": "loan_financier",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "financier_type": {
+          "name": "financier_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_provided": {
+          "name": "total_provided",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_receipt": {
+          "name": "total_receipt",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provided_due": {
+          "name": "provided_due",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "receipt_due": {
+          "name": "receipt_due",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_ban": {
+          "name": "is_ban",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "reason_of_ban": {
+          "name": "reason_of_ban",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_both_financier_ban": {
+          "name": "is_both_financier_ban",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "loan_financier_id_unique": {
+          "name": "loan_financier_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "loan_financier_clerk_user_id_unique": {
+          "name": "loan_financier_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        },
+        "loan_financier_phone_unique": {
+          "name": "loan_financier_phone_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.loan_payment": {
+      "name": "loan_payment",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "financier_id": {
+          "name": "financier_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loan_id": {
+          "name": "loan_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "receive_bank_id": {
+          "name": "receive_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_bank_id": {
+          "name": "source_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_date": {
+          "name": "payment_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_type": {
+          "name": "payment_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "loan_payment_financier_id_loan_financier_id_fk": {
+          "name": "loan_payment_financier_id_loan_financier_id_fk",
+          "tableFrom": "loan_payment",
+          "tableTo": "loan_financier",
+          "columnsFrom": [
+            "financier_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "loan_payment_loan_id_loan_id_fk": {
+          "name": "loan_payment_loan_id_loan_id_fk",
+          "tableFrom": "loan_payment",
+          "tableTo": "loan",
+          "columnsFrom": [
+            "loan_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "loan_payment_receive_bank_id_bank_account_id_fk": {
+          "name": "loan_payment_receive_bank_id_bank_account_id_fk",
+          "tableFrom": "loan_payment",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "receive_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "loan_payment_source_bank_id_bank_account_id_fk": {
+          "name": "loan_payment_source_bank_id_bank_account_id_fk",
+          "tableFrom": "loan_payment",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "source_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "loan_payment_id_unique": {
+          "name": "loan_payment_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.loan": {
+      "name": "loan",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "financier_id": {
+          "name": "financier_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "receive_bank_id": {
+          "name": "receive_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_bank_id": {
+          "name": "source_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "loan_type": {
+          "name": "loan_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loan_date": {
+          "name": "loan_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "details_of_loan": {
+          "name": "details_of_loan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "loan_status": {
+          "name": "loan_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Settled'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "loan_receive_bank_id_bank_account_id_fk": {
+          "name": "loan_receive_bank_id_bank_account_id_fk",
+          "tableFrom": "loan",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "receive_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "loan_source_bank_id_bank_account_id_fk": {
+          "name": "loan_source_bank_id_bank_account_id_fk",
+          "tableFrom": "loan",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "source_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "loan_id_unique": {
+          "name": "loan_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "loan_clerk_user_id_unique": {
+          "name": "loan_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.monthly-monitor": {
+      "name": "monthly-monitor",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_remain_balance": {
+          "name": "last_remain_balance",
+          "type": "numeric(7, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "monthly-monitor_id_bank_account_id_fk": {
+          "name": "monthly-monitor_id_bank_account_id_fk",
+          "tableFrom": "monthly-monitor",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "monthly-monitor_id_unique": {
+          "name": "monthly-monitor_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shopkeeper": {
+      "name": "shopkeeper",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_due": {
+          "name": "total_due",
+          "type": "numeric(7, 0)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_ban": {
+          "name": "is_ban",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "reason_of_ban": {
+          "name": "reason_of_ban",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "shopkeeper_id_unique": {
+          "name": "shopkeeper_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "shopkeeper_clerk_user_id_unique": {
+          "name": "shopkeeper_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        },
+        "shopkeeper_phone_unique": {
+          "name": "shopkeeper_phone_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shopkeeper_item": {
+      "name": "shopkeeper_item",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "shopkeeper_purchase_id": {
+          "name": "shopkeeper_purchase_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_unit_id": {
+          "name": "item_unit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "shopkeeper_item_shopkeeper_purchase_id_shopkeeper_purchase_id_fk": {
+          "name": "shopkeeper_item_shopkeeper_purchase_id_shopkeeper_purchase_id_fk",
+          "tableFrom": "shopkeeper_item",
+          "tableTo": "shopkeeper_purchase",
+          "columnsFrom": [
+            "shopkeeper_purchase_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "shopkeeper_item_item_unit_id_item_unit_id_fk": {
+          "name": "shopkeeper_item_item_unit_id_item_unit_id_fk",
+          "tableFrom": "shopkeeper_item",
+          "tableTo": "item_unit",
+          "columnsFrom": [
+            "item_unit_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "shopkeeper_item_id_unique": {
+          "name": "shopkeeper_item_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shopkeeper_purchase": {
+      "name": "shopkeeper_purchase",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shopkeeper_id": {
+          "name": "shopkeeper_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_bank_id": {
+          "name": "source_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_amount": {
+          "name": "total_amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paid_amount": {
+          "name": "paid_amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "due_amount": {
+          "name": "due_amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "purchase_date": {
+          "name": "purchase_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_included_items": {
+          "name": "is_included_items",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "shopkeeper_purchase_shopkeeper_id_shopkeeper_id_fk": {
+          "name": "shopkeeper_purchase_shopkeeper_id_shopkeeper_id_fk",
+          "tableFrom": "shopkeeper_purchase",
+          "tableTo": "shopkeeper",
+          "columnsFrom": [
+            "shopkeeper_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "shopkeeper_purchase_source_bank_id_bank_account_id_fk": {
+          "name": "shopkeeper_purchase_source_bank_id_bank_account_id_fk",
+          "tableFrom": "shopkeeper_purchase",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "source_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "shopkeeper_purchase_id_unique": {
+          "name": "shopkeeper_purchase_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.shopkeeper_payment": {
+      "name": "shopkeeper_payment",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shopkeeper_id": {
+          "name": "shopkeeper_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_bank_id": {
+          "name": "source_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_date": {
+          "name": "payment_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "shopkeeper_payment_shopkeeper_id_shopkeeper_id_fk": {
+          "name": "shopkeeper_payment_shopkeeper_id_shopkeeper_id_fk",
+          "tableFrom": "shopkeeper_payment",
+          "tableTo": "shopkeeper",
+          "columnsFrom": [
+            "shopkeeper_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "shopkeeper_payment_source_bank_id_bank_account_id_fk": {
+          "name": "shopkeeper_payment_source_bank_id_bank_account_id_fk",
+          "tableFrom": "shopkeeper_payment",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "source_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "shopkeeper_payment_id_unique": {
+          "name": "shopkeeper_payment_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.trx_name": {
+      "name": "trx_name",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "trx_name_id_unique": {
+          "name": "trx_name_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "trx_name_clerk_user_id_unique": {
+          "name": "trx_name_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.trx": {
+      "name": "trx",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_name_id": {
+          "name": "transaction_name_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_bank_id": {
+          "name": "source_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "receive_bank_id": {
+          "name": "receive_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "local_bank_number": {
+          "name": "local_bank_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_date": {
+          "name": "transaction_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_description": {
+          "name": "transaction_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_reversed": {
+          "name": "is_reversed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_included_items": {
+          "name": "is_included_items",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "reason_of_reversed": {
+          "name": "reason_of_reversed",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "trx_transaction_name_id_trx_name_id_fk": {
+          "name": "trx_transaction_name_id_trx_name_id_fk",
+          "tableFrom": "trx",
+          "tableTo": "trx_name",
+          "columnsFrom": [
+            "transaction_name_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "trx_source_bank_id_bank_account_id_fk": {
+          "name": "trx_source_bank_id_bank_account_id_fk",
+          "tableFrom": "trx",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "source_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "trx_receive_bank_id_bank_account_id_fk": {
+          "name": "trx_receive_bank_id_bank_account_id_fk",
+          "tableFrom": "trx",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "receive_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "trx_local_bank_number_bank_account_local_bank_account_number_fk": {
+          "name": "trx_local_bank_number_bank_account_local_bank_account_number_fk",
+          "tableFrom": "trx",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "local_bank_number"
+          ],
+          "columnsTo": [
+            "local_bank_account_number"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "trx_id_unique": {
+          "name": "trx_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "trx_clerk_user_id_unique": {
+          "name": "trx_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
