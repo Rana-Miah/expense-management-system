@@ -1,0 +1,1 @@
+ALTER TABLE "trx_name" ALTER COLUMN "is_active" SET DEFAULT true;

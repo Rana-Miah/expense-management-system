@@ -1,7 +1,7 @@
 import z from "zod";
 
-export const assignTrxNameFormSchema = z.object({
-    trxNameId: z.uuid().nonempty(),
+export const trxNameCreateFormSchema = z.object({
+    name: z.string().nonempty().min(3,'Name must be 3 characters long!'),
 })
 
-export type AssignTrxNameFormValue = z.infer<typeof assignTrxNameFormSchema>
+export type TrxNameCreateFormValue = z.infer<typeof trxNameCreateFormSchema>

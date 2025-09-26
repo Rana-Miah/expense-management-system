@@ -1,16 +1,15 @@
 import { ReuseableTab } from '@/components'
-import { findBankById } from '@/constant/dummy-db/bank-account'
 import { dummyTrxNames, findTrxNamesByClerkUserId } from '@/constant/dummy-db/trx-name'
 import { AssignTrxNameForm } from '@/features/components/banks/assign-trx-name-form'
 import { SalaryCalculation } from '@/features/components/transaction'
-import { TransactionForm } from '@/features/components/transaction/form'
 import { TransactionTable } from '@/features/components/transaction/table'
+import { getBankById } from '@/services/bank/GET'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
 const BankPage = async ({ params }: { params: Promise<{ bankId: string }> }) => {
     const param = await params
-    const bank = findBankById(param.bankId)
+    const bank = await getBankById(param.bankId)
     if (!bank) redirect('/')
 
         const trxNames = findTrxNamesByClerkUserId(bank.clerkUserId)
@@ -22,7 +21,7 @@ const BankPage = async ({ params }: { params: Promise<{ bankId: string }> }) => 
                 
             </div>
 
-            <ReuseableTab
+            {/* <ReuseableTab
             defaultValue='salary-calculation'
                 items={
                     [
@@ -43,7 +42,7 @@ const BankPage = async ({ params }: { params: Promise<{ bankId: string }> }) => 
                         }
                     ]
                 }
-            />
+            /> */}
         </>
     )
 }

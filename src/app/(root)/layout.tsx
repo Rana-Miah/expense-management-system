@@ -1,11 +1,19 @@
-import { dummyBanks, findBankById } from "@/constant/dummy-db/bank-account"
+import { getBanksByClerkUserId } from "@/services/bank/GET"
+import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { ReactNode } from "react"
-const StartUpLayout = ({ children }: { children: ReactNode }) => {
+const StartUpLayout = async ({ children }: { children: ReactNode }) => {
+    const { userId } = await auth()
+    if (!userId) redirect('/sign-in')
 
-    const existBank = findBankById("b2c3d4e5-f6a7-8901-2345-67890abcdef1")
+    const existBanks = await getBanksByClerkUserId(userId)
+    const totalBanks = existBanks.length
 
-    if (existBank) redirect(`/accounts`)
+    if (totalBanks > 0) {
+        totalBanks < 2
+            ? redirect(`/accounts/${existBanks[0].id}`)
+            :redirect(`/accounts`)
+    }
 
 
     return (

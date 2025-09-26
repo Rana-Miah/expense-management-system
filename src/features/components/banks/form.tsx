@@ -2,8 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
-
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -14,24 +12,27 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { transactionFormSchema } from "@/features/schemas/transaction"
 import { TrxName } from "@/constant/dummy-db/trx-name"
 import MultipleSelector from "@/components/ui/extension/multi-select"
 import { bankCreateFormSchema, BankCreateFormValue } from "@/features/schemas/banks"
-import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import { InputField } from "@/components/input"
+import { createBankAccountAction } from "@/features/actions/bank/create-bank-account"
+import { useRouter } from "next/navigation"
 
 export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
 
     const [isAssignEnable, setIsAssignEnable] = useState(false)
+    const [pending, startTransition] = useTransition()
+    const router = useRouter()
 
 
     // 1. Define your form.
     const form = useForm<BankCreateFormValue>({
         resolver: zodResolver(bankCreateFormSchema),
         defaultValues: {
-            balance: "0",
+            balance: 0,
             name: "",
             phone: ""
         },
@@ -39,12 +40,16 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
 
     // 2. Define a submit handler.
     function onSubmit(values: BankCreateFormValue) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+        startTransition(
+            async () => {
+                const { success, data, error, message } = await createBankAccountAction(values)
+                if (!success||!data) {
+                    console.log({ message, error })
+                }
+                router.push(`/accounts/${data?.id}`)
+            }
+        )
     }
-
-    // const trxsName = []
 
     const modifiedTrxsName = trxsName.map(trxName => ({ label: trxName.name, value: trxName.id }))
 
@@ -55,34 +60,36 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Transaction Name</FormLabel>
-                            <FormControl className="min-w-3xs">
-                                <Input
-                                    type="text"
-                                    placeholder="e.g. CASH"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                        <InputField
+                            field={field}
+                            label="Bank Name"
+                            placeholder="e.g. CASH"
+                            type="text"
+                        />
                     )}
                 />
                 <FormField
                     control={form.control}
                     name="balance"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Balance</FormLabel>
-                            <FormControl className="min-w-3xs">
-                                <Input
-                                    type="number"
-                                    placeholder="e.g. 134"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                        <InputField
+                            field={field}
+                            label="Available Balance"
+                            placeholder="e.g. 200"
+                            type="number"
+                        />
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                        <InputField
+                            field={field}
+                            label="Phone"
+                            placeholder="e.g. 01xxxxxxxxx"
+                            type="number"
+                        />
                     )}
                 />
 
@@ -92,7 +99,7 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
                             <div className="space-y-0.5">
                                 <FormLabel>Assign transaction name</FormLabel>
                                 <FormDescription>
-                                   Assignable transaction name
+                                    Assignable transaction name
                                 </FormDescription>
                             </div>
                             <Switch

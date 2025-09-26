@@ -1,10 +1,16 @@
-import { dummyTrxNames } from '@/constant/dummy-db/trx-name'
+import { db } from '@/drizzle/db'
 import { TraxNameTable } from '@/features/components/transaction-name/table'
+import { currentUserId } from '@/lib/current-user-id'
 
-const TraxName = () => {
+const TraxName = async () => {
+    const userId = await currentUserId()
+    const trxNames = await db.query.trxNameTable.findMany({
+        where: (trxName, { eq }) => eq(trxName.clerkUserId, userId)
+    })
+
     return (
         <TraxNameTable
-            traxName={dummyTrxNames}
+            traxName={trxNames}
         />
     )
 }

@@ -1,11 +1,11 @@
 import { Badge } from '@/components/ui/badge'
 import { CardDescription, CardTitle } from '@/components/ui/card'
-import { TrxName } from '@/constant/dummy-db/trx-name'
+import { TrxNameSelectValue } from '@/drizzle/type'
 import { dateFormatter } from '@/lib/helpers'
 import { ColumnDef } from '@tanstack/react-table'
 import { Check, X } from 'lucide-react'
 
-export const TraxNameTableColumns: ColumnDef<TrxName>[] = [
+export const TraxNameTableColumns: ColumnDef<TrxNameSelectValue>[] = [
     {
         accessorKey: 'name',
         header: 'Name',

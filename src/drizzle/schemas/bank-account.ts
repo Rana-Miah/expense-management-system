@@ -12,7 +12,7 @@ import { monthlyMonitorTable } from "./monthly-monitor";
 export const bankAccountTable = pgTable("bank_account", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull().unique(),
-    name: uuid('name').notNull(),
+    name: text('name').notNull(),
     balance: numericAmount('balance', 7, 2).default(0),
     lban: text('local_bank_account_number').notNull().unique(),
     isActive: boolean('is_active').default(true).notNull(),

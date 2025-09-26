@@ -2,15 +2,15 @@
 import { CardWrapper, DataTable } from '@/components'
 import { pluralize } from '@/lib/helpers'
 import { TraxNameTableColumns } from './table-columns'
-import { TrxName } from '@/constant/dummy-db/trx-name'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { useAppDispatch } from '@/hooks/redux'
 import { MODAL_TYPE } from '@/constant'
 import { onOpen } from '@/lib/redux/slice/modal-slice'
+import { TrxNameSelectValue } from '@/drizzle/type'
 
 
-export const TraxNameTable = ({ traxName }: { traxName: TrxName[] }) => {
+export const TraxNameTable = ({ traxName }: { traxName: TrxNameSelectValue[] }) => {
     const dispatch = useAppDispatch()
     const onClickHandler = () => dispatch(onOpen(MODAL_TYPE.TRX_NAME))
     return (

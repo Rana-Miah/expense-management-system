@@ -17,7 +17,7 @@ export const overtimeTable = pgTable('overtime', {
 })
 
 export const calculateExpectedSalary = pgTable('calculate_expected_salary', {
-    id: uuid('id').notNull().unique().defaultRandom(),
+    id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
     targetDate: times('target_date').notNull(),
     minMonthlyOverTimeHour: numericAmount('min_monthly_over_time_hour', 3, 2),

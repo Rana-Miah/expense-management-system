@@ -6,7 +6,7 @@ import { loanTable } from "./loan";
 
 
 export const loanFinancierTable = pgTable('loan_financier', {
-    id: uuid('id').notNull().unique().defaultRandom(),
+    id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull().unique(),
     name: text('name').notNull(),
     phone: text('phone').notNull().unique(),

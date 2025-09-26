@@ -1,0 +1,1 @@
+export const generateLban = (name: string, phone: string) => `${name} - ${phone}`

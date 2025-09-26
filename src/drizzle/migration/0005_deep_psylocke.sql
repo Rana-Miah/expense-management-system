@@ -1,0 +1,1 @@
+ALTER TABLE "trx_name" DROP CONSTRAINT "trx_name_clerk_user_id_unique";

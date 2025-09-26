@@ -1,20 +1,23 @@
 import { CardStack } from "@/components/ui/card-stack"
-import { dummyBanks, findBanksByClerkUserId } from "@/constant/dummy-db/bank-account"
+import { getBanksByClerkUserId } from "@/services/bank/GET"
+import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 
-const AccountsPage = () => {
-    const banks = findBanksByClerkUserId(dummyBanks[1].clerkUserId)
-    if (banks.length < 1) redirect('/')
-    return(
-        <div className="flex items-center justify-center h-screen">
-          <CardStack
-          
-          items={banks.map(item=>({
-            ...item,
-            content:<>hello content</>
-          }))}          
-          />
-        </div>
-    )
+const AccountsPage = async () => {
+  const { userId } = await auth()
+  if (!userId) redirect('/sign-in')
+  const banks = await getBanksByClerkUserId(userId)
+  if (banks.length < 1) redirect('/')
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <CardStack
+
+        items={banks.map(item => ({
+          ...item,
+          content: <>hello content</>
+        }))}
+      />
+    </div>
+  )
 }
 export default AccountsPage

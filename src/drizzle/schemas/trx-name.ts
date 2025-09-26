@@ -6,9 +6,9 @@ import { trxTable } from "./trx";
 
 export const trxNameTable = pgTable("trx_name", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
-    clerkUserId: uuid('clerk_user_id').notNull().unique(),
+    clerkUserId: text('clerk_user_id').notNull(),
     name: text('name').notNull(),
-    isActive: boolean('is_active').default(false).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
     createdAt,
     updatedAt
 })
