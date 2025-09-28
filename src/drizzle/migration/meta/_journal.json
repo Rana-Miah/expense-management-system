@@ -50,6 +50,13 @@
       "when": 1758901677572,
       "tag": "0006_right_valeria_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1759042348155,
+      "tag": "0007_large_natasha_romanoff",
+      "breakpoints": true
     }
   ]
 }

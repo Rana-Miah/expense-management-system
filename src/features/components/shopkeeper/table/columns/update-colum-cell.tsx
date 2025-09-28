@@ -1,10 +1,9 @@
 'use client'
 
-import { Shopkeeper } from "@/constant/dummy-db/shopkeepers"
 import {  dateFormatter, } from "@/lib/helpers"
-import { CellContext } from "@tanstack/react-table"
+import { ShopkeeperColumnCellContext } from "."
 
-export const ShopkeeperUpdateColumnCell = ({ row: { original: {updatedAt} } }: CellContext<Shopkeeper, unknown>) => {
+export const ShopkeeperUpdateColumnCell = ({ row: { original: {updatedAt} } }: ShopkeeperColumnCellContext) => {
     return (
         <span>{dateFormatter(new Date(updatedAt))}</span>
     )

@@ -1,7 +1,5 @@
 'use client'
 
-import { Shopkeeper } from "@/constant/dummy-db/shopkeepers"
-import { CellContext } from "@tanstack/react-table"
 import { Bank } from "@/constant/dummy-db/bank-account";
 import { useAppDispatch } from "@/hooks/redux";
 import { MODAL_TYPE } from "@/constant";
@@ -10,8 +8,9 @@ import { ShopkeeperBillPaymentModal } from "@/components/modals/shopkeeper-bill-
 import { Button } from "@/components/ui/button"
 import { HandCoins, ShoppingCart } from "lucide-react"
 import Link from "next/link"
+import { ShopkeeperColumnCellContext } from ".";
 
-export const ShopkeeperPurchaseColumnCell = ({ row: { original: { id, totalDue, isBan } } }: CellContext<Shopkeeper, unknown>) => {
+export const ShopkeeperPurchaseColumnCell = ({ row: { original: { id, totalDue, isBan } } }: ShopkeeperColumnCellContext) => {
     return (
         <>{
             !isBan && (

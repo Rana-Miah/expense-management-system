@@ -1,11 +1,10 @@
 'use client'
 
 import { CardTitle } from "@/components/ui/card"
-import { Shopkeeper } from "@/constant/dummy-db/shopkeepers"
 import { amountFormatter } from "@/lib/helpers"
-import { CellContext } from "@tanstack/react-table"
+import { ShopkeeperColumnCellContext } from "."
 
-export const ShopkeeperTotalDueColumnCell = ({ row: { original: { totalDue } } }: CellContext<Shopkeeper, unknown>) => {
+export const ShopkeeperTotalDueColumnCell = ({ row: { original: { totalDue } } }: ShopkeeperColumnCellContext) => {
     
     return (
         <CardTitle>{

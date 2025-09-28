@@ -1,11 +1,10 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { Shopkeeper } from "@/constant/dummy-db/shopkeepers"
-import { CellContext } from "@tanstack/react-table"
 import { Copy } from "lucide-react"
+import { ShopkeeperColumnCellContext } from "."
 
-export const ShopkeeperPhoneColumnCell = ({ row: { original: { phone } } }: CellContext<Shopkeeper, unknown>) => {
+export const ShopkeeperPhoneColumnCell = ({ row: { original: { phone } } }: ShopkeeperColumnCellContext) => {
     return <PhoneColumnCell phone={phone} />
 }
 

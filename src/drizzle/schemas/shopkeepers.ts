@@ -7,7 +7,7 @@ import { shopKeeperItemTable } from "./shopkeeper-items";
 
 export const shopkeeperTable = pgTable('shopkeeper', {
     id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
-    clerkUserId: text('clerk_user_id').notNull().unique(),
+    clerkUserId: text('clerk_user_id').notNull(),
     name: text('name').notNull(),
     phone: text('phone').notNull().unique(),
     totalDue: numericAmount('total_due', 7, 0),

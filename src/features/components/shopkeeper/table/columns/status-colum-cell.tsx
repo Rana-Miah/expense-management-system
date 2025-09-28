@@ -1,11 +1,10 @@
 'use client'
 
 import { Badge } from "@/components/ui/badge"
-import { Shopkeeper } from "@/constant/dummy-db/shopkeepers"
-import { CellContext } from "@tanstack/react-table"
 import { BadgeCheck, BadgeX } from "lucide-react"
+import { ShopkeeperColumnCellContext } from "."
 
-export const ShopkeeperStatusColumnCell = ({ row: { original: { isBan } } }: CellContext<Shopkeeper, unknown>) => {
+export const ShopkeeperStatusColumnCell = ({ row: { original: { isBan } } }: ShopkeeperColumnCellContext) => {
     return (
                 <Badge
                     className="flex items-center gap-1.5 rounded-full"

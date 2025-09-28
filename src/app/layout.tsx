@@ -5,6 +5,7 @@ import { ClerkProvider, } from '@clerk/nextjs'
 import "./globals.css";
 import StoreProvider from "@/components/provider/redux-store-provider";
 import { ModalProvider } from "@/components/provider/modal-provider";
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,6 +25,7 @@ export default function RootLayout({
     >
       <StoreProvider>
         <ModalProvider />
+        <Toaster />
         <html lang="en">
           <body
             className={` antialiased`}
