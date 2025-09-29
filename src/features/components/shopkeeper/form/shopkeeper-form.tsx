@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { shopkeeperCreateAction } from "@/features/actions/shopkeeper/create-action"
 import { shopkeeperCreateFormSchema, ShopkeeperCreateFormValue } from "@/features/schemas/shopkeeper"
 import { useModalClose } from "@/hooks/redux"
@@ -35,7 +36,7 @@ export const ShopkeeperForm = () => {
 
                 const now = new Date()
                 const weekName = dateFormatter(now, 'EEEE')
-                const date = dateFormatter(now,'PP')
+                const date = dateFormatter(now, 'PP')
                 const time = dateFormatter(now, 'pp')
 
                 const description = `${weekName}, ${date} at ${time}`
@@ -53,7 +54,6 @@ export const ShopkeeperForm = () => {
 
                 toast.success(message, {
                     description,
-                    position:'top-center'
                 })
                 onModalCloseHandler()
             }
@@ -104,12 +104,19 @@ export const ShopkeeperForm = () => {
                         />
                     )}
                 />
-                <Button
-                    type="submit"
-                    className="w-full"
-                >
-                    Create a Shopkeeper
-                </Button>
+                {pending ? (
+                    <div className="flex items-center justify-center w-full">
+                        <TextShimmerWave>Creating Shopkeeper...</TextShimmerWave>
+                    </div>
+                ) :
+                    <Button
+                        type="submit"
+                        className="w-full"
+                    >
+                        Create a Shopkeeper
+                    </Button>
+
+                }
             </form>
         </Form>
     )

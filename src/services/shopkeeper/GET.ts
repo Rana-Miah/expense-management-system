@@ -13,6 +13,17 @@ export const getShopkeeperByPhoneAndClerkUserId = async (phone: string, clerkUse
     })
 }
 
+export const getShopkeeperByIdAndClerkUserId = async (id: string, clerkUserId: string) => {
+    return await db.query.shopkeeperTable.findFirst({
+        where: (shopkeeper, { and, eq }) => (
+            and(
+                eq(shopkeeper.id, id),
+                eq(shopkeeper.clerkUserId, clerkUserId)
+            )
+        ),
+    })
+}
+
 export const getShopkeepersByClerkUserId = async (clerkUserId: string) => {
     return await db.query.shopkeeperTable.findMany({
         where: (shopkeeper, { eq }) => (

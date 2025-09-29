@@ -19,13 +19,16 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
-    afterSignOutUrl={'/sign-in'}
-    signInForceRedirectUrl={'/'}
-    signInFallbackRedirectUrl={'/'}
+      afterSignOutUrl={'/sign-in'}
+      signInForceRedirectUrl={'/'}
+      signInFallbackRedirectUrl={'/'}
     >
       <StoreProvider>
         <ModalProvider />
-        <Toaster />
+        <Toaster
+          richColors
+          position="top-center"
+        />
         <html lang="en">
           <body
             className={` antialiased`}

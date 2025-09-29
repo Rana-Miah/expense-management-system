@@ -9,6 +9,7 @@ import { ShopkeeperPurchaseColumnCell } from "./purchase-colum-cell";
 import { ShopkeeperUpdateColumnCell } from "./update-colum-cell";
 import { MoreHorizontal } from "lucide-react";
 import { ShopkeeperSelectValue } from "@/drizzle/type";
+import { ShopkeeperActionsColumnCell } from "./actions-column-cell";
 
 export type ShopkeeperColumnCellContext = CellContext<ShopkeeperSelectValue, unknown>
 
@@ -49,17 +50,23 @@ const shopkeeperStatusColumn: ColumnDef<ShopkeeperSelectValue> = {
 
 // Purchase Columns
 const shopkeeperPurchaseColumn: ColumnDef<ShopkeeperSelectValue> = {
-        id: 'Purchase',
-        header: 'Purchase',
-        cell: ShopkeeperPurchaseColumnCell
-    }
+    id: 'Purchase',
+    header: 'Purchase',
+    cell: ShopkeeperPurchaseColumnCell
+}
 
 // Update Columns
 const shopkeeperUpdateColumn: ColumnDef<ShopkeeperSelectValue> = {
-        accessorKey: 'updatedAt',
-        header: 'Last Update',
-        cell: ShopkeeperUpdateColumnCell
-    }
+    accessorKey: 'updatedAt',
+    header: 'Last Update',
+    cell: ShopkeeperUpdateColumnCell
+}
+
+// Update Columns
+const shopkeeperActionColumn: ColumnDef<ShopkeeperSelectValue> = {
+    id: 'actions',
+    cell: ShopkeeperActionsColumnCell
+}
 
 export const shopkeeperColumns: ColumnDef<ShopkeeperSelectValue>[] = [
     shopkeeperNameColumn,
@@ -69,14 +76,5 @@ export const shopkeeperColumns: ColumnDef<ShopkeeperSelectValue>[] = [
     shopkeeperStatusColumn,
     shopkeeperPurchaseColumn,
     shopkeeperUpdateColumn,
-    {
-        id: "Actions",
-        cell: ({ row: { original: { id, name, phone, isBan, createdAt, updatedAt } } }) => {
-            return (
-                <span>
-                    <MoreHorizontal />
-                </span>
-            )
-        }
-    },
+    shopkeeperActionColumn
 ]
