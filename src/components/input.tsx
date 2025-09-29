@@ -160,6 +160,7 @@ type SwitchInputProp<
 > = {
   label: string;
   description: string;
+  disabled?:boolean;
   field: ControllerRenderProps<TFieldValues, TName>;
   onChange?:(value:boolean)=>void
 }
@@ -168,7 +169,7 @@ type SwitchInputProp<
 export const SwitchInput = <
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
->({ onChange,label, description, field }: SwitchInputProp<TFieldValues, TName>) => {
+>({ onChange,label,disabled, description, field }: SwitchInputProp<TFieldValues, TName>) => {
  return (
    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
     <div className="space-y-0.5">
@@ -178,6 +179,7 @@ export const SwitchInput = <
     <FormControl>
       <Switch
         checked={field.value}
+        disabled={disabled}
         onCheckedChange={(value) => {
           field.onChange(value)
           onChange && onChange(value)

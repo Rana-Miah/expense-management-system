@@ -63,7 +63,7 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
             label: 'Edit',
             Icon: Edit,
             onClick() {
-              router.push(`/shopkeepers/${id}?type=edit`)
+              router.push(`/shopkeepers/${id}/edit`)
             }
           },
           {

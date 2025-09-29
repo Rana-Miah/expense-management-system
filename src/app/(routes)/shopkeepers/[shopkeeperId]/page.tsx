@@ -1,30 +1,41 @@
-import { isShowUpdateForm } from '@/lib/helpers';
+import { CardWrapper } from '@/components';
 import { currentUserId } from '@/lib/current-user-id'
+import { dateFormatter } from '@/lib/helpers';
 import { uuidValidator } from '@/lib/zod';
 import { getShopkeeperByIdAndClerkUserId } from '@/services/shopkeeper/GET';
 import { redirect } from 'next/navigation';
 import React from 'react'
-import { ShopkeeperUpdateForm } from '@/features/components/shopkeeper/form';
 
-const ShopkeeperPage = async ({ params, searchParams }: { params: Promise<{ shopkeeperId: string }>; searchParams?: Promise<{ type: string }> }) => {
+const ShopkeeperPage = async ({ params, }: { params: Promise<{ shopkeeperId: string }> }) => {
   const userId = await currentUserId()
   const param = await params
-  const searchParam = await searchParams
   const shopkeeperId = uuidValidator(param.shopkeeperId, '/shopkeepers')
 
   const shopkeeper = await getShopkeeperByIdAndClerkUserId(shopkeeperId, userId)
 
   if (!shopkeeper) redirect('/shopkeeper')
 
-  const isEdit = !!searchParam && isShowUpdateForm(searchParam.type)
+  const data = Object.entries(shopkeeper)
+  return (
+    <CardWrapper
+      title={`Shopkeeper Details ( ${shopkeeper.name} )`}
+      description='Monitor your shokeeper data'
+    >
+      <div>{
+        data.map(([key, value]) => {
 
+          const modifiedValue = value instanceof Date ? dateFormatter(value) : value?.toString() ?? "not found"
 
-  if (isEdit) {
-    return (
-      <ShopkeeperUpdateForm shopkeeper={shopkeeper} />
-    )
-  }
-  return <div>details shopkeeper</div>
+          return (
+            <div className="flex items-center justify-between max-w-lg" key={key}>
+              <span>{key}</span>
+              <span>{modifiedValue}</span>
+            </div>
+          )
+        })
+      }</div>
+    </CardWrapper>
+  )
 }
 
 export default ShopkeeperPage

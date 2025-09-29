@@ -1,6 +1,6 @@
 import { dateFormatter } from "./date-formatter"
 
-export const toasterDescription = () => {
+export const generateToasterDescription = () => {
     const now = new Date()
     const weekName = dateFormatter(now, 'EEEE')
     const date = dateFormatter(now, 'PP')
