@@ -8,7 +8,7 @@ import { itemTable } from "./item";
 
 export const trxTable = pgTable("trx", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
-    clerkUserId: text('clerk_user_id').notNull().unique(),
+    clerkUserId: text('clerk_user_id').notNull(),
     trxNameId: uuid('transaction_name_id').notNull().references(() => trxNameTable.id),
     sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),

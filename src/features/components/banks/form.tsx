@@ -5,26 +5,28 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import {
     Form,
-    FormControl,
-    FormDescription,
+    // FormControl,
+    // FormDescription,
     FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+    // FormItem,
+    // FormLabel,
+    // FormMessage,
 } from "@/components/ui/form"
-import { TrxName } from "@/constant/dummy-db/trx-name"
-import MultipleSelector from "@/components/ui/extension/multi-select"
+// import MultipleSelector from "@/components/ui/extension/multi-select"
 import { bankCreateFormSchema, BankCreateFormValue } from "@/features/schemas/banks"
-import { Switch } from "@/components/ui/switch"
+// import { Switch } from "@/components/ui/switch"
 import { useState, useTransition } from "react"
 import { InputField } from "@/components/input"
 import { createBankAccountAction } from "@/features/actions/bank/create-bank-account"
 import { useRouter } from "next/navigation"
+import { useModalClose } from "@/hooks/redux"
+// import { TrxNameSelectValue } from "@/drizzle/type"
 
-export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
+export const BankForm = () => {
 
-    const [isAssignEnable, setIsAssignEnable] = useState(false)
+    // const [isAssignEnable, setIsAssignEnable] = useState(false)
     const [pending, startTransition] = useTransition()
+    const onModalCloseHandler = useModalClose()
     const router = useRouter()
 
 
@@ -43,15 +45,19 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
         startTransition(
             async () => {
                 const { success, data, error, message } = await createBankAccountAction(values)
-                if (!success||!data) {
+                if (!success || !data) {
                     console.log({ message, error })
                 }
+                form.reset()
+                onModalCloseHandler()
                 router.push(`/accounts/${data?.id}`)
             }
         )
     }
 
-    const modifiedTrxsName = trxsName.map(trxName => ({ label: trxName.name, value: trxName.id }))
+
+
+    // const modifiedTrxsName = trxsName.map(trxName => ({ label: trxName.name, value: trxName.id }))
 
     return (
         <Form {...form}>
@@ -61,6 +67,7 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
                     name="name"
                     render={({ field }) => (
                         <InputField
+                            disabled={pending}
                             field={field}
                             label="Bank Name"
                             placeholder="e.g. CASH"
@@ -73,6 +80,7 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
                     name="balance"
                     render={({ field }) => (
                         <InputField
+                            disabled={pending}
                             field={field}
                             label="Available Balance"
                             placeholder="e.g. 200"
@@ -85,6 +93,7 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
                     name="phone"
                     render={({ field }) => (
                         <InputField
+                            disabled={pending}
                             field={field}
                             label="Phone"
                             placeholder="e.g. 01xxxxxxxxx"
@@ -92,7 +101,7 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
                         />
                     )}
                 />
-
+{/* 
                 {
                     trxsName.length > 0 && (
                         <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
@@ -130,7 +139,7 @@ export const BankForm = ({ trxsName }: { trxsName: TrxName[] }) => {
                             </FormItem>
                         )}
                     />
-                }
+                } */}
                 <Button type="submit">Submit</Button>
             </form>
         </Form>

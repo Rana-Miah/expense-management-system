@@ -11,7 +11,7 @@ import { monthlyMonitorTable } from "./monthly-monitor";
 
 export const bankAccountTable = pgTable("bank_account", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
-    clerkUserId: text('clerk_user_id').notNull().unique(),
+    clerkUserId: text('clerk_user_id').notNull(),
     name: text('name').notNull(),
     balance: numericAmount('balance', 7, 2).default(0),
     lban: text('local_bank_account_number').notNull().unique(),

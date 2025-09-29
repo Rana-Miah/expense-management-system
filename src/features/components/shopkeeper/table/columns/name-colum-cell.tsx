@@ -1,11 +1,10 @@
 'use client'
 
 import { CardDescription, CardTitle } from "@/components/ui/card"
-import { Shopkeeper } from "@/constant/dummy-db/shopkeepers"
 import { dateFormatter } from "@/lib/helpers"
-import { CellContext } from "@tanstack/react-table"
+import { ShopkeeperColumnCellContext } from "."
 
-export const ShopkeeperNameColumnCell = ({ row: { original: { name, createdAt } } }: CellContext<Shopkeeper, unknown>) => {
+export const ShopkeeperNameColumnCell = ({ row: { original: { name, createdAt } } }: ShopkeeperColumnCellContext) => {
     return (
         <>
             <CardTitle>{name}</CardTitle>

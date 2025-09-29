@@ -52,7 +52,7 @@ export const TraxNameForm = () => {
             async () => {
                 const {data,error,success,message} = await createTransactionNameAction(values)
                 if(!success){
-                    console.log(error)
+                    console.log({error,message})
                     return 
                 }
                 onCloseHandler()

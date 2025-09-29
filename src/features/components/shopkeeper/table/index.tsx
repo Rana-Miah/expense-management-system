@@ -9,8 +9,9 @@ import { PlusCircle } from "lucide-react"
 import { useAppDispatch } from "@/hooks/redux"
 import { onOpen } from "@/lib/redux/slice/modal-slice"
 import { MODAL_TYPE } from "@/constant"
+import { ShopkeeperSelectValue } from "@/drizzle/type"
 
-export const ShopkeeperTable = ({shopkeepers}:{shopkeepers:Shopkeeper[]}) => {
+export const ShopkeeperTable = ({shopkeepers}:{shopkeepers:ShopkeeperSelectValue[]}) => {
 
     const dispatch = useAppDispatch()
     const onOpenHandler = ()=>dispatch(onOpen(MODAL_TYPE.SHOPKEEPER))
@@ -32,7 +33,7 @@ export const ShopkeeperTable = ({shopkeepers}:{shopkeepers:Shopkeeper[]}) => {
             }
         >
             <DataTable
-                data={dummyShopkeepers}
+                data={shopkeepers}
                 columns={shopkeeperColumns}
             />
         </CardWrapper>

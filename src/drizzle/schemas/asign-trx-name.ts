@@ -6,7 +6,7 @@ import { trxNameTable } from "./trx-name";
 
 export const assignTrxNameTable = pgTable("assign_transaction_name", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
-    clerkUserId: text('clerk_user_id').notNull().unique(),
+    clerkUserId: text('clerk_user_id').notNull(),
     bankAccountId: uuid('bank_account_id').notNull().references(() => bankAccountTable.id,),
     trxNameId: uuid('transaction_name_id').notNull().references(() => trxNameTable.id,),
     createdAt,

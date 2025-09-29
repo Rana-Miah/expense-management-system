@@ -16,4 +16,4 @@ export type SendFailureResponse<E> = {
     error: E | unknown;
 }
 
-export type SendResponse<SR, FR extends Error> =  SendSuccessResponse<SR> |SendFailureResponse<FR>
+export type SendResponse<SR, FR = unknown> = SendSuccessResponse<SR> | SendFailureResponse<FR>
