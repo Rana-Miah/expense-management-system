@@ -48,7 +48,7 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
 
       <AlertModal
         open={isAlertOpen}
-        onCancel={onCancel }
+        onCancel={onCancel}
         title='Are you sure?'
         description={`You want to delete ${payload?.name ?? "this"} shopkeeper`}
         onConfirm={onConfirm}
@@ -63,7 +63,7 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
             label: 'Edit',
             Icon: Edit,
             onClick() {
-              router.push(`/shopkeepers/${id}/edit`)
+              router.push(`/shopkeepers/${id}?type=edit`)
             }
           },
           {
