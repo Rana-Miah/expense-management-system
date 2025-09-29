@@ -8,5 +8,5 @@ export const MODAL_TYPE = {
     LOAN: 'LOAN',
     LOAN_PAYMENT: 'LOAN_PAYMENT',
     FINANCIER: 'FINANCIER',
-
+    LOADING: 'LOADING',
 } as const

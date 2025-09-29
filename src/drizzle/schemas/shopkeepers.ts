@@ -9,7 +9,7 @@ export const shopkeeperTable = pgTable('shopkeeper', {
     id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
     name: text('name').notNull(),
-    phone: text('phone').notNull().unique(),
+    phone: text('phone').notNull(),
     totalDue: numericAmount('total_due', 7, 0),
     isBan: booleans('is_ban', false),
     reasonOfBan: text('reason_of_ban'),

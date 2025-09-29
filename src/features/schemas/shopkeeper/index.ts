@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { nullable } from "zod";
 
 export const shopkeeperCreateFormSchema = z.object({
     name: z.string().nonempty().min(3, 'Name must be at least 3 characters long!'),
@@ -11,7 +11,7 @@ export const shopkeeperUpdateFormSchema = z.object({
     phone: z.string().optional(),
     totalDue: z.coerce.number<number>().optional(),
     isBan: z.coerce.boolean<boolean>().optional(),
-    reasonOfBan: z.string().optional(),
+    reasonOfBan: z.string().nullable(),
 })
 
 export type ShopkeeperCreateFormValue = z.infer<typeof shopkeeperCreateFormSchema>

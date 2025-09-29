@@ -8,5 +8,5 @@ export const deleteShopkeeper = async (id: string) => {
     const [deletedShopkeeper] = await db.delete(shopkeeperTable).where(
         eq(shopkeeperTable.id, id)
     ).returning()
-    return deleteShopkeeper
+    return deletedShopkeeper
 }
