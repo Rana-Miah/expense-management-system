@@ -4,6 +4,7 @@ import { getShopkeeperByIdAndClerkUserId } from '@/services/shopkeeper/GET';
 import { redirect } from 'next/navigation';
 import React from 'react'
 import { ShopkeeperUpdateForm } from '@/features/components/shopkeeper/form';
+import { CardWrapper } from '@/components';
 
 const ShopkeeperPage = async ({ params }: { params: Promise<{ shopkeeperId: string }>; }) => {
   const userId = await currentUserId()
@@ -13,7 +14,14 @@ const ShopkeeperPage = async ({ params }: { params: Promise<{ shopkeeperId: stri
   const shopkeeper = await getShopkeeperByIdAndClerkUserId(shopkeeperId, userId)
 
   if (!shopkeeper) redirect('/shopkeeper')
-  return <ShopkeeperUpdateForm shopkeeper={shopkeeper} />
+  return (
+    <CardWrapper
+      title='Edit Shopkeeper'
+      description='Edit shopkeeper details'
+    >
+      <ShopkeeperUpdateForm shopkeeper={shopkeeper} />
+    </CardWrapper>
+  )
 }
 
 export default ShopkeeperPage

@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { FieldArrayWithId, useFieldArray, useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -12,57 +12,34 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Bank } from "@/constant/dummy-db/bank-account"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
-import { ArrowLeft, CalendarIcon, PlusCircle, Trash, User } from "lucide-react"
-import { Label } from "@/components/ui/label"
-import { useEffect, useState } from "react"
+import { CalendarIcon, PlusCircle } from "lucide-react"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { dummyItemUnits } from "@/constant/dummy-db/item"
-import { AlertModal, CardWrapper } from "@/components"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { useAppDispatch, useModal } from "@/hooks/redux"
-import { MODAL_TYPE } from "@/constant"
-import { onClose, onOpen } from "@/lib/redux/slice/modal-slice"
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet"
 import { shopkeeperPurchaseItemFormSchema, ShopkeeperPurchaseItemFormValue } from "@/features/schemas/shopkeeper/purchase-item"
-import { useLocalStorage } from "@/hooks/use-local-store"
-import { tryCatch } from "@/lib/helpers"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import { InputField, SelectInput } from "@/components/input"
-import { getShopkeeperById } from "@/constant/dummy-db/shopkeepers"
 import { DynamicFormSheet } from "@/components/dynamic-fields"
+import { ShopkeeperSelectValue } from "@/drizzle/type"
 
 
 
-type SSS = FieldArrayWithId<ShopkeeperPurchaseItemFormValue, 'items', 'id'>[]
 
 
-export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
+export const PurchaseItemsForm = ({ banks, shopkeeper }: { banks: { id: string; name: string, isActive: boolean }[], shopkeeper: ShopkeeperSelectValue }) => {
 
-    //TODO : REMOVE trxsName, it will included in banks
-    const storedKey = 'shopkeeper-purchase-items'
     const [isIncludeItems, setIsIncludeItems] = useState<boolean>(false)
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
-    const [inx, setInx] = useState<number>()
-    const [paidAmountValue, setpaidAmountValue] = useState<number>(0)
-    const router = useRouter()
+    const [paidAmountValue, setPaidAmountValue] = useState<number>(0)
     const params = useParams()
 
-    const { isOpen, type } = useModal()
-    const open = isOpen && type === MODAL_TYPE.ALERT_MODAL
-    const dispatch = useAppDispatch()
 
     // 1. Define your form.
     const form = useForm<ShopkeeperPurchaseItemFormValue>({
@@ -78,14 +55,14 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
         },
     })
 
-    const { control, handleSubmit, reset } = form
+    const { control, handleSubmit } = form
 
     const fieldArray = useFieldArray({
         control,
         name: 'items'
     })
 
-    const { fields, append, remove } = fieldArray
+    const { fields, append } = fieldArray
 
 
     // 2. Define a submit handler.
@@ -102,26 +79,9 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
         })
     }
 
-    const shopkeeper = getShopkeeperById(params.shopkeeperId as string)
-    if (!shopkeeper) return router.push('/shopkeepers')
 
     return (
         <>
-            <AlertModal
-                open={open}
-                title="Are you sure?"
-                description={`Purchase item #${inx! + 1} will deleted`}
-                onCancel={() => {
-                    dispatch(onClose())
-                }}
-                onConfirm={() => {
-                    remove(inx)
-                    dispatch(onClose())
-                    if (fields.length === 1) {
-                        setIsOpenSheet(false)
-                    }
-                }}
-            />
 
             <Form {...form}>
                 <form onSubmit={onSubmitHandler} className={cn("space-y-4 max-w-full")}>
@@ -179,7 +139,7 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
                                         placeholder="e.g. 150"
                                         {...field}
                                         onChange={(e) => {
-                                            setpaidAmountValue(e.target.valueAsNumber)
+                                            setPaidAmountValue(e.target.valueAsNumber)
                                             field.onChange(e)
                                         }}
                                         value={field.value}
@@ -206,7 +166,12 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
                                             <SelectContent className="w-full">
                                                 {
                                                     banks.map(item => (
-                                                        <SelectItem key={item.id} value={item.id} className="relative">
+                                                        <SelectItem
+                                                            key={item.id}
+                                                            value={item.id}
+                                                            className="relative"
+                                                            disabled={!item.isActive}
+                                                        >
                                                             {item.name}
                                                         </SelectItem>
                                                     ))
@@ -279,7 +244,7 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
                         )}
                     />
 
-                    {/* Items includ switch */}
+                    {/* Items include switch */}
                     <FormField
                         control={control}
                         name="isIncludedItems"
@@ -344,7 +309,7 @@ export const PurchaseItemsForm = ({ banks }: { banks: Bank[] }) => {
                                                                 field={field}
                                                                 label="Item Unit"
                                                                 placeholder="Select Unit"
-                                                                items={dummyItemUnits.map(({id,unit})=>({value:id,label:unit}))}
+                                                                items={dummyItemUnits.map(({ id, unit }) => ({ value: id, label: unit }))}
 
                                                             />
                                                         )}

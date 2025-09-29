@@ -1,48 +1,94 @@
 'use client'
+import { SelectInput } from "@/components/input"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Bank } from "@/constant/dummy-db/bank-account"
+import { ShopkeeperSelectValue } from "@/drizzle/type"
+import { shopkeeperPaymentCreateAction } from "@/features/actions/shopkeeper-payment"
 import { shopkeeperBillPaymentFormSchema, ShopkeeperBillPaymentFormValue } from "@/features/schemas/shopkeeper/payment"
+import { generateToasterDescription } from "@/lib/helpers"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
-import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 
-export const ShopkeeperPayBillForm = ({banks,shopkeeperId}:{banks:Bank[],shopkeeperId:string}) => {
+export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
+    banks: {
+        id: string,
+        name: string,
+        isActive: boolean
+        balance: number
+    }[], shopkeeper: ShopkeeperSelectValue
+}) => {
 
     //TODO : REMOVE trxsName, it will included in banks
     const [amount, setAmount] = useState<number>(0)
+    const [pending, startTransition] = useTransition()
+    const router = useRouter()
+
+    console.log(pending);
 
     // 1. Define your form.
     const form = useForm<ShopkeeperBillPaymentFormValue>({
         resolver: zodResolver(shopkeeperBillPaymentFormSchema),
         defaultValues: {
             sourceBankId: "",
+            shopkeeperId: shopkeeper.id,
             amount: 0,
-            purchaseDate: new Date(),
+            paymentDate: new Date(),
             description: "",
         },
     })
 
-    const { control, handleSubmit, reset } = form
+    const { control, handleSubmit } = form
 
 
     // 2. Define a submit handler.
     const onSubmitHandler = handleSubmit(values => {
-        console.log({ values,shopkeeperId })
+        startTransition(
+            async () => {
+                const { success, error, message } = await shopkeeperPaymentCreateAction(values)
+                const description = generateToasterDescription()
+                if (!success) {
+                    console.log(error)
+                    toast.error(message, { description })
+                    return
+                }
+                router.push('/shopkeepers')
+                toast.success(message, { description })
+            }
+        )
     })
     return (
         <Form {...form}>
             <form onSubmit={onSubmitHandler} className={cn("space-y-4 max-w-full")}>
 
+                < FormField
+                    control={control}
+                    name="shopkeeperId"
+                    render={({ field }) => (
+                        <SelectInput
+                            field={field}
+                            label="Shopkeeper"
+                            placeholder="Select your shopkeeper"
+                            disabled
+                            items={[
+                                {
+                                    value: shopkeeper.id,
+                                    label: shopkeeper.name,
+                                }
+                            ]}
+                        />
+                    )}
+                />
                 {/* Paid amount */}
                 <FormField
                     control={control}
@@ -73,26 +119,12 @@ export const ShopkeeperPayBillForm = ({banks,shopkeeperId}:{banks:Bank[],shopkee
                         control={control}
                         name="sourceBankId"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Your Banks</FormLabel>
-                                <FormControl className="w-full">
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select a Transaction Name" />
-                                        </SelectTrigger>
-                                        <SelectContent className="w-full">
-                                            {
-                                                banks.map(item => (
-                                                    <SelectItem key={item.id} value={item.id} className="relative">
-                                                        {item.name}
-                                                    </SelectItem>
-                                                ))
-                                            }
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                            <SelectInput
+                                field={field}
+                                label="Your Banks"
+                                placeholder="Select your bank"
+                                items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString() }))}
+                            />
                         )}
                     />
                 )}
@@ -100,7 +132,7 @@ export const ShopkeeperPayBillForm = ({banks,shopkeeperId}:{banks:Bank[],shopkee
                 {/* date */}
                 <FormField
                     control={control}
-                    name="purchaseDate"
+                    name="paymentDate"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Purchase date</FormLabel>

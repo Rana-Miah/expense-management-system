@@ -6,8 +6,7 @@ import { Form, FormField, } from "@/components/ui/form"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { Textarea } from "@/components/ui/textarea"
 import { ShopkeeperSelectValue } from "@/drizzle/type"
-import { shopkeeperCreateAction } from "@/features/actions/shopkeeper/create-action"
-import { shopkeeperUpdateAction } from "@/features/actions/shopkeeper/update-action"
+import { shopkeeperUpdateAction } from "@/features/actions/shopkeeper"
 import { ShopkeeperUpdateFormValue, shopkeeperUpdateFormSchema } from "@/features/schemas/shopkeeper"
 import { generateToasterDescription } from "@/lib/helpers/toaster-description"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -45,7 +44,7 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
     const onSubmitHandler = handleSubmit((value) => {
         startTransition(
             async () => {
-                const { data, error, success, message } = await shopkeeperUpdateAction(shopkeeper.id, value)
+                const { success, message } = await shopkeeperUpdateAction(shopkeeper.id, value)
 
                 const description = generateToasterDescription()
                 if (!success) {

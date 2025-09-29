@@ -21,10 +21,8 @@ import {
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Badge, badgeVariants } from "./ui/badge"
-import { LucideProps } from "lucide-react"
 import { JSX } from "react"
 import { Switch } from "./ui/switch"
-import * as SwitchPrimitive from "@radix-ui/react-switch"
 
 type InputFieldProp<
   TFieldValues extends FieldValues,
@@ -103,8 +101,10 @@ export const SelectInput = <
       <FormLabel>{label}</FormLabel>
       <FormControl className="w-full">
         <Select
-          {...field}
           {...selectInputProp}
+          value={field.value}
+          onValueChange={field.onChange}
+          defaultValue={field.value}
         >
           <div className={cn(!!Icon && 'relative')}>
             <SelectTrigger className={cn("w-full", !!Icon && 'pl-8')}>
@@ -160,33 +160,35 @@ type SwitchInputProp<
 > = {
   label: string;
   description: string;
-  disabled?:boolean;
+  disabled?: boolean;
   field: ControllerRenderProps<TFieldValues, TName>;
-  onChange?:(value:boolean)=>void
+  onChange?: (value: boolean) => void
 }
 
 
 export const SwitchInput = <
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
->({ onChange,label,disabled, description, field }: SwitchInputProp<TFieldValues, TName>) => {
- return (
-   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-    <div className="space-y-0.5">
-      <FormLabel>{label}</FormLabel>
-      <FormDescription>{description}</FormDescription>
-    </div>
-    <FormControl>
-      <Switch
-        checked={field.value}
-        disabled={disabled}
-        onCheckedChange={(value) => {
-          field.onChange(value)
-          onChange && onChange(value)
-        }
-        }
-      />
-    </FormControl>
-  </FormItem>
- )
+>({ onChange, label, disabled, description, field }: SwitchInputProp<TFieldValues, TName>) => {
+  return (
+    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+      <div className="space-y-0.5">
+        <FormLabel>{label}</FormLabel>
+        <FormDescription>{description}</FormDescription>
+      </div>
+      <FormControl>
+        <Switch
+          checked={field.value}
+          disabled={disabled}
+          onCheckedChange={(value) => {
+            field.onChange(value)
+            if (!!onChange) {
+              onChange(value)
+            }
+          }
+          }
+        />
+      </FormControl>
+    </FormItem>
+  )
 }

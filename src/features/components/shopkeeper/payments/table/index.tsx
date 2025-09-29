@@ -1,10 +1,10 @@
 'use client'
 
 import { CardWrapper, DataTable } from "@/components"
-import { ShopkeeperPayment } from "@/constant/dummy-db/shopkeeper-payment"
 import { shopkeeperTableColumns } from "./columns"
+import { ShopkeeperPaymentSelectValue } from "@/drizzle/type"
 
-export const ShopkeeperPaymentsTable = ({ payments }: { payments: ShopkeeperPayment[] }) => {
+export const ShopkeeperPaymentsTable = ({ payments }: { payments: ShopkeeperPaymentSelectValue[] }) => {
 
     return (
         <CardWrapper

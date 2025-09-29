@@ -1,9 +1,10 @@
 import z from "zod";
 
 export const shopkeeperBillPaymentFormSchema = z.object({
-    sourceBankId: z.string().optional(),
-    amount: z.coerce.number<number>(),
-    purchaseDate: z.coerce.date<Date>().refine(date => {
+    sourceBankId: z.uuid().nonempty(),
+    shopkeeperId: z.uuid().nonempty(),
+    amount: z.coerce.number<number>().nonnegative(),
+    paymentDate: z.coerce.date<Date>().refine(date => {
         const currentDate = new Date()
         const inputDate = new Date(date)
         const inputTime = inputDate.getTime()
@@ -12,7 +13,7 @@ export const shopkeeperBillPaymentFormSchema = z.object({
         return inputTime <= currentTime
 
     }, 'Date must be today or before today.'),
-    description:z.string().optional(),
+    description: z.string().optional(),
 })
 
 export type ShopkeeperBillPaymentFormValue = z.infer<typeof shopkeeperBillPaymentFormSchema>

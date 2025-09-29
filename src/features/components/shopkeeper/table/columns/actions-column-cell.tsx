@@ -1,12 +1,12 @@
 'use client'
-import { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import { ShopkeeperColumnCellContext } from '.'
 import { AlertModal } from '@/components'
 import { useAlertModal, useAlertModalClose, useAlertModalOpen } from '@/hooks/redux'
-import { Edit, Info, Trash } from 'lucide-react'
+import { Edit, HandCoins, Info, ShoppingBag, Trash } from 'lucide-react'
 import { ReusableDropdown } from '@/components/drop-down'
 import { useRouter } from 'next/navigation'
-import { shopkeeperDeleteAction } from '@/features/actions/shopkeeper/delete-action'
+import { shopkeeperDeleteAction } from '@/features/actions/shopkeeper'
 import { toast } from 'sonner'
 
 
@@ -30,10 +30,11 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
           toast.error('Missing Shopkeeper Id!')
           return
         }
-        const { data, message, error, success } = await shopkeeperDeleteAction(payload.id)
+        const { message, error, success } = await shopkeeperDeleteAction(payload.id)
         onAlertModalClose()
         if (!success) {
           toast.error(message)
+          console.log(error)
           return
         }
 
@@ -62,6 +63,7 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
           {
             label: 'Edit',
             Icon: Edit,
+            disabled: pending,
             onClick() {
               router.push(`/shopkeepers/${id}/edit`)
             }
@@ -69,15 +71,34 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
           {
             label: 'Details',
             Icon: Info,
+            disabled: pending,
             onClick() {
               router.push(`/shopkeepers/${id}`)
+            }
+          },
+          {
+            label: 'Pay',
+            Icon: HandCoins,
+            disabled: pending,
+            onClick() {
+              router.push(`/shopkeepers/${id}/payment`)
+            }
+          },
+          {
+            label: 'Purchase',
+            Icon: ShoppingBag,
+            disabled: pending,
+            onClick() {
+              router.push(`/shopkeepers/${id}/purchase-item`)
             }
           },
           {
             variant: 'destructive',
             label: "Delete",
             onClick: () => onAlertModalOpen({ name, id }),
-            Icon: Trash
+            Icon: Trash,
+            disabled: pending,
+            separator: true
           }
         ]}
       />

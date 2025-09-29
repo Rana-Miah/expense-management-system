@@ -1,6 +1,6 @@
 'use client'
 import { Dispatch, ForwardRefExoticComponent, ReactNode, RefAttributes, SetStateAction, useState } from 'react'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { LucideProps, MoreHorizontal, } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
@@ -13,11 +13,12 @@ type DropdownItem = {
     disabled?: boolean
     inset?: boolean
     variant?: "default" | "destructive"
+    separator?: boolean
 } & React.ComponentProps<typeof DropdownMenuPrimitive.Item>
 
 type BaseDropDownProps = {
     items: DropdownItem[];
-    manuLabel?: string | ReactNode
+    menuLabel?: string | ReactNode
 } & React.ComponentProps<typeof DropdownMenuPrimitive.Content>
 
 
@@ -38,7 +39,7 @@ export function ReusableDropdown({
     items,
     trigger,
     onTrigger,
-    manuLabel,
+    menuLabel,
     ...contextProps
 }: ReusableDropdownProps) {
 
@@ -58,20 +59,22 @@ export function ReusableDropdown({
                 )}
             </DropdownMenuTrigger >
             <DropdownMenuContent {...contextProps}>
-                <DropdownMenuLabel>{manuLabel ?? "Actions"}</DropdownMenuLabel>
+                <DropdownMenuLabel>{menuLabel ?? "Actions"}</DropdownMenuLabel>
                 {items.map(({ label, Icon, ...itemProp }, idx) => (
-                    <DropdownMenuItem
-                        key={idx}
-                        {...itemProp}
-                        onClick={() => {
-                            setOpen(false)
-                            itemProp.onClick && itemProp.onClick()
-                        }}
-                        className={cn('flex items-center', Icon && 'justify-between', itemProp.className)}
-                    >
-                        <span>{label}</span>
-                        {Icon && <Icon />}
-                    </DropdownMenuItem>
+                    <div key={idx}>
+                        {itemProp.separator && <DropdownMenuSeparator />}
+                        <DropdownMenuItem
+                            {...itemProp}
+                            onClick={() => {
+                                setOpen(false)
+                                if (itemProp.onClick) itemProp.onClick()
+                            }}
+                            className={cn('flex items-center', Icon && 'justify-between', itemProp.className)}
+                        >
+                            <span>{label}</span>
+                            {Icon && <Icon />}
+                        </DropdownMenuItem>
+                    </div>
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>

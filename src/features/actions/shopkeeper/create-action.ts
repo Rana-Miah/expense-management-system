@@ -3,7 +3,7 @@
 import { shopkeeperCreateFormSchema } from "@/features/schemas/shopkeeper"
 import { currentUserId } from "@/lib/current-user-id"
 import { failureResponse, successResponse } from "@/lib/helpers"
-import { createShopkeeper } from "@/services/shopkeeper/CREAT"
+import { createShopkeeper } from "@/services/shopkeeper/CREATE"
 import { getShopkeeperByPhoneAndClerkUserId } from "@/services/shopkeeper/GET"
 import { revalidatePath } from "next/cache"
 
@@ -23,7 +23,7 @@ export const shopkeeperCreateAction = async (value: unknown) => {
             totalDue,
         })
         if (!newShopkeeper) return failureResponse('Failed to create shopkeeper')
-            revalidatePath(`/shopkeepers`)
+        revalidatePath(`/shopkeepers`)
         return successResponse('Shopkeeper created!', newShopkeeper)
     } catch (error) {
         console.log({

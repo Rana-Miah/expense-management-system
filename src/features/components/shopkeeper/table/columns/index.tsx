@@ -1,13 +1,10 @@
 'use client'
 import { CellContext, ColumnDef } from "@tanstack/react-table";
-import { ShopkeeperNameColumnCell } from "./name-colum-cell";
-import { ShopkeeperTotalDueColumnCell } from "./total-due-colum-cell";
-import { ShopkeeperPaymentColumnCell } from "./payment-colum-cell";
-import { ShopkeeperPhoneColumnCell } from "./phone-colum-cell";
-import { ShopkeeperStatusColumnCell } from "./status-colum-cell";
-import { ShopkeeperPurchaseColumnCell } from "./purchase-colum-cell";
-import { ShopkeeperUpdateColumnCell } from "./update-colum-cell";
-import { MoreHorizontal } from "lucide-react";
+import { ShopkeeperNameColumnCell } from "./name-column-cell";
+import { ShopkeeperTotalDueColumnCell } from "./total-due-column-cell";
+import { ShopkeeperPhoneColumnCell } from "./phone-column-cell";
+import { ShopkeeperStatusColumnCell } from "./status-column-cell";
+import { ShopkeeperUpdateColumnCell } from "./update-column-cell";
 import { ShopkeeperSelectValue } from "@/drizzle/type";
 import { ShopkeeperActionsColumnCell } from "./actions-column-cell";
 
@@ -27,13 +24,6 @@ const shopkeeperTotalDueColumn: ColumnDef<ShopkeeperSelectValue> = {
     cell: ShopkeeperTotalDueColumnCell
 }
 
-//Payment Columns
-const shopkeeperPaymentColumn: ColumnDef<ShopkeeperSelectValue> = {
-    id: 'payment',
-    header: 'Pay',
-    cell: ShopkeeperPaymentColumnCell
-}
-
 //Phone Columns
 const shopkeeperPhoneColumn: ColumnDef<ShopkeeperSelectValue> = {
     accessorKey: 'phone',
@@ -48,12 +38,6 @@ const shopkeeperStatusColumn: ColumnDef<ShopkeeperSelectValue> = {
     cell: ShopkeeperStatusColumnCell
 }
 
-// Purchase Columns
-const shopkeeperPurchaseColumn: ColumnDef<ShopkeeperSelectValue> = {
-    id: 'Purchase',
-    header: 'Purchase',
-    cell: ShopkeeperPurchaseColumnCell
-}
 
 // Update Columns
 const shopkeeperUpdateColumn: ColumnDef<ShopkeeperSelectValue> = {
@@ -71,10 +55,8 @@ const shopkeeperActionColumn: ColumnDef<ShopkeeperSelectValue> = {
 export const shopkeeperColumns: ColumnDef<ShopkeeperSelectValue>[] = [
     shopkeeperNameColumn,
     shopkeeperTotalDueColumn,
-    shopkeeperPaymentColumn,
     shopkeeperPhoneColumn,
     shopkeeperStatusColumn,
-    shopkeeperPurchaseColumn,
     shopkeeperUpdateColumn,
     shopkeeperActionColumn
 ]

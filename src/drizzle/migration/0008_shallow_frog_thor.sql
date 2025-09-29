@@ -1,0 +1,1 @@
+ALTER TABLE "shopkeeper" DROP CONSTRAINT "shopkeeper_phone_unique";

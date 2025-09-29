@@ -11,23 +11,23 @@ import { ShopkeeperColumnCellContext } from "."
 
 export const ShopkeeperPaymentColumnCell = ({ row: { original: { id, totalDue, isBan } } }: ShopkeeperColumnCellContext) => {
     const hasTotalDue = totalDue >= 1
-            const banButHasTotalDue = hasTotalDue && isBan
-            const notBanAlsoHasTotalDue = hasTotalDue && !isBan
+    const banButHasTotalDue = hasTotalDue && isBan
+    const notBanAlsoHasTotalDue = hasTotalDue && !isBan
 
-            const condition = banButHasTotalDue || notBanAlsoHasTotalDue
+    const condition = banButHasTotalDue || notBanAlsoHasTotalDue
 
-            return (
-                <>
-                    {
-                        condition && (
-                            <PaymentButton
-                                banks={dummyBanks}
-                                shopkeeperId={id}
-                            />
-                        )
-                    }
-                </>
-            )
+    return (
+        <>
+            {
+                condition && (
+                    <PaymentButton
+                        banks={dummyBanks}
+                        shopkeeperId={id}
+                    />
+                )
+            }
+        </>
+    )
 }
 
 
@@ -37,7 +37,6 @@ const PaymentButton = ({ banks, shopkeeperId }: { banks: Bank[], shopkeeperId: s
 
     return (
         <>
-
             <Button
                 onClick={onClickHandler}
                 className="flex items-center gap-1.5"

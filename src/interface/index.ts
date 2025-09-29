@@ -1,3 +1,5 @@
+import { db } from "@/drizzle/db"
+
 export * from './response'
 
 
@@ -29,9 +31,9 @@ export type OptionalOnly<T> = {
 }
 
 export type Pagination = {
-  page:number
-  limit:number;
-  total:number;
+  page: number
+  limit: number;
+  total: number;
 }
 
 
@@ -39,3 +41,15 @@ export type Pagination = {
 export type FirstCharacter<Character extends string> = Character extends `${infer F}${string}` ? F : never
 
 
+
+
+
+export type QueryKey = keyof typeof db.query
+export type Query = typeof db.query
+
+export type Find = keyof Query[QueryKey]
+
+export type QueryOptions<
+  T extends QueryKey,
+  F extends Find
+> = Parameters<Query[T][F]>[number]
