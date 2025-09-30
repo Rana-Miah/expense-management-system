@@ -10,7 +10,7 @@ import { shopkeeperDeleteAction } from '@/features/actions/shopkeeper'
 import { toast } from 'sonner'
 
 
-export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }: ShopkeeperColumnCellContext) => {
+export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name, totalDue, isBan } } }: ShopkeeperColumnCellContext) => {
   const { isAlertOpen, payload } = useAlertModal<{ id: string, name: string }>()
   const [pending, startTransition] = useTransition()
   const onAlertModalClose = useAlertModalClose()
@@ -43,6 +43,7 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
       }
     )
   }
+
 
   return (
     <>
@@ -80,6 +81,7 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
             label: 'Pay',
             Icon: HandCoins,
             disabled: pending,
+            conditionalRender: totalDue > 0,
             onClick() {
               router.push(`/shopkeepers/${id}/payment`)
             }
@@ -88,6 +90,7 @@ export const ShopkeeperActionsColumnCell = ({ row: { original: { id, name } } }:
             label: 'Purchase',
             Icon: ShoppingBag,
             disabled: pending,
+            conditionalRender:!isBan,
             onClick() {
               router.push(`/shopkeepers/${id}/purchase-item`)
             }

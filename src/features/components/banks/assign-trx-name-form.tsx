@@ -7,43 +7,47 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
     Form,
-    FormControl,
-    FormDescription,
     FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
 } from "@/components/ui/form"
-import { assignTrxNameFormSchema } from "@/features/schemas/transaction-name"
-import { Bank } from "@/constant/dummy-db/bank-account"
-import { dummyTrxNames, TrxName } from "@/constant/dummy-db/trx-name"
-import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select"
-import { findAssignedTrxNamesByBankId } from "@/constant/dummy-db/asign-trx-name"
-import { Cable, Check } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { assignTrxNameFormSchema, AssignTrxNameFormValue } from "@/features/schemas/assign-trx-name"
+import { SelectInput } from "@/components/input"
+import { BankSelectValue, TrxNameSelectValue } from "@/drizzle/type"
+import { createAssignTrxNameAction } from "@/features/actions/assign-trx-name/create-assign-trx-name"
+import { useTransition } from "react"
+import { toast } from "sonner"
+import { generateToasterDescription } from "@/lib/helpers"
+import { Cable } from "lucide-react"
 
-export const AssignTrxNameForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxName[] }) => {
+export const AssignTrxNameForm = ({ bank, trxNames }: { bank: BankSelectValue, trxNames: TrxNameSelectValue[] }) => {
 
-    //TODO : REMOVE trxsName, it will included in banks
+    //TODO : REMOVE trxNames, it will included in banks
+
+    const [pending, startTransition] = useTransition()
 
     // 1. Define your form.
-    const form = useForm<z.infer<typeof assignTrxNameFormSchema>>({
+    const form = useForm<AssignTrxNameFormValue>({
         resolver: zodResolver(assignTrxNameFormSchema),
         defaultValues: {
+            bankAccountId: bank.id,
             trxNameId: ""
         },
     })
 
     // 2. Define a submit handler.
     function onSubmit(values: z.infer<typeof assignTrxNameFormSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+        startTransition(
+            async () => {
+                const { data, message, success } = await createAssignTrxNameAction(values)
+                const description = generateToasterDescription()
+                if (!success) {
+                    toast.error(message, { description })
+                    return
+                }
+                console.log({ data })
+                toast.success(message, { description })
+            }
+        )
     }
-
-    const assignedTrxName = findAssignedTrxNamesByBankId(bank.id)
-
-    const isAssigned = (id: string) => !!assignedTrxName.find(item => item.trxNameId === id)
 
     return (
         <Form {...form}>
@@ -52,40 +56,18 @@ export const AssignTrxNameForm = ({ bank, trxsName }: { bank: Bank, trxsName: Tr
                     control={form.control}
                     name="trxNameId"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Transaction Name</FormLabel>
-                            <FormControl className="min-w-3xs">
-                                <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                    <SelectTrigger className="min-w-3xs">
-                                        <SelectValue placeholder="Select a Transaction Name" />
-                                    </SelectTrigger>
-                                    <SelectContent className="w-full">
-                                        {
-                                            trxsName.map(item => {
-
-
-                                                return (
-                                                    <SelectItem key={item.id} value={item.id} className="relative" disabled={isAssigned(item.id)}>
-                                                        <span >
-                                                            {
-                                                                item.name
-                                                            }
-                                                        </span>
-                                                        <span className="absolute top1/2 right-2">
-                                                            {
-                                                                isAssigned(item.id) && <Cable size={18} />
-                                                            }
-                                                        </span>
-
-                                                    </SelectItem>
-                                                )
-                                            })
-                                        }
-                                    </SelectContent>
-                                </Select>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
+                        <SelectInput
+                            field={field}
+                            label="Transaction Name"
+                            placeholder="Select a Transaction name"
+                            disabled={pending}
+                            items={trxNames.map(({ id, name, isActive, assignedBanks }) => ({
+                                label: name,
+                                value: id,
+                                isActive: !isActive || !!assignedBanks.find(item => item.trxNameId === id),
+                                Icon: assignedBanks.find(item => item.trxNameId === id) ? Cable : undefined
+                            }))}
+                        />
                     )}
                 />
                 <Button type="submit">Submit</Button>

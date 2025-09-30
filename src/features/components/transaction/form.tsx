@@ -48,9 +48,9 @@ import { CardContent } from "@/components/ui/card"
 
 
 
-export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxName[] }) => {
+export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxName[] }) => {
 
-    //TODO : REMOVE trxsName, it will included in banks
+    //TODO : REMOVE trxNames, it will included in banks
 
     const [selectedtrxTypeWithBoth, setSeletedtrxTypeWithBoth] = useState<typeof trxTypeWithBoth[number] | null>(null)
     const [selectedTrxVariant, setSeletedTrxVariant] = useState<typeof trxVariant[number] | null>(null)
@@ -140,7 +140,7 @@ export const TransactionForm = ({ bank, trxsName }: { bank: Bank, trxsName: TrxN
                                         </SelectTrigger>
                                         <SelectContent className="w-full">
                                             {
-                                                trxsName.map(item => (
+                                                trxNames.map(item => (
                                                     <SelectItem key={item.id} value={item.id} className="relative" disabled={isAssigned(item.id)}>
                                                         {item.name}
                                                     </SelectItem>

@@ -16,7 +16,7 @@ export const BankNav = async ({ params }: { params: { bankId: string } }) => {
             label: `Bank (${bank.name})`, href: `/accounts/${bankId}`
         },
         {
-            label: 'Assign Bank', href: `/accounts/${bankId}/assign-bank`
+            label: 'Assign Bank', href: `/accounts/${bankId}/assign-trx-name`
         },
         {
             label: 'Bank Transactions', href: `/accounts/${bankId}/transactions`

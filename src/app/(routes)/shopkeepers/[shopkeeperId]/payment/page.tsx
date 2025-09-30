@@ -38,7 +38,7 @@ const ShopkeeperPaymentPage = async ({ params }: { params: Promise<{ shopkeeperI
         }
     })
 
-    const trxsName = await getTrxNamesByClerkUserId(userId)
+    const trxNames = await getTrxNamesByClerkUserId(userId)
 
     console.log({ banks, shopkeeperId });
 
@@ -48,7 +48,7 @@ const ShopkeeperPaymentPage = async ({ params }: { params: Promise<{ shopkeeperI
             title='Pay Bill'
             description='Pay bill to shopkeeper'
         >
-            <ShopkeeperPayBillForm banks={banks} shopkeeper={shopkeeper} trxsName={trxsName} />
+            <ShopkeeperPayBillForm banks={banks} shopkeeper={shopkeeper} trxNames={trxNames} />
         </CardWrapper>
     )
 }

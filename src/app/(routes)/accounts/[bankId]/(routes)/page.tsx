@@ -28,7 +28,7 @@ const BankPage = async ({ params }: { params: Promise<{ bankId: string }> }) => 
                         {
                             value: 'assign',
                             label: 'Assign',
-                            content: <AssignTrxNameForm bank={bank} trxsName={trxNames}/>
+                            content: <AssignTrxNameForm bank={bank} trxNames={trxNames}/>
                         },
                         {
                             value: 'transaction',

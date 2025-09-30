@@ -1,5 +1,5 @@
 
-export * from './schemas/asign-trx-name'
+export * from './schemas/assign-trx-name'
 export * from './schemas/bank-account'
 export * from './schemas/budget'
 export * from './schemas/expected-salary'

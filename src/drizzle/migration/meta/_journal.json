@@ -64,6 +64,13 @@
       "when": 1759167211171,
       "tag": "0008_shallow_frog_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1759271300678,
+      "tag": "0009_material_molten_man",
+      "breakpoints": true
     }
   ]
 }

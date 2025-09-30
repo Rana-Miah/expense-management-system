@@ -8,12 +8,13 @@ import { cn } from '@/lib/utils'
 
 type DropdownItem = {
     label: string
-    onClick?: () => void
-    Icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>
-    disabled?: boolean
     inset?: boolean
-    variant?: "default" | "destructive"
+    disabled?: boolean
     separator?: boolean
+    onClick?: () => void
+    conditionalRender?: boolean
+    variant?: "default" | "destructive"
+    Icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>
 } & React.ComponentProps<typeof DropdownMenuPrimitive.Item>
 
 type BaseDropDownProps = {
@@ -60,20 +61,25 @@ export function ReusableDropdown({
             </DropdownMenuTrigger >
             <DropdownMenuContent {...contextProps}>
                 <DropdownMenuLabel>{menuLabel ?? "Actions"}</DropdownMenuLabel>
-                {items.map(({ label, Icon,separator, ...itemProp }, idx) => (
+                {items.map(({ label, Icon, separator, conditionalRender = true, ...itemProp }, idx) => (
                     <div key={idx}>
                         {separator && <DropdownMenuSeparator />}
-                        <DropdownMenuItem
-                            {...itemProp}
-                            onClick={() => {
-                                setOpen(false)
-                                if (itemProp.onClick) itemProp.onClick()
-                            }}
-                            className={cn('flex items-center', Icon && 'justify-between', itemProp.className)}
-                        >
-                            <span>{label}</span>
-                            {Icon && <Icon />}
-                        </DropdownMenuItem>
+                        {
+                            conditionalRender && (
+                                <DropdownMenuItem
+                                    {...itemProp}
+                                    onClick={() => {
+                                        setOpen(false)
+                                        if (itemProp.onClick) itemProp.onClick()
+                                    }}
+                                    className={cn('flex items-center', Icon && 'justify-between', itemProp.className)}
+                                >
+                                    <span>{label}</span>
+                                    {Icon && <Icon />}
+                                </DropdownMenuItem>
+                            )
+                        }
+
                     </div>
                 ))}
             </DropdownMenuContent>

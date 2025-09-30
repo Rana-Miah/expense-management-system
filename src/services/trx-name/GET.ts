@@ -79,3 +79,15 @@ export const getTrxNameByNameAndClerkUserId = async (name: string, clerkUserId: 
         ),
     })
 }
+
+export const getTrxNameByIdAndClerkUserId = async (id: string, clerkUserId: string, options?: TrxNameFindFirstQueryOptions) => {
+    return await db.query.trxNameTable.findFirst({
+        where: (trxNameTable, { eq, and }) => (
+            and(
+                eq(trxNameTable.id, id),
+                eq(trxNameTable.clerkUserId, clerkUserId)
+            )
+        ),
+        ...options,
+    })
+}

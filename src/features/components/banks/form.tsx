@@ -57,7 +57,7 @@ export const BankForm = () => {
 
 
 
-    // const modifiedTrxsName = trxsName.map(trxName => ({ label: trxName.name, value: trxName.id }))
+    // const modifiedtrxNames = trxNames.map(trxName => ({ label: trxName.name, value: trxName.id }))
 
     return (
         <Form {...form}>
@@ -103,7 +103,7 @@ export const BankForm = () => {
                 />
 {/* 
                 {
-                    trxsName.length > 0 && (
+                    trxNames.length > 0 && (
                         <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                             <div className="space-y-0.5">
                                 <FormLabel>Assign transaction name</FormLabel>
@@ -124,14 +124,14 @@ export const BankForm = () => {
                 {
                     isAssignEnable && <FormField
                         control={form.control}
-                        name="assignAbleTrxsName"
+                        name="assignAbletrxNames"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Transaction Name</FormLabel>
                                 <FormControl className="min-w-3xs">
                                     <MultipleSelector
                                         {...field}
-                                        defaultOptions={modifiedTrxsName}
+                                        defaultOptions={modifiedtrxNames}
                                         placeholder="Select transaction to assign"
                                     />
                                 </FormControl>

@@ -28,11 +28,12 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
         balance: number
     }[],
     shopkeeper: ShopkeeperSelectValue;
-    trxsName: TrxNameSelectValue[]
+    trxNames: TrxNameSelectValue[]
 }) => {
 
-    //TODO : REMOVE trxsName, it will included in banks
+    //TODO : REMOVE trxNames, it will included in banks
     const [amount, setAmount] = useState<number>(0)
+    const [selectedBankId, setSelectedBankId] = useState<string>("")
     const [pending, startTransition] = useTransition()
     const router = useRouter()
 
@@ -69,7 +70,12 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
                 toast.success(message, { description })
             }
         )
+
     })
+
+
+    const selectedBank = banks.find(({ id }) => id === selectedBankId)
+
     return (
         <Form {...form}>
             <form onSubmit={onSubmitHandler} className={cn("space-y-4 max-w-full")}>
@@ -87,6 +93,7 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
                                 {
                                     value: shopkeeper.id,
                                     label: shopkeeper.name,
+                                    badgeLabel:shopkeeper.totalDue.toString()
                                 }
                             ]}
                         />
@@ -121,23 +128,14 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
                     <>
                         < FormField
                             control={control}
-                            name="trxNameId"
-                            render={({ field }) => (
-                                <SelectInput
-                                    field={field}
-                                    label="Your Banks"
-                                    placeholder="Select your bank"
-                                    items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString() }))}
-                                />
-                            )}
-                        />
-
-                        < FormField
-                            control={control}
                             name="sourceBankId"
                             render={({ field }) => (
                                 <SelectInput
                                     field={field}
+                                    onValueChange={(value) => {
+                                        setSelectedBankId(value)
+                                        field.onChange(value)
+                                    }}
                                     label="Your Banks"
                                     placeholder="Select your bank"
                                     items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString() }))}
@@ -146,6 +144,24 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
                         />
                     </>
                 )}
+
+                {(selectedBankId && selectedBank) && < FormField
+                    control={control}
+                    name="trxNameId"
+                    render={({ field }) => (
+                        <SelectInput
+                            field={field}
+                            label="Transaction Name"
+                            onValueChange={(value)=>field.onChange(value)}
+                            placeholder="Select your bank"
+                            items={
+                                selectedBank.assignedTransactionsName.map(({ transactionName }) => (
+                                    { value: transactionName.id, label: transactionName.name }
+                                ))
+                            }
+                        />
+                    )}
+                />}
 
                 {/* date */}
                 <FormField

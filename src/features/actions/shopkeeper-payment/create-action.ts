@@ -7,6 +7,8 @@ import { currentUserId } from "@/lib/current-user-id"
 import { failureResponse, successResponse } from "@/lib/helpers"
 import { getBankByIdAndClerkUserId } from "@/services/bank"
 import { getShopkeeperByIdAndClerkUserId } from "@/services/shopkeeper"
+import { getTrxNameByIdAndClerkUserId } from "@/services/trx-name/GET"
+import { and, eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
 export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
@@ -15,7 +17,7 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
         const userId = await currentUserId()
         const validation = shopkeeperBillPaymentFormSchema.safeParse(payload)
         if (!validation.success) return failureResponse('Invalid Fields!', validation.error)
-        const { amount, paymentDate, sourceBankId, description, shopkeeperId,trxNameId } = validation.data
+        const { amount, paymentDate, sourceBankId, description, shopkeeperId, trxNameId } = validation.data
 
         const existShopkeeper = await getShopkeeperByIdAndClerkUserId(shopkeeperId, userId)
 
@@ -33,13 +35,13 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
         // if bank balance less than amount return
         if (amount > existBank.balance) return failureResponse(`Insufficient balance of ${existBank.balance} bank!`)
 
-        const existTrxName = await getBankByIdAndClerkUserId(sourceBankId, userId)
+        const existTrxName = await getTrxNameByIdAndClerkUserId(trxNameId, userId)
 
-        // if bank not exist return
-        if (!existTrxName) return failureResponse('Bank does not exist!')
+        // if transaction name not exist return
+        if (!existTrxName) return failureResponse('Transaction name does not exist!')
 
-        // if bank not active return
-        if (!existTrxName.isActive) return failureResponse('Bank is not active!')
+        // if transaction name not active return
+        if (!existTrxName.isActive) return failureResponse('Transaction name is not active!')
 
 
 
@@ -57,30 +59,59 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
 
                 if (!newPayment) return failureResponse('Failed to create payment!')
 
-                const [updatedShopkeeper] = await tx.update(shopkeeperTable).set({ totalDue: existShopkeeper.totalDue - amount }).returning()
+                const [updatedShopkeeper] = await tx.update(shopkeeperTable)
+                    .set({ totalDue: existShopkeeper.totalDue - amount })
+                    .where(
+                        and(
+                            eq(shopkeeperTable.id, existShopkeeper.id),
+                            eq(shopkeeperTable.clerkUserId, userId),
+                        )
+                    ).returning()
 
                 if (!updatedShopkeeper) {
                     tx.rollback()
                     return failureResponse('Failed to deduct shopkeeper total due!')
                 }
 
-                const [updatedBank] = await tx.update(bankAccountTable).set({ balance: existBank.balance - amount }).returning()
+                const [updatedBank] = await tx.update(bankAccountTable)
+                    .set({ balance: existBank.balance - amount })
+                    .where(
+                        and(
+                            eq(bankAccountTable.id, existBank.id),
+                            eq(bankAccountTable.clerkUserId, userId),
+                            
+                        )
+                    )
+                    .returning()
 
                 if (!updatedBank) {
                     tx.rollback()
                     return failureResponse('Failed to deduct Bank total due!')
                 }
 
+                const [newTrx] = await tx.insert(trxTable).values({
+                    amount,
+                    clerkUserId: userId,
+                    trxDate: new Date(),
+                    trxNameId: existTrxName.id,
+                    trxVariant: 'Internal',
+                    type: 'Credit',
+                    sourceBankId: existBank.id,
+                    trxDescription: 'shopkeeper due bill payment',
+                }).returning()
+
+                if (!newTrx) {
+                    tx.rollback()
+                    return failureResponse('Failed to create transaction during shopkeeper payment!')
+                }
+
+                return successResponse('Shopkeeper due bill paid!', newPayment)
 
             }
         )
 
-
-
         revalidatePath('/shopkeepers')
-        return successResponse('Payment created!', newPayment)
-
-
+        return res
     } catch (error) {
         console.log({
             error,

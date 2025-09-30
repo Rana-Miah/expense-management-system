@@ -23,7 +23,7 @@ export const createBankAccountAction = async (payload: unknown) => {
         const validation = bankCreateFormSchema.safeParse(payload)
         if (!validation.success) return failureResponse('Invalid fields!')
 
-        const { balance, phone, name, assignAbleTrxsName } = validation.data
+        const { balance, phone, name, assignAbletrxNames } = validation.data
 
         const lban = generateLban(name, phone)
 
@@ -42,8 +42,8 @@ export const createBankAccountAction = async (payload: unknown) => {
         })
         if (!newBank) return failureResponse('Failed to create bank!')
 
-        if (assignAbleTrxsName) {
-            assignAbleTrxsName.forEach(
+        if (assignAbletrxNames) {
+            assignAbletrxNames.forEach(
                 async ({ value: trxNameId }) => {
                     const existTrxNam = await getTrxNameById(trxNameId)
 

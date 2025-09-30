@@ -3,7 +3,7 @@
 import { boolean, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { createdAt, numericAmount, relationBetween, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
-import { assignTrxNameTable } from "./asign-trx-name";
+import { assignTrxNameTable } from "./assign-trx-name";
 import { trxTable } from "./trx";
 import { loanPaymentTable } from "./loan-payment";
 import { shopkeeperPaymentTable } from "./shopkeeper-payment";

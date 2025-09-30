@@ -16,7 +16,7 @@ const TransactionPage = async ({ params }: { params: Promise<{ bankId: string; t
                 title="Transaction Form"
                 description="Create your Transaction"
             >
-                <TransactionForm bank={bank} trxsName={trxNames} />
+                <TransactionForm bank={bank} trxNames={trxNames} />
             </CardWrapper>
         </div>
     )

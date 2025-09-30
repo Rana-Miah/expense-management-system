@@ -18,5 +18,5 @@ export const COMMON_TRX_NAME: CommonTrxNameMap<CommonTrxName> = {
     WITHDRAWAL: 'WITHDRAWAL',
 }
 
-export const trxsNameReceiveByCash = [COMMON_TRX_NAME.WITHDRAWAL,COMMON_TRX_NAME.CASH_OUT]
-export const trxsNameSourceByCash = [COMMON_TRX_NAME.DEPOSIT]
+export const trxNamesReceiveByCash = [COMMON_TRX_NAME.WITHDRAWAL,COMMON_TRX_NAME.CASH_OUT]
+export const trxNamesSourceByCash = [COMMON_TRX_NAME.DEPOSIT]

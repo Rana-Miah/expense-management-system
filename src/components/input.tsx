@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Badge, badgeVariants } from "./ui/badge"
 import { JSX } from "react"
 import { Switch } from "./ui/switch"
+import { LucideProps } from "lucide-react"
 
 type InputFieldProp<
   TFieldValues extends FieldValues,
@@ -30,9 +31,9 @@ type InputFieldProp<
 > = {
   label: string;
   Icon?: JSX.Element;
-  // Icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
   field: ControllerRenderProps<TFieldValues, TName>;
 } & React.ComponentProps<"input">
+
 
 export function InputField<
   TFieldValues extends FieldValues,
@@ -76,8 +77,10 @@ export function InputField<
 export type SelectInputItem = {
   label: string;
   value: string;
+  isActive?: boolean;
   badgeProp?: React.ComponentProps<"span"> &
   VariantProps<typeof badgeVariants> & { asChild?: boolean };
+  Icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
   badgeLabel?: string
 }
 
@@ -95,37 +98,42 @@ type SelectInputProp<
 export const SelectInput = <
   TFieldValues extends FieldValues,
   TName extends FieldPath<TFieldValues>
->({ label, placeholder, field, items, Icon, ...selectInputProp }: SelectInputProp<TFieldValues, TName>) => {
+>({ label, placeholder, field, items, Icon: LabelIcon, ...selectInputProp }: SelectInputProp<TFieldValues, TName>) => {
   return (
     <FormItem>
       <FormLabel>{label}</FormLabel>
       <FormControl className="w-full">
         <Select
           {...selectInputProp}
-          value={field.value}
-          onValueChange={field.onChange}
-          defaultValue={field.value}
+          // value={field.value}
+          // onValueChange={field.onChange}
+          // defaultValue={field.value}
+          {...field}
         >
-          <div className={cn(!!Icon && 'relative')}>
-            <SelectTrigger className={cn("w-full", !!Icon && 'pl-8')}>
+          <div className={cn(!!LabelIcon && 'relative')}>
+            <SelectTrigger className={cn("w-full", !!LabelIcon && 'pl-8')}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent className={cn("w-full")}>
               {
-                items.map(item => (
+                items.map(({ value, label, Icon: ItemIcon, badgeLabel, badgeProp, isActive }) => (
                   <SelectItem
-                    key={item.value}
-                    value={item.value}
-                    className={cn("flex items-center relative", item.badgeLabel && 'gap-1.5')}>
+                    key={value}
+                    value={value}
+                    disabled={isActive}
+                    className={cn("flex items-center relative", badgeLabel && 'gap-1.5')}>
                     <span>
-                      {item.label}
+                      {label}
                     </span>
                     {
-                      item.badgeLabel && (
+                      ItemIcon && <ItemIcon />
+                    }
+                    {
+                      badgeLabel && (
                         <Badge
-                          {...item.badgeProp}
+                          {...badgeProp}
                         >
-                          {item.badgeLabel}
+                          {badgeLabel}
                         </Badge>
                       )
                     }
@@ -134,9 +142,9 @@ export const SelectInput = <
               }
             </SelectContent>
             {
-              Icon && (
+              LabelIcon && (
                 <span className='absolute top-1/2 left-4.5 -translate-y-1/2 -translate-x-1/2'>
-                  {Icon}
+                  {LabelIcon}
                 </span>
               )
             }
@@ -144,7 +152,7 @@ export const SelectInput = <
         </Select>
       </FormControl>
       <FormMessage />
-    </FormItem>
+    </FormItem >
   )
 }
 

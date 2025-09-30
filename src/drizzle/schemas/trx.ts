@@ -15,7 +15,7 @@ export const trxTable = pgTable("trx", {
     localBankNumber: text('local_bank_number').references(() => bankAccountTable.lban),
 
     type: text('type', { enum: trxTypeWithBoth }).notNull(),
-    trxVariant: text('type', { enum: trxVariant }).notNull(),
+    trxVariant: text('type_variant', { enum: trxVariant }).notNull(),
     trxDate: times('transaction_date'),
     trxDescription: text('transaction_description'),
     amount: numericAmount('amount', 7, 2),

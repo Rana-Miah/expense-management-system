@@ -2,9 +2,19 @@
 
 import { db } from "@/drizzle/db"
 
-export const getAssignTrxNameById = async (clerkUserId: string) => {
+export const getAssignTrxNameByClerkUserId = async (clerkUserId: string) => {
     return await db.query.assignTrxNameTable.findMany({
         where: (bankTable, { eq }) => (eq(bankTable.clerkUserId, clerkUserId)),
+    })
+}
+
+export const getAssignTrxNameByIdAndBankIdAndClerkUserId = async (trxNameId: string, bankId: string, clerkUserId: string) => {
+    return await db.query.assignTrxNameTable.findFirst({
+        where: (table, { eq, and }) => (and(
+            eq(table.trxNameId, trxNameId),
+            eq(table.bankAccountId, bankId),
+            eq(table.clerkUserId, clerkUserId)
+        )),
     })
 }
 
