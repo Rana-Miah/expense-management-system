@@ -1,4 +1,4 @@
-import { getBanksByClerkUserId } from "@/services/bank/GET"
+import { getBankByClerkUserId } from "@/services/bank"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { ReactNode } from "react"
@@ -6,15 +6,11 @@ const StartUpLayout = async ({ children }: { children: ReactNode }) => {
     const { userId } = await auth()
     if (!userId) redirect('/sign-in')
 
-    const existBanks = await getBanksByClerkUserId(userId)
-    const totalBanks = existBanks.length
+    const bank = await getBankByClerkUserId(userId)
 
-    if (totalBanks > 0) {
-        totalBanks < 2
-            ? redirect(`/accounts/${existBanks[0].id}`)
-            :redirect(`/accounts`)
+    if (bank) {
+        redirect(`/accounts/${bank.id}`)
     }
-
 
     return (
         <>

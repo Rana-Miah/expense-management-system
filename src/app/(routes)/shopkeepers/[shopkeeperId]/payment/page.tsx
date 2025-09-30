@@ -5,6 +5,7 @@ import { currentUserId } from '@/lib/current-user-id'
 import { uuidValidator } from '@/lib/zod'
 import { getBanksByClerkUserId } from '@/services/bank/GET'
 import { getShopkeeperByIdAndClerkUserId } from '@/services/shopkeeper'
+import { getTrxNamesByClerkUserId } from '@/services/trx-name/GET'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
@@ -18,14 +19,26 @@ const ShopkeeperPaymentPage = async ({ params }: { params: Promise<{ shopkeeperI
     if (!shopkeeper) return redirect('/shopkeepers')
 
     const banks = await getBanksByClerkUserId(userId, {
+
+        where: (table, { eq }) => (
+            eq(table.isActive, true)
+        ),
         columns: {
             id: true,
             name: true,
             isActive: true,
-            balance: true
+            balance: true,
+        },
+        with: {
+            assignedTransactionsName: {
+                with: {
+                    transactionName: true
+                }
+            }
         }
-    }) as Pick<BankSelectValue, 'id' | 'name' | 'isActive' | 'balance'>[]
+    })
 
+    const trxsName = await getTrxNamesByClerkUserId(userId)
 
     console.log({ banks, shopkeeperId });
 
@@ -35,7 +48,7 @@ const ShopkeeperPaymentPage = async ({ params }: { params: Promise<{ shopkeeperI
             title='Pay Bill'
             description='Pay bill to shopkeeper'
         >
-            <ShopkeeperPayBillForm banks={banks} shopkeeper={shopkeeper} />
+            <ShopkeeperPayBillForm banks={banks} shopkeeper={shopkeeper} trxsName={trxsName} />
         </CardWrapper>
     )
 }

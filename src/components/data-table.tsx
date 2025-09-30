@@ -21,7 +21,6 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Pagination } from "@/interface"
-import { Badge } from "./ui/badge"
 
 
 type BaseDataTableProps<TData, TValue> = {
@@ -62,13 +61,6 @@ export const DataTable = <TData, TValue>({ columns, data, pagination, }: DataTab
 
     return (
         <>
-            {/* Pagination */}
-            {
-                pagination && (
-                    <DataTablePagination pagination={pagination} />
-                )
-            }
-
             <div className="flex flex-col">
                 <Input
                     placeholder={`Filter ${selectFilterByColumnName}`}

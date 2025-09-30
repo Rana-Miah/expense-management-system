@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Textarea } from "@/components/ui/textarea"
-import { ShopkeeperSelectValue } from "@/drizzle/type"
+import { ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
 import { shopkeeperPaymentCreateAction } from "@/features/actions/shopkeeper-payment"
 import { shopkeeperBillPaymentFormSchema, ShopkeeperBillPaymentFormValue } from "@/features/schemas/shopkeeper/payment"
 import { generateToasterDescription } from "@/lib/helpers"
@@ -26,7 +26,9 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
         name: string,
         isActive: boolean
         balance: number
-    }[], shopkeeper: ShopkeeperSelectValue
+    }[],
+    shopkeeper: ShopkeeperSelectValue;
+    trxsName: TrxNameSelectValue[]
 }) => {
 
     //TODO : REMOVE trxsName, it will included in banks
@@ -41,6 +43,7 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
         resolver: zodResolver(shopkeeperBillPaymentFormSchema),
         defaultValues: {
             sourceBankId: "",
+            trxNameId: "",
             shopkeeperId: shopkeeper.id,
             amount: 0,
             paymentDate: new Date(),
@@ -115,18 +118,33 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
 
                 {/* bank name */}
                 {amount > 0 && (
-                    < FormField
-                        control={control}
-                        name="sourceBankId"
-                        render={({ field }) => (
-                            <SelectInput
-                                field={field}
-                                label="Your Banks"
-                                placeholder="Select your bank"
-                                items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString() }))}
-                            />
-                        )}
-                    />
+                    <>
+                        < FormField
+                            control={control}
+                            name="trxNameId"
+                            render={({ field }) => (
+                                <SelectInput
+                                    field={field}
+                                    label="Your Banks"
+                                    placeholder="Select your bank"
+                                    items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString() }))}
+                                />
+                            )}
+                        />
+
+                        < FormField
+                            control={control}
+                            name="sourceBankId"
+                            render={({ field }) => (
+                                <SelectInput
+                                    field={field}
+                                    label="Your Banks"
+                                    placeholder="Select your bank"
+                                    items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString() }))}
+                                />
+                            )}
+                        />
+                    </>
                 )}
 
                 {/* date */}

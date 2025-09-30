@@ -22,5 +22,12 @@ export const useQueryString = () => {
         router.push(stringifyUrl)
     }
 
-    return {rawSearchParams,setQueryParams}
+    const setPagination = (key: string, value: string | (string | null)[] | null) => {
+        searchQuery[key] = value
+
+        const stringifyUrl = qs.stringifyUrl({ url: window.location.href, query: searchQuery }, { skipNull: true })
+        router.push(stringifyUrl)
+    }
+
+    return { searchQuery: parsedSearchParams, setQueryParams,setPagination }
 }

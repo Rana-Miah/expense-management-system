@@ -60,9 +60,9 @@ export function ReusableDropdown({
             </DropdownMenuTrigger >
             <DropdownMenuContent {...contextProps}>
                 <DropdownMenuLabel>{menuLabel ?? "Actions"}</DropdownMenuLabel>
-                {items.map(({ label, Icon, ...itemProp }, idx) => (
+                {items.map(({ label, Icon,separator, ...itemProp }, idx) => (
                     <div key={idx}>
-                        {itemProp.separator && <DropdownMenuSeparator />}
+                        {separator && <DropdownMenuSeparator />}
                         <DropdownMenuItem
                             {...itemProp}
                             onClick={() => {

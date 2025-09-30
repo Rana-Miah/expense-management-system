@@ -1,7 +1,6 @@
 'use client'
 
 import { CardWrapper, DataTable } from "@/components"
-import { dummyShopkeepers, Shopkeeper } from "@/constant/dummy-db/shopkeepers"
 import { pluralize } from "@/lib/helpers"
 import { shopkeeperColumns } from "./columns"
 import { Button } from "@/components/ui/button"
@@ -11,21 +10,21 @@ import { onOpen } from "@/lib/redux/slice/modal-slice"
 import { MODAL_TYPE } from "@/constant"
 import { ShopkeeperSelectValue } from "@/drizzle/type"
 
-export const ShopkeeperTable = ({shopkeepers}:{shopkeepers:ShopkeeperSelectValue[]}) => {
+export const ShopkeeperTable = ({ shopkeepers, meta }: { shopkeepers: ShopkeeperSelectValue[], meta: { page: number; limit: number; total: number } }) => {
 
     const dispatch = useAppDispatch()
-    const onOpenHandler = ()=>dispatch(onOpen(MODAL_TYPE.SHOPKEEPER))
+    const onOpenHandler = () => dispatch(onOpen(MODAL_TYPE.SHOPKEEPER))
 
     return (
         <CardWrapper
-            title={`${pluralize(shopkeepers.length,'Shopkeeper')}`}
+            title={`${pluralize(shopkeepers.length, 'Shopkeeper')}`}
             description="Manage your shopkeepers"
             headerElement={
                 <Button
-                className="flex items-center gap-1.5"
-                onClick={onOpenHandler}
+                    className="flex items-center gap-1.5"
+                    onClick={onOpenHandler}
                 >
-                    <PlusCircle/>
+                    <PlusCircle />
                     <span>
                         New
                     </span>
@@ -35,6 +34,7 @@ export const ShopkeeperTable = ({shopkeepers}:{shopkeepers:ShopkeeperSelectValue
             <DataTable
                 data={shopkeepers}
                 columns={shopkeeperColumns}
+                pagination={meta}
             />
         </CardWrapper>
     )

@@ -1,13 +1,18 @@
 'use server'
 
 import { db } from "@/drizzle/db"
+import { shopkeeperTable } from "@/drizzle/schema"
 import { QueryOptions } from "@/interface"
+import { eq } from "drizzle-orm"
 
+
+type ShopkeeperFindFirstQuery = QueryOptions<'shopkeeperTable', 'findFirst'>
+type ShopkeeperFindManyQuery = QueryOptions<'shopkeeperTable', 'findMany'> & { page?: number }
 
 export const getShopkeeperByPhoneAndClerkUserId = async (
     phone: string,
     clerkUserId: string,
-    options?: QueryOptions<'shopkeeperTable', 'findFirst'>
+    options?: ShopkeeperFindFirstQuery
 ) => {
     return await db.query.shopkeeperTable.findFirst({
         ...options,
@@ -32,11 +37,35 @@ export const getShopkeeperByIdAndClerkUserId = async (id: string, clerkUserId: s
     })
 }
 
-export const getShopkeepersByClerkUserId = async (clerkUserId: string, options?: QueryOptions<'shopkeeperTable', 'findMany'>) => {
-    return await db.query.shopkeeperTable.findMany({
-        ...options,
+export const getShopkeepersByClerkUserId = async (clerkUserId: string, options?: ShopkeeperFindManyQuery) => {
+
+    const { limit, page, ...rest } = options ?? {}
+
+    const pageLimit = typeof limit == 'number' ? limit : 2
+
+    let offset: number = 0
+
+    if (page) {
+        offset = (page - 1) * pageLimit
+    }
+
+    const total = await db.$count(shopkeeperTable,eq(shopkeeperTable.clerkUserId, clerkUserId))
+
+    const shopkeepers = await db.query.shopkeeperTable.findMany({
         where: (shopkeeper, { eq }) => (
             eq(shopkeeper.clerkUserId, clerkUserId)
         ),
+        ...rest,
+        offset,
+        limit: pageLimit
     })
+
+    return {
+        shopkeepers,
+        meta: {
+            limit: pageLimit,
+            page: page ?? 1,
+            total
+        }
+    }
 }
