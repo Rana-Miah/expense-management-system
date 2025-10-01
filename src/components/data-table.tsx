@@ -31,13 +31,14 @@ type BaseDataTableProps<TData, TValue> = {
 
 type WithPagination<TData, TValue> = BaseDataTableProps<TData, TValue> & {
     pagination?: Pagination
+    enableSmartPagination?:boolean
 
 }
 
 type DataTableProps<TData, TValue> = WithPagination<TData, TValue>
 
 
-export const DataTable = <TData, TValue>({ columns, data, pagination, }: DataTableProps<TData, TValue>) => {
+export const DataTable = <TData, TValue>({ columns, data, pagination,enableSmartPagination }: DataTableProps<TData, TValue>) => {
 
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -167,7 +168,7 @@ export const DataTable = <TData, TValue>({ columns, data, pagination, }: DataTab
             {/* Pagination */}
             {
                 pagination && (
-                    <DataTablePagination pagination={pagination} />
+                    <DataTablePagination pagination={pagination} enableSmartPagination={enableSmartPagination}/>
                 )
             }
         </>

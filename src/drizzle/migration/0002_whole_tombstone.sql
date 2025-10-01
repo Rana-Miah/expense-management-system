@@ -1,1 +1,0 @@
-ALTER TABLE "trx_name" ALTER COLUMN "clerk_user_id" SET DATA TYPE text;

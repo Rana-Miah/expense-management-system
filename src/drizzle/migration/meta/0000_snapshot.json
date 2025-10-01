@@ -1,5 +1,5 @@
 {
-  "id": "c8be0e98-29d7-4b66-981a-af63117992ca",
+  "id": "f6d117d0-8bdc-4fe5-9f87-19bf9e267762",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -84,13 +84,6 @@
           "columns": [
             "id"
           ]
-        },
-        "assign_transaction_name_clerk_user_id_unique": {
-          "name": "assign_transaction_name_clerk_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
-          ]
         }
       },
       "policies": {},
@@ -116,7 +109,7 @@
         },
         "name": {
           "name": "name",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -163,13 +156,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "id"
-          ]
-        },
-        "bank_account_clerk_user_id_unique": {
-          "name": "bank_account_clerk_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
           ]
         },
         "bank_account_local_bank_account_number_unique": {
@@ -677,13 +663,6 @@
             "id"
           ]
         },
-        "loan_financier_clerk_user_id_unique": {
-          "name": "loan_financier_clerk_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
-          ]
-        },
         "loan_financier_phone_unique": {
           "name": "loan_financier_phone_unique",
           "nullsNotDistinct": false,
@@ -1118,20 +1097,6 @@
           "columns": [
             "id"
           ]
-        },
-        "shopkeeper_clerk_user_id_unique": {
-          "name": "shopkeeper_clerk_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
-          ]
-        },
-        "shopkeeper_phone_unique": {
-          "name": "shopkeeper_phone_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "phone"
-          ]
         }
       },
       "policies": {},
@@ -1476,7 +1441,7 @@
         },
         "clerk_user_id": {
           "name": "clerk_user_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -1491,7 +1456,7 @@
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "default": false
+          "default": true
         },
         "created_at": {
           "name": "created_at",
@@ -1516,13 +1481,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "id"
-          ]
-        },
-        "trx_name_clerk_user_id_unique": {
-          "name": "trx_name_clerk_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
           ]
         }
       },
@@ -1565,14 +1523,20 @@
           "primaryKey": false,
           "notNull": false
         },
-        "local_bank_number": {
-          "name": "local_bank_number",
-          "type": "text",
+        "local_bank_id": {
+          "name": "local_bank_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "type": {
           "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type_variant": {
+          "name": "type_variant",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -1670,15 +1634,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "trx_local_bank_number_bank_account_local_bank_account_number_fk": {
-          "name": "trx_local_bank_number_bank_account_local_bank_account_number_fk",
+        "trx_local_bank_id_bank_account_id_fk": {
+          "name": "trx_local_bank_id_bank_account_id_fk",
           "tableFrom": "trx",
           "tableTo": "bank_account",
           "columnsFrom": [
-            "local_bank_number"
+            "local_bank_id"
           ],
           "columnsTo": [
-            "local_bank_account_number"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -1691,13 +1655,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "id"
-          ]
-        },
-        "trx_clerk_user_id_unique": {
-          "name": "trx_clerk_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
           ]
         }
       },

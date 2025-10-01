@@ -1,1 +1,0 @@
-ALTER TABLE "trx" ADD COLUMN "type_variant" text NOT NULL;

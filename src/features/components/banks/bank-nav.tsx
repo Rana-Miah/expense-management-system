@@ -1,5 +1,4 @@
 import { LayoutLinkType, LayoutNav } from '@/components/layout-nav'
-import { findBankById } from '@/constant/dummy-db/bank-account'
 import { getBankById } from '@/services/bank/GET'
 import { redirect } from 'next/navigation'
 import React from 'react'
@@ -16,7 +15,7 @@ export const BankNav = async ({ params }: { params: { bankId: string } }) => {
             label: `Bank (${bank.name})`, href: `/accounts/${bankId}`
         },
         {
-            label: 'Assign Bank', href: `/accounts/${bankId}/assign-trx-name`
+            label: 'Assign Transaction Name', href: `/accounts/${bankId}/assign-trx-name`
         },
         {
             label: 'Bank Transactions', href: `/accounts/${bankId}/transactions`

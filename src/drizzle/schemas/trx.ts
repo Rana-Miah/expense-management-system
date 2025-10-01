@@ -12,7 +12,7 @@ export const trxTable = pgTable("trx", {
     trxNameId: uuid('transaction_name_id').notNull().references(() => trxNameTable.id),
     sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),
-    localBankNumber: text('local_bank_number').references(() => bankAccountTable.lban),
+    localBankId: uuid('local_bank_id').references(() => bankAccountTable.id),
 
     type: text('type', { enum: trxTypeWithBoth }).notNull(),
     trxVariant: text('type_variant', { enum: trxVariant }).notNull(),
@@ -43,7 +43,7 @@ export const trxTableRelation = relations(trxTable, ({ one, many }) => ({
         relationName: relationBetween('trx', 'receive-bank')//'relation-between-trx-and-receive-bank'
     }),
     localBankNumber: one(bankAccountTable, {
-        fields: [trxTable.localBankNumber],
+        fields: [trxTable.localBankId],
         references: [bankAccountTable.id],
         relationName: relationBetween('trx', 'local-bank')//'relation-between-trx-and-local-bank'
     }),

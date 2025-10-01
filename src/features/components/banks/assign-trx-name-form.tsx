@@ -17,6 +17,7 @@ import { useTransition } from "react"
 import { toast } from "sonner"
 import { generateToasterDescription } from "@/lib/helpers"
 import { Cable } from "lucide-react"
+import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 
 export const AssignTrxNameForm = ({ bank, trxNames }: { bank: BankSelectValue, trxNames: TrxNameSelectValue[] }) => {
 
@@ -61,16 +62,26 @@ export const AssignTrxNameForm = ({ bank, trxNames }: { bank: BankSelectValue, t
                             label="Transaction Name"
                             placeholder="Select a Transaction name"
                             disabled={pending}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
                             items={trxNames.map(({ id, name, isActive, assignedBanks }) => ({
                                 label: name,
                                 value: id,
-                                isActive: !isActive || !!assignedBanks.find(item => item.trxNameId === id),
-                                Icon: assignedBanks.find(item => item.trxNameId === id) ? Cable : undefined
+                                isActive: !isActive || !!assignedBanks.find(item => item.bankAccountId === bank.id),
+                                Icon: assignedBanks.find(item => item.bankAccountId === bank.id) ? Cable : undefined
                             }))}
                         />
                     )}
                 />
-                <Button type="submit">Submit</Button>
+                {
+                    pending ? (
+                        <TextShimmerWave>
+                            Assigning...
+                        </TextShimmerWave>
+                    ) : (
+                        <Button type="submit" className="w-full" disabled={pending}>Assign Transaction Name</Button>
+                    )
+                }
             </form>
         </Form>
     )

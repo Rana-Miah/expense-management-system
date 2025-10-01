@@ -5,21 +5,19 @@ CREATE TABLE "assign_transaction_name" (
 	"transaction_name_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
-	CONSTRAINT "assign_transaction_name_id_unique" UNIQUE("id"),
-	CONSTRAINT "assign_transaction_name_clerk_user_id_unique" UNIQUE("clerk_user_id")
+	CONSTRAINT "assign_transaction_name_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "bank_account" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"clerk_user_id" text NOT NULL,
-	"name" uuid NOT NULL,
+	"name" text NOT NULL,
 	"balance" numeric(7, 2) DEFAULT 0 NOT NULL,
 	"local_bank_account_number" text NOT NULL,
 	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	CONSTRAINT "bank_account_id_unique" UNIQUE("id"),
-	CONSTRAINT "bank_account_clerk_user_id_unique" UNIQUE("clerk_user_id"),
 	CONSTRAINT "bank_account_local_bank_account_number_unique" UNIQUE("local_bank_account_number")
 );
 --> statement-breakpoint
@@ -100,7 +98,6 @@ CREATE TABLE "loan_financier" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	CONSTRAINT "loan_financier_id_unique" UNIQUE("id"),
-	CONSTRAINT "loan_financier_clerk_user_id_unique" UNIQUE("clerk_user_id"),
 	CONSTRAINT "loan_financier_phone_unique" UNIQUE("phone")
 );
 --> statement-breakpoint
@@ -157,9 +154,7 @@ CREATE TABLE "shopkeeper" (
 	"reason_of_ban" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
-	CONSTRAINT "shopkeeper_id_unique" UNIQUE("id"),
-	CONSTRAINT "shopkeeper_clerk_user_id_unique" UNIQUE("clerk_user_id"),
-	CONSTRAINT "shopkeeper_phone_unique" UNIQUE("phone")
+	CONSTRAINT "shopkeeper_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "shopkeeper_item" (
@@ -205,13 +200,12 @@ CREATE TABLE "shopkeeper_payment" (
 --> statement-breakpoint
 CREATE TABLE "trx_name" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"clerk_user_id" uuid NOT NULL,
+	"clerk_user_id" text NOT NULL,
 	"name" text NOT NULL,
-	"is_active" boolean DEFAULT false NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
-	CONSTRAINT "trx_name_id_unique" UNIQUE("id"),
-	CONSTRAINT "trx_name_clerk_user_id_unique" UNIQUE("clerk_user_id")
+	CONSTRAINT "trx_name_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "trx" (
@@ -220,8 +214,9 @@ CREATE TABLE "trx" (
 	"transaction_name_id" uuid NOT NULL,
 	"source_bank_id" uuid,
 	"receive_bank_id" uuid,
-	"local_bank_number" text,
+	"local_bank_id" uuid,
 	"type" text NOT NULL,
+	"type_variant" text NOT NULL,
 	"transaction_date" timestamp with time zone NOT NULL,
 	"transaction_description" text,
 	"amount" numeric(7, 2) NOT NULL,
@@ -230,8 +225,7 @@ CREATE TABLE "trx" (
 	"reason_of_reversed" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
-	CONSTRAINT "trx_id_unique" UNIQUE("id"),
-	CONSTRAINT "trx_clerk_user_id_unique" UNIQUE("clerk_user_id")
+	CONSTRAINT "trx_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 ALTER TABLE "assign_transaction_name" ADD CONSTRAINT "assign_transaction_name_bank_account_id_bank_account_id_fk" FOREIGN KEY ("bank_account_id") REFERENCES "public"."bank_account"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -254,4 +248,4 @@ ALTER TABLE "shopkeeper_payment" ADD CONSTRAINT "shopkeeper_payment_source_bank_
 ALTER TABLE "trx" ADD CONSTRAINT "trx_transaction_name_id_trx_name_id_fk" FOREIGN KEY ("transaction_name_id") REFERENCES "public"."trx_name"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "trx" ADD CONSTRAINT "trx_source_bank_id_bank_account_id_fk" FOREIGN KEY ("source_bank_id") REFERENCES "public"."bank_account"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "trx" ADD CONSTRAINT "trx_receive_bank_id_bank_account_id_fk" FOREIGN KEY ("receive_bank_id") REFERENCES "public"."bank_account"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "trx" ADD CONSTRAINT "trx_local_bank_number_bank_account_local_bank_account_number_fk" FOREIGN KEY ("local_bank_number") REFERENCES "public"."bank_account"("local_bank_account_number") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "trx" ADD CONSTRAINT "trx_local_bank_id_bank_account_id_fk" FOREIGN KEY ("local_bank_id") REFERENCES "public"."bank_account"("id") ON DELETE no action ON UPDATE no action;
