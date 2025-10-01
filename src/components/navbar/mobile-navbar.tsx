@@ -69,7 +69,7 @@ export const MobileNavbar = async () => {
             routes.map(
               item => (
                 <SheetClose asChild
-                key={item.label}
+                  key={item.label}
                 >
                   <Link
                     href={item.href}

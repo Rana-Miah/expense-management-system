@@ -12,7 +12,6 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
 import { CalendarIcon, PlusCircle } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
@@ -51,7 +50,8 @@ export const PurchaseItemsForm = ({ banks, shopkeeper }: { banks: { id: string; 
             totalAmount: 0,
             paidAmount: 0,
             isIncludedItems: false,
-            items: []
+            items: [],
+            purchaseDate: new Date()
         },
     })
 
@@ -156,31 +156,19 @@ export const PurchaseItemsForm = ({ banks, shopkeeper }: { banks: { id: string; 
                             control={control}
                             name="sourceBankId"
                             render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Your Banks</FormLabel>
-                                    <FormControl className="w-full">
-                                        <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Select a Transaction Name" />
-                                            </SelectTrigger>
-                                            <SelectContent className="w-full">
-                                                {
-                                                    banks.map(item => (
-                                                        <SelectItem
-                                                            key={item.id}
-                                                            value={item.id}
-                                                            className="relative"
-                                                            disabled={!item.isActive}
-                                                        >
-                                                            {item.name}
-                                                        </SelectItem>
-                                                    ))
-                                                }
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                                <SelectInput
+                                    label="Your Banks"
+                                    placeholder="Select a Transaction Name"
+                                    field={field}
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    items={banks.map(({ id, name, isActive }) => ({
+                                        label: name,
+                                        value: id,
+                                        isActive: !isActive,
+                                    }))}
+                                />
+
                             )}
                         />
                     )}
@@ -309,6 +297,8 @@ export const PurchaseItemsForm = ({ banks, shopkeeper }: { banks: { id: string; 
                                                                 field={field}
                                                                 label="Item Unit"
                                                                 placeholder="Select Unit"
+                                                                onValueChange={field.onChange}
+                                                                defaultValue={field.value}
                                                                 items={dummyItemUnits.map(({ id, unit }) => ({ value: id, label: unit }))}
 
                                                             />

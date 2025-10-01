@@ -9,4 +9,5 @@ export const MODAL_TYPE = {
     LOAN_PAYMENT: 'LOAN_PAYMENT',
     FINANCIER: 'FINANCIER',
     LOADING: 'LOADING',
+    ASSIGN_TRX_NAME: 'ASSIGN_TRX_NAME',
 } as const

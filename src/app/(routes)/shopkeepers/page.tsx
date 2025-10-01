@@ -11,9 +11,9 @@ const ShopkeepersPage = async ({ searchParams }: { searchParams: Promise<{ page?
 
     const userId = await currentUserId()
 
-    const { shopkeepers, meta} = await getShopkeepersByClerkUserId(userId, {
+    const { shopkeepers, meta } = await getShopkeepersByClerkUserId(userId, {
         page: page ? Math.ceil(Number(page)) : 1,
-        limit: Number(limit?? "5") 
+        limit: Number(limit ?? "5")
     })
 
 

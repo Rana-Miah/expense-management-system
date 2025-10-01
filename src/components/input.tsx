@@ -105,9 +105,6 @@ export const SelectInput = <
       <FormControl className="w-full">
         <Select
           {...selectInputProp}
-          // value={field.value}
-          // onValueChange={field.onChange}
-          // defaultValue={field.value}
           {...field}
         >
           <div className={cn(!!LabelIcon && 'relative')}>

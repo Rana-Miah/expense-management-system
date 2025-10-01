@@ -35,6 +35,7 @@ export const ShopkeeperTable = ({ shopkeepers, meta }: { shopkeepers: Shopkeeper
                 data={shopkeepers}
                 columns={shopkeeperColumns}
                 pagination={meta}
+                enableSmartPagination
             />
         </CardWrapper>
     )

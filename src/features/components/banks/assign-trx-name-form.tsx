@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form"
 import { assignTrxNameFormSchema, AssignTrxNameFormValue } from "@/features/schemas/assign-trx-name"
 import { SelectInput } from "@/components/input"
-import { BankSelectValue, TrxNameSelectValue } from "@/drizzle/type"
+import { AssignTrxNameSelectValue, BankSelectValue, TrxNameSelectValue } from "@/drizzle/type"
 import { createAssignTrxNameAction } from "@/features/actions/assign-trx-name/create-assign-trx-name"
 import { useTransition } from "react"
 import { toast } from "sonner"
@@ -19,9 +19,13 @@ import { generateToasterDescription } from "@/lib/helpers"
 import { Cable } from "lucide-react"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 
-export const AssignTrxNameForm = ({ bank, trxNames }: { bank: BankSelectValue, trxNames: TrxNameSelectValue[] }) => {
-
-    //TODO : REMOVE trxNames, it will included in banks
+export const AssignTrxNameForm = (
+    { bank, trxNames }: {
+        bank: BankSelectValue, trxNames: (TrxNameSelectValue & {
+            assignedBanks: AssignTrxNameSelectValue[]
+        })[]
+    }
+) => {
 
     const [pending, startTransition] = useTransition()
 
@@ -75,7 +79,9 @@ export const AssignTrxNameForm = ({ bank, trxNames }: { bank: BankSelectValue, t
                 />
                 {
                     pending ? (
-                        <TextShimmerWave>
+                        <TextShimmerWave
+                            className="flex items-center justify-center w-full"
+                        >
                             Assigning...
                         </TextShimmerWave>
                     ) : (

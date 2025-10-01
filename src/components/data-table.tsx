@@ -11,7 +11,7 @@ import {
 import { DataTablePagination } from "./data-table-pagination"
 import { useState } from "react"
 import { Button } from "./ui/button"
-import { ChevronDown, X } from "lucide-react"
+import { ChevronDown, } from "lucide-react"
 import { Input } from "./ui/input"
 import {
     Select,
@@ -31,14 +31,14 @@ type BaseDataTableProps<TData, TValue> = {
 
 type WithPagination<TData, TValue> = BaseDataTableProps<TData, TValue> & {
     pagination?: Pagination
-    enableSmartPagination?:boolean
+    enableSmartPagination?: boolean
 
 }
 
 type DataTableProps<TData, TValue> = WithPagination<TData, TValue>
 
 
-export const DataTable = <TData, TValue>({ columns, data, pagination,enableSmartPagination }: DataTableProps<TData, TValue>) => {
+export const DataTable = <TData, TValue>({ columns, data, pagination, enableSmartPagination }: DataTableProps<TData, TValue>) => {
 
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -56,7 +56,7 @@ export const DataTable = <TData, TValue>({ columns, data, pagination,enableSmart
             columnFilters,
         }
     })
-    const [selectFilterByColumnName, setSelectFilterByColumnName] = useState<string>(table.getAllColumns()[0].id)
+    const [selectFilterByColumnName, setSelectFilterByColumnName] = useState<string>(table.getAllColumns()[0]?.id)
 
 
 
@@ -168,7 +168,7 @@ export const DataTable = <TData, TValue>({ columns, data, pagination,enableSmart
             {/* Pagination */}
             {
                 pagination && (
-                    <DataTablePagination pagination={pagination} enableSmartPagination={enableSmartPagination}/>
+                    <DataTablePagination pagination={pagination} enableSmartPagination={enableSmartPagination} />
                 )
             }
         </>

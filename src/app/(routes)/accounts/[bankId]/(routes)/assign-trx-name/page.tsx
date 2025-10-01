@@ -1,4 +1,5 @@
 import { CardWrapper } from '@/components'
+import { AssignTrxNameSelectValue, BankSelectValue, TrxNameSelectValue } from '@/drizzle/type'
 import { AssignTrxNameForm } from '@/features/components/banks/assign-trx-name-form'
 import { AssignedTrxName } from '@/features/components/banks/assigned-trx-name'
 import { currentUserId } from '@/lib/current-user-id'
@@ -21,23 +22,26 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
                 }
             }
         }
-    })
+    }) as Promise<(
+        BankSelectValue & {
+            assignedTransactionsName: (AssignTrxNameSelectValue & {
+                transactionName: TrxNameSelectValue
+            })[]
+        }
+    )>
     const trxNamePromise = getTrxNamesByClerkUserId(userId, {
         with: {
             assignedBanks: true
         }
-    })
-    // as Promise<(TrxNameSelectValue & {
-    //     assignedBanks: AssignTrxNameSelectValue[]
-    // })[]>
+    }) as Promise<(TrxNameSelectValue & {
+        assignedBanks: AssignTrxNameSelectValue[]
+    })[]>
     const [bank, trxNames] = await Promise.all([bankPromise, trxNamePromise])
 
     if (!bank) redirect('/accounts')
 
-    console.log({ bank })
-
     return (
-        <>
+        <div className='space-y-3'>
             <CardWrapper
                 title='Assign Transaction'
                 description='Assign your transaction name under bank'
@@ -46,7 +50,7 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
             </CardWrapper>
 
             <AssignedTrxName assignedTrxNames={bank.assignedTransactionsName} />
-        </>
+        </div>
     )
 }
 
