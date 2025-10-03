@@ -43,27 +43,24 @@ export type Pagination = {
 export type FirstCharacter<Character extends string> = Character extends `${infer F}${string}` ? F : never
 
 
-export type NotFoundMessage<T extends string = string> = T extends `${string} does not exist!` ? T : never
-export type ExistMessage<T extends string = string> = T extends `${string} already exist!` ? T : never
+// --- Pluralization rules ---
+type Pluralize<T extends string> =
+  T extends `${infer Stem}y` ? `${Stem}ies` :
+  T extends `${string}ies` ? T :
+  T extends `${string}es` ? T :
+  T extends `${string}s` ? T :
+  `${T}s`;
+
+export type NotFoundMessage<T extends string = string> = T extends `${Capitalize<string>} does not exist!` ? T : never
+export type ExistMessage<T extends string = string> = T extends `${Capitalize<string>} already exist!` ? T : never
 export type AssignedMessage<T extends string = string> =
-  T extends `${string} already assigned with "${string}" ${string}` ? T : never
-export type NewCreatedMessage<T extends string = string> = T extends `${string} created!` ? T : never
-export type UpdatedMessage<T extends string = string> = T extends `${string} updated!` ? T : never
-export type DeletedMessage<T extends string = string> = T extends `${string} deleted!` ? T : never
+  T extends `${Capitalize<string>} already assigned with "${Capitalize<string>}" bank` ? T : never
+export type GetMessage<T extends string = string> = T extends `${T} created!` ? T : never
+export type NewCreatedMessage<T extends string = string> = T extends `${Capitalize<string>} created!` ? T : never
+export type UpdatedMessage<T extends string = string> = T extends `${Capitalize<string>} updated!` ? T : never
+export type DeletedMessage<T extends string = string> = T extends `${Capitalize<string>} deleted!` ? T : never
 export type NewAssignMessage<T extends string = string> = T extends `Transaction name "${string}" assigned to "${string}" bank` ? T : never
 
-export type Message<T extends string> =
-  | NotFoundMessage
-  | ExistMessage
-  | AssignedMessage
-  | NewCreatedMessage
-  | UpdateMessage
-  | DeletedMessage
-  | NewAssignMessage
-// | (string & {})
-
-const message: Message<string> = 'Trx name "Food" assigned to "Bank of America" bank'
-console.log({ message })
 
 export type QueryKey = keyof typeof db.query
 export type Query = typeof db.query

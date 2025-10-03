@@ -6,6 +6,7 @@ export * from './send-response'
 export * from './word-formatter'
 export * from './toaster-description'
 export * from './show-edit-form'
+export * from './response-message'
 
 
 
