@@ -1,5 +1,6 @@
 import { db } from "@/drizzle/db"
 import { and, eq, not, or, SQLWrapper } from "drizzle-orm";
+import { UpdateMessage } from "next/dist/build/swc/types";
 
 export * from './response'
 
@@ -42,8 +43,27 @@ export type Pagination = {
 export type FirstCharacter<Character extends string> = Character extends `${infer F}${string}` ? F : never
 
 
+export type NotFoundMessage<T extends string = string> = T extends `${string} does not exist!` ? T : never
+export type ExistMessage<T extends string = string> = T extends `${string} already exist!` ? T : never
+export type AssignedMessage<T extends string = string> =
+  T extends `${string} already assigned with "${string}" ${string}` ? T : never
+export type NewCreatedMessage<T extends string = string> = T extends `${string} created!` ? T : never
+export type UpdatedMessage<T extends string = string> = T extends `${string} updated!` ? T : never
+export type DeletedMessage<T extends string = string> = T extends `${string} deleted!` ? T : never
+export type NewAssignMessage<T extends string = string> = T extends `Transaction name "${string}" assigned to "${string}" bank` ? T : never
 
+export type Message<T extends string> =
+  | NotFoundMessage
+  | ExistMessage
+  | AssignedMessage
+  | NewCreatedMessage
+  | UpdateMessage
+  | DeletedMessage
+  | NewAssignMessage
+// | (string & {})
 
+const message: Message<string> = 'Trx name "Food" assigned to "Bank of America" bank'
+console.log({ message })
 
 export type QueryKey = keyof typeof db.query
 export type Query = typeof db.query
@@ -54,3 +74,6 @@ export type QueryOptions<
   T extends QueryKey,
   F extends Find
 > = Parameters<Query[T][F]>[number]
+
+
+

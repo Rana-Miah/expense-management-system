@@ -1,19 +1,25 @@
-export type Success<T> = { data: T, error: null }
-export type Failure<E> = { data: null, error: E | unknown }
-export type Result<T, E = Error> = Success<T> | Failure<E>
-
-export type SendSuccessResponse<T> = {
+export type ActionSuccess<T> = {
     success: true;
-    message: string;
+    message: string
     data: T;
-    error: null;
 }
 
-export type SendFailureResponse<E> = {
+export type ActionFailureWithError<FR> = {
     success: false;
-    message: string;
-    data: null;
-    error: E | unknown;
+    isError: true;
+    message: string
+    errorMessage: string;
+    error: FR;
+}
+export type ActionFailureWithoutError = {
+    success: false;
+    isError: false;
+    message: string
+    errorMessage: string;
 }
 
-export type SendResponse<SR, FR = unknown> = SendSuccessResponse<SR> | SendFailureResponse<FR>
+
+
+export type ActionFailure<FR = Error> = ActionFailureWithError<FR> | ActionFailureWithoutError
+
+export type SendResponse<SR, FR = Error> = ActionSuccess<SR> | ActionFailure<FR>

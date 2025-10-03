@@ -1,33 +1,18 @@
-import { Result, Success } from "@/interface";
+type TryCatchSuccess<T> = readonly [T, null]
+type TryCatchError<E = Error> = readonly [null, E]
+
+type Result<T, E = Error> = Promise<TryCatchSuccess<T> | TryCatchError<E>>
 
 export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Result<T, E>> => {
     try {
         const data = await promise
-
-        return {
-            data,
-            error: null
-        }
+        return [data, null] as const
     } catch (error) {
-        console.log(error)
-        return {
-            data: null,
-            error
-        }
-    }
-}
-
-export const tryCatchFn = async <T, E = Error>(fn: () => Promise<T>): Promise<Result<T, E>> => {
-    try {
-        const data = await fn()
-        return {
-            data,
-            error:null
-        }
-    } catch (error) {
-        return {
-            data: null,
-            error
-        }
+        console.log({
+            errorName: (error as Error)?.name || 'unknown error',
+            errorMessage: (error as Error)?.message || 'unknown error',
+            error, from: "tryCatch utils "
+        })
+        return [null, error as E] as const
     }
 }

@@ -42,14 +42,17 @@ export const AssignTrxNameForm = (
     function onSubmit(values: z.infer<typeof assignTrxNameFormSchema>) {
         startTransition(
             async () => {
-                const { data, message, success } = await createAssignTrxNameAction(values)
+                const res = await createAssignTrxNameAction(values)
                 const description = generateToasterDescription()
-                if (!success) {
-                    toast.error(message, { description })
+                if (!res.success) {
+                    if (res.isError) {
+                        console.log({ error: res.error, errorMessage: res.errorMessage })
+                    }
+                    toast.error(res.message, { description })
                     return
                 }
-                console.log({ data })
-                toast.success(message, { description })
+                console.log({ res })
+                toast.success(res.message, { description })
             }
         )
     }
