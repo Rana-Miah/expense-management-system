@@ -1,7 +1,7 @@
 'use server'
 import { shopkeeperUpdateFormSchema } from "@/features/schemas/shopkeeper"
 import { currentUserId } from "@/lib/current-user-id"
-import { failureResponse, successResponse } from "@/lib/helpers"
+import { failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
 import { getShopkeeperByIdAndClerkUserId, getShopkeeperByPhoneAndClerkUserId } from "@/services/shopkeeper/GET"
 import { updateShopkeeper } from "@/services/shopkeeper/UPDATE"
 import { revalidatePath } from "next/cache"
@@ -9,34 +9,37 @@ import { revalidatePath } from "next/cache"
 
 
 export const shopkeeperUpdateAction = async (shopkeeperId: string, payload: unknown) => {
+    const [userId, clerkError] = await tryCatch(currentUserId())
 
-    try {
-        const userId = await currentUserId()
-        const validation = shopkeeperUpdateFormSchema.safeParse(payload)
+    if (clerkError) return failureResponse(messageUtils.clerkErrorMessage(), clerkError)
 
-        if (!validation.success) return failureResponse('Invalid fields!', validation.error)
+    const validation = shopkeeperUpdateFormSchema.safeParse(payload)
 
-        const { phone } = validation.data
+    if (!validation.success) return failureResponse(messageUtils.invalidFieldsMessage(), validation.error)
 
-        const existShopkeeper = await getShopkeeperByIdAndClerkUserId(shopkeeperId, userId)
+    const { phone } = validation.data
 
-        if (!existShopkeeper) return failureResponse('Shopkeeper does not exist!')
+    const [existShopkeeper, getExistShopkeeperError] = await tryCatch(getShopkeeperByIdAndClerkUserId(shopkeeperId, userId))
 
-        if (phone && existShopkeeper.phone !== phone) {
-            const existShopkeeperWithPhone = await getShopkeeperByPhoneAndClerkUserId(phone, userId)
-            if (existShopkeeperWithPhone) return failureResponse(`Shopkeeper already exist with phone ${phone}`)
-        }
+    if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)
 
-       
-        const updatedShopkeeper = await updateShopkeeper(existShopkeeper.id,validation.data)
-        if (!updatedShopkeeper) return failureResponse('Failed to update shopkeeper!')
-        revalidatePath('/shopkeepers')
+    if (!existShopkeeper) return failureResponse(messageUtils.notFoundMessage('shopkeeper'))
 
-        return successResponse('Shopkeeper updated!', updatedShopkeeper)
+    if (phone && existShopkeeper.phone !== phone) {
+        const [existShopkeeperWithPhone, getExistShopkeeperError] = await tryCatch(getShopkeeperByPhoneAndClerkUserId(phone, userId))
 
-    } catch (error) {
-        console.log(error)
-        return failureResponse('Failed to update shopkeeper!')
+        if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)
+
+        if (existShopkeeperWithPhone) return failureResponse(messageUtils.existMessage(`Shopkeeper with phone:${phone}`))
     }
+
+    const [updatedShopkeeper, updateShopkeeperError] = await tryCatch(updateShopkeeper(existShopkeeper.id, validation.data))
+
+    if (updateShopkeeperError) return failureResponse(messageUtils.failedUpdateMessage('shopkeeper'), updateShopkeeperError)
+
+    if (!updatedShopkeeper) return failureResponse(messageUtils.failedUpdateMessage('shopkeeper'))
+    revalidatePath('/shopkeepers')
+
+    return successResponse(messageUtils.updateMessage('Shopkeeper'), updatedShopkeeper)
 
 }

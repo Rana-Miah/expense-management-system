@@ -1,42 +1,44 @@
 'use server'
 
 import { trxNameCreateFormSchema } from "@/features/schemas/transaction-name"
-import { failureResponse, successResponse } from "@/lib/helpers"
-import { createTrxName } from "@/services/trx-name/CREATE"
-import { getTrxNameByNameAndClerkUserId } from "@/services/trx-name/GET"
-import { auth } from "@clerk/nextjs/server"
+import { failureResponse, messageUtils, successResponse } from "@/lib/helpers"
+import { createTrxName, getTrxNameByNameAndClerkUserId } from "@/services/trx-name"
 import { revalidatePath } from "next/cache"
+import { tryCatch } from '@/lib/helpers'
+import { currentUserId } from "@/lib/current-user-id"
 
 export const createTransactionNameAction = async (payload: unknown) => {
-    try {
-        // authentication
-        const { userId } = await auth()
-        if (!userId) return failureResponse('Unauthenticated user!')
+    // authentication
+    const [userId, clerkError] = await tryCatch(currentUserId())
 
-        //zod validation
-        const validation = trxNameCreateFormSchema.safeParse(payload)
+    if (clerkError) return failureResponse(messageUtils.clerkErrorMessage(), clerkError)
 
-        if (!validation.success) return failureResponse('Invalid fields!')
+    if (!userId) return failureResponse(messageUtils.unauthorizedMessage())
 
-        const { name, } = validation.data
+    //zod validation
+    const validation = trxNameCreateFormSchema.safeParse(payload)
 
-        const existTrxName = await getTrxNameByNameAndClerkUserId(name,userId)
+    if (!validation.success) return failureResponse(messageUtils.invalidFieldsMessage(), validation.error)
 
-        //if exist the bank with lban 
-        if (existTrxName) return failureResponse(`Transaction Name already exist with ${name}`)
+    const { name, } = validation.data
 
+    const [existTrxName, getExistTrxNameError] = await tryCatch(getTrxNameByNameAndClerkUserId(name, userId))
 
-        const newTrxName = await createTrxName({
-            name,
-            clerkUserId: userId
-        })
-        if (!newTrxName) return failureResponse('Failed to create transaction name!')
+    if (getExistTrxNameError) return failureResponse(messageUtils.failedGetMessage('exist transaction name'), getExistTrxNameError)
+        
+    //if exist the bank with lban 
+    if (existTrxName) return failureResponse(messageUtils.existMessage(`Transaction Name with ${name}`))
 
-        revalidatePath('/transaction-name')
+    const [newTrxName,newTrxNameError] = await tryCatch(createTrxName({
+        name,
+        clerkUserId: userId
+    }))
 
-        return successResponse('Bank created successfully!', newTrxName)
-    } catch (error) {
-        console.log(error)
-        return failureResponse('Failed to create transaction name!', error)
-    }
+    if(newTrxNameError) return failureResponse(messageUtils.failedCreateMessage('transaction name'),newTrxNameError)
+
+    if (!newTrxName) return failureResponse(messageUtils.failedCreateMessage('transaction name'))
+
+    revalidatePath('/transaction-name')
+
+    return successResponse(messageUtils.createMessage('transaction name'), newTrxName)
 }

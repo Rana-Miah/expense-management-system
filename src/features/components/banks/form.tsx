@@ -5,17 +5,10 @@ import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import {
     Form,
-    // FormControl,
-    // FormDescription,
     FormField,
-    // FormItem,
-    // FormLabel,
-    // FormMessage,
 } from "@/components/ui/form"
-// import MultipleSelector from "@/components/ui/extension/multi-select"
 import { bankCreateFormSchema, BankCreateFormValue } from "@/features/schemas/banks"
-// import { Switch } from "@/components/ui/switch"
-import { useState, useTransition } from "react"
+import {  useTransition } from "react"
 import { InputField } from "@/components/input"
 import { createBankAccountAction } from "@/features/actions/bank/create-bank-account"
 import { useRouter } from "next/navigation"
@@ -44,20 +37,22 @@ export const BankForm = () => {
     function onSubmit(values: BankCreateFormValue) {
         startTransition(
             async () => {
-                const { success, data, error, message } = await createBankAccountAction(values)
-                if (!success || !data) {
-                    console.log({ message, error })
+                const res= await createBankAccountAction(values)
+                if (!res.success || !res.data) {
+                    console.log(res)
+                    return
                 }
+
                 form.reset()
                 onModalCloseHandler()
-                router.push(`/accounts/${data?.id}`)
+                router.push(`/accounts/${res.data.id}`)
             }
         )
     }
 
 
 
-    // const modifiedtrxNames = trxNames.map(trxName => ({ label: trxName.name, value: trxName.id }))
+    // const modifiedTrxNames = trxNames.map(trxName => ({ label: trxName.name, value: trxName.id }))
 
     return (
         <Form {...form}>
@@ -124,14 +119,14 @@ export const BankForm = () => {
                 {
                     isAssignEnable && <FormField
                         control={form.control}
-                        name="assignAbletrxNames"
+                        name="assignAbleTrxNames"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Transaction Name</FormLabel>
                                 <FormControl className="min-w-3xs">
                                     <MultipleSelector
                                         {...field}
-                                        defaultOptions={modifiedtrxNames}
+                                        defaultOptions={modifiedTrxNames}
                                         placeholder="Select transaction to assign"
                                     />
                                 </FormControl>

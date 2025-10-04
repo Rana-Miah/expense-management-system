@@ -9,7 +9,7 @@ export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Resul
         return [data, null] as const
     } catch (error) {
         console.log({
-            errorName: (error as Error)?.name || 'unknown error',
+            errorName: (error as Error)?.name || 'unknown error name',
             errorMessage: (error as Error)?.message || 'unknown error',
             error, from: "tryCatch utils "
         })

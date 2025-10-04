@@ -50,11 +50,11 @@ export const TraxNameForm = () => {
     function onSubmit(values: TrxNameCreateFormValue) {
         startTransition(
             async () => {
-                const {data,error,success,message} = await createTransactionNameAction(values)
-                if(!success){
-                    console.log({error,message})
-                    return 
+                const res = await createTransactionNameAction(values)
+                if (!res.success) {
+                    if (res.isError) console.log({ res, inside: `isError block`, from: `transaction name on submit` })
                 }
+                console.log({ res, inside: `onsubmit fn block`, from: `transaction name on submit` })
                 onCloseHandler()
                 form.reset()
             }

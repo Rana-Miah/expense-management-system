@@ -1,6 +1,6 @@
 'use server'
 import { currentUserId } from "@/lib/current-user-id"
-import { failureResponse, successResponse } from "@/lib/helpers"
+import { failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
 import { deleteShopkeeper } from "@/services/shopkeeper/DELETE"
 import { getShopkeeperByIdAndClerkUserId } from "@/services/shopkeeper/GET"
 import { revalidatePath } from "next/cache"
@@ -9,23 +9,23 @@ import { revalidatePath } from "next/cache"
 
 export const shopkeeperDeleteAction = async (shopkeeperId: string) => {
 
-    try {
-        const userId = await currentUserId()
-        const existShopkeeper = await getShopkeeperByIdAndClerkUserId(shopkeeperId, userId)
+    const [userId, clerkError] = await tryCatch(currentUserId())
+    if (clerkError) return failureResponse(messageUtils.clerkErrorMessage(), clerkError)
 
-        if (!existShopkeeper) return failureResponse('Shopkeeper does not exist!')
+    const [existShopkeeper, getExistShopkeeperError] = await tryCatch(getShopkeeperByIdAndClerkUserId(shopkeeperId, userId))
 
-        if (existShopkeeper.totalDue > 0) return failureResponse('Please clear previous due balance!')
+    if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)
+    if (!existShopkeeper) return failureResponse(messageUtils.notFoundMessage('shopkeeper'))
 
-        const deletedShopkeeper = await deleteShopkeeper(existShopkeeper.id)
-        if (!deletedShopkeeper) return failureResponse('Failed to delete shopkeeper!')
-        revalidatePath('/shopkeepers')
+    if (existShopkeeper.totalDue > 0) return failureResponse('Please clear previous due balance!')
 
-        return successResponse('Shopkeeper deleted!', deletedShopkeeper)
+    const [deletedShopkeeper,deleteShopkeeperError] = await tryCatch(deleteShopkeeper(existShopkeeper.id))
 
-    } catch (error) {
-        console.log(error)
-        return failureResponse('Failed to delete shopkeeper!')
-    }
+    if(deleteShopkeeperError) return failureResponse(messageUtils.failedDeletedMessage('shopkeeper'),deleteShopkeeperError)
 
+    if (!deletedShopkeeper) return failureResponse(messageUtils.failedDeletedMessage('shopkeeper'))
+
+    revalidatePath('/shopkeepers')
+
+    return successResponse(messageUtils.createMessage('Shopkeeper'), deletedShopkeeper)
 }

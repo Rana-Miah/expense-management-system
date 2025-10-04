@@ -8,13 +8,13 @@ export const makeEachWordCapitalize = (str: string) => {
     const splittedStrings = str.split(" ").map(word => capitalize(word, 1)).join(" ")
     return splittedStrings
 }
-function pluralize(word: string) {
+function pluralize(word: string, isCapitalize?: boolean) {
     if (!word) return "";
 
     const lower = word.toLowerCase();
     const vowelsRegex = /[aeiou]y$/
     if (lower.endsWith("y") && !vowelsRegex.test(lower)) {
-        return word.slice(0, -1) + "ies";
+        return isCapitalize ? capitalize(`${word.slice(0, -1)}ies`) : `${word.slice(0, -1)}ies`
     } else if (
         lower.endsWith("s") ||
         lower.endsWith("x") ||
@@ -22,9 +22,9 @@ function pluralize(word: string) {
         lower.endsWith("ch") ||
         lower.endsWith("sh")
     ) {
-        return `${word}es`;
+        return isCapitalize ? capitalize(`${word}es`) : `${`${word}es`}ies`;
     } else {
-        return `${word}s`
+        return isCapitalize ? capitalize(`${word}s`) : `${word}s`;
     }
 }
 
@@ -35,6 +35,7 @@ export const createMessage = (value: string,) => `${capitalize(value)} created!`
 export const updateMessage = (value: string,) => `${capitalize(value)} updated!`
 export const deleteMessage = (value: string,) => `${capitalize(value)} deleted!`
 
+export const clerkErrorMessage = (message?: string) => message || `Unable to get clerk user!`
 export const failedGetMessage = (value: string, isPlural?: boolean) => `Failed to get ${isPlural ? pluralize(value) : value}!`
 export const failedCreateMessage = (value: string, isPlural?: boolean) => `Failed to create ${isPlural ? pluralize(value) : value}!`
 export const failedDeletedMessage = (value: string, isPlural?: boolean) => `Failed to delete ${isPlural ? pluralize(value) : value}!`
@@ -46,8 +47,9 @@ export const notFoundMessage = (value: string) => `${capitalize(value)} doesn't 
 export const existMessage = (value: string) => `${capitalize(value)} already exist!`
 export const newAssignMessage = (trxName: string, bankName: string) => `Transaction name "${trxName.toUpperCase()}" assigned to "${bankName.toUpperCase()}" bank!`
 export const assignedMessage = (trxName: string, bankName: string) => `Transaction name "${trxName.toUpperCase()} already assigned with "${bankName}" bank!`
+export const notActiveMessage = (value: string) => `${capitalize(value)} is not active!`
 
-export const messageFn = {
+export const messageUtils = {
     notFoundMessage,
     existMessage,
     newAssignMessage,
@@ -62,4 +64,6 @@ export const messageFn = {
     deleteMessage,
     unauthorizedMessage,
     invalidFieldsMessage,
+    clerkErrorMessage,
+    notActiveMessage
 }

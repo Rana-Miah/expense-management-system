@@ -4,7 +4,7 @@ import { db } from "@/drizzle/db"
 import { bankAccountTable, shopkeeperPaymentTable, shopkeeperTable, trxTable } from "@/drizzle/schema"
 import { shopkeeperBillPaymentFormSchema } from "@/features/schemas/shopkeeper/payment"
 import { currentUserId } from "@/lib/current-user-id"
-import { failureResponse, successResponse } from "@/lib/helpers"
+import { failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
 import { getBankByIdAndClerkUserId } from "@/services/bank"
 import { getShopkeeperByIdAndClerkUserId } from "@/services/shopkeeper"
 import { getTrxNameByIdAndClerkUserId } from "@/services/trx-name/GET"
@@ -13,42 +13,52 @@ import { revalidatePath } from "next/cache"
 
 export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
 
-    try {
-        const userId = await currentUserId()
-        const validation = shopkeeperBillPaymentFormSchema.safeParse(payload)
-        if (!validation.success) return failureResponse('Invalid Fields!', validation.error)
-        const { amount, paymentDate, sourceBankId, description, shopkeeperId, trxNameId } = validation.data
+    const [userId, clerkError] = await tryCatch(currentUserId())
 
-        const existShopkeeper = await getShopkeeperByIdAndClerkUserId(shopkeeperId, userId)
+    if (clerkError) return failureResponse(messageUtils.clerkErrorMessage(), clerkError)
 
-        if (!existShopkeeper) return failureResponse('Shopkeeper does not exist!')
-        if (amount > existShopkeeper.totalDue) return failureResponse(`Amount exceeds the total due of ${existShopkeeper.totalDue}`)
+    const validation = shopkeeperBillPaymentFormSchema.safeParse(payload)
+    if (!validation.success) return failureResponse(messageUtils.invalidFieldsMessage(), validation.error)
+    const { amount, paymentDate, sourceBankId, description, shopkeeperId, trxNameId } = validation.data
 
-        const existBank = await getBankByIdAndClerkUserId(sourceBankId, userId)
+    const [existShopkeeper, getExistShopkeeperError] = await tryCatch(getShopkeeperByIdAndClerkUserId(shopkeeperId, userId))
 
-        // if bank not exist return
-        if (!existBank) return failureResponse('Bank does not exist!')
+    if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)
 
-        // if bank not active return
-        if (!existBank.isActive) return failureResponse('Bank is not active!')
+    if (!existShopkeeper) return failureResponse(messageUtils.notFoundMessage('Shopkeeper'))
 
-        // if bank balance less than amount return
-        if (amount > existBank.balance) return failureResponse(`Insufficient balance of ${existBank.balance} bank!`)
+    if (amount > existShopkeeper.totalDue) return failureResponse(`Amount exceeds the total due of ${existShopkeeper.totalDue}`)
 
-        const existTrxName = await getTrxNameByIdAndClerkUserId(trxNameId, userId)
+    const [existBank, getExistBankError] = await tryCatch(getBankByIdAndClerkUserId(sourceBankId, userId))
 
-        // if transaction name not exist return
-        if (!existTrxName) return failureResponse('Transaction name does not exist!')
+    if (getExistBankError) return failureResponse('exist bank', getExistBankError)
 
-        // if transaction name not active return
-        if (!existTrxName.isActive) return failureResponse('Transaction name is not active!')
+    // if bank not exist return
+    if (!existBank) return failureResponse('Bank does not exist!')
+
+    // if bank not active return
+    if (!existBank.isActive) return failureResponse(messageUtils.notActiveMessage('Bank'))
+
+    // if bank balance less than amount return
+    if (amount > existBank.balance) return failureResponse(`Insufficient balance of ${existBank.name} bank!`)
+
+    const [existTrxName, getExistTrxNameError] = await tryCatch(getTrxNameByIdAndClerkUserId(trxNameId, userId))
+
+    if (getExistTrxNameError) return failureResponse(messageUtils.failedGetMessage('exist transaction name'), getExistTrxNameError)
+
+    // if transaction name not exist return
+    if (!existTrxName) return failureResponse(messageUtils.notFoundMessage('Transaction name'))
+
+    // if transaction name not active return
+    if (!existTrxName.isActive) return failureResponse(messageUtils.notActiveMessage('Transaction name'))
 
 
 
-        const res = await db.transaction(
-            async (tx) => {
+    const res = await db.transaction(
+        async (tx) => {
 
-                const [newPayment] = await tx.insert(shopkeeperPaymentTable).values({
+            const [newPayments, newShopkeeperPaymentError] = await tryCatch(
+                tx.insert(shopkeeperPaymentTable).values({
                     clerkUserId: userId,
                     shopkeeperId: existShopkeeper.id,
                     sourceBankId: existBank.id,
@@ -56,10 +66,22 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
                     paymentDate,
                     description,
                 }).returning()
+            )
 
-                if (!newPayment) return failureResponse('Failed to create payment!')
+            if (newShopkeeperPaymentError) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedCreateMessage('shopkeeper payment'), newShopkeeperPaymentError)
+            }
 
-                const [updatedShopkeeper] = await tx.update(shopkeeperTable)
+            const [newPayment] = newPayments
+
+            if (!newPayment) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedCreateMessage('payment'))
+            }
+
+            const [updatedShopkeeper, updatedShopkeeperError] = await tryCatch(
+                tx.update(shopkeeperTable)
                     .set({ totalDue: existShopkeeper.totalDue - amount })
                     .where(
                         and(
@@ -67,29 +89,46 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
                             eq(shopkeeperTable.clerkUserId, userId),
                         )
                     ).returning()
+            )
 
-                if (!updatedShopkeeper) {
-                    tx.rollback()
-                    return failureResponse('Failed to deduct shopkeeper total due!')
-                }
+            if (updatedShopkeeperError) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedUpdateMessage('deduct shopkeeper total due'), updatedShopkeeperError)
+            }
 
-                const [updatedBank] = await tx.update(bankAccountTable)
+
+            if (!updatedShopkeeper) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedUpdateMessage('deduct shopkeeper total due'))
+            }
+
+            const [updatedBanks, updateBankError] = await tryCatch(
+                tx.update(bankAccountTable)
                     .set({ balance: existBank.balance - amount })
                     .where(
                         and(
                             eq(bankAccountTable.id, existBank.id),
                             eq(bankAccountTable.clerkUserId, userId),
-                            
+
                         )
                     )
                     .returning()
+            )
 
-                if (!updatedBank) {
-                    tx.rollback()
-                    return failureResponse('Failed to deduct Bank total due!')
-                }
+            if (updateBankError) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedUpdateMessage('deduct bank amount'), updateBankError)
+            }
 
-                const [newTrx] = await tx.insert(trxTable).values({
+            const [updatedBank] = updatedBanks
+
+            if (!updatedBank) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedUpdateMessage('deduct bank amount'))
+            }
+
+            const [newTransactions, newTrxError] = await tryCatch(
+                tx.insert(trxTable).values({
                     amount,
                     clerkUserId: userId,
                     trxDate: new Date(),
@@ -99,25 +138,26 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
                     sourceBankId: existBank.id,
                     trxDescription: 'shopkeeper due bill payment',
                 }).returning()
+            )
 
-                if (!newTrx) {
-                    tx.rollback()
-                    return failureResponse('Failed to create transaction during shopkeeper payment!')
-                }
-
-                return successResponse('Shopkeeper due bill paid!', newPayment)
-
+            if (newTrxError) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedCreateMessage('transaction during shopkeeper payment'), newTrxError)
             }
-        )
 
-        revalidatePath('/shopkeepers')
-        return res
-    } catch (error) {
-        console.log({
-            error,
-            shopkeeperPayment: 'shopkeeper payment create error'
-        })
-        return failureResponse('Failed to create payment!', error)
-    }
+            const [newTrx] = newTransactions
+
+            if (!newTrx) {
+                tx.rollback()
+                return failureResponse(messageUtils.failedCreateMessage('transaction during shopkeeper payment'))
+            }
+
+            return successResponse(messageUtils.createMessage('Shopkeeper payment'), newPayment)
+
+        }
+    )
+
+    revalidatePath('/shopkeepers')
+    return res
 
 }
