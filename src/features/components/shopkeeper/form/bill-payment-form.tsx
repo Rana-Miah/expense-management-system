@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 
-export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
+export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
     banks: {
         id: string,
         name: string,
@@ -36,8 +36,6 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
     const [selectedBankId, setSelectedBankId] = useState<string>("")
     const [pending, startTransition] = useTransition()
     const router = useRouter()
-
-    console.log(pending);
 
     // 1. Define your form.
     const form = useForm<ShopkeeperBillPaymentFormValue>({
@@ -93,7 +91,7 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
                                 {
                                     value: shopkeeper.id,
                                     label: shopkeeper.name,
-                                    badgeLabel:shopkeeper.totalDue.toString()
+                                    badgeLabel: shopkeeper.totalDue.toString()
                                 }
                             ]}
                         />
@@ -152,7 +150,7 @@ export const ShopkeeperPayBillForm = ({ banks, shopkeeper }: {
                         <SelectInput
                             field={field}
                             label="Transaction Name"
-                            onValueChange={(value)=>field.onChange(value)}
+                            onValueChange={(value) => field.onChange(value)}
                             placeholder="Select your bank"
                             items={
                                 selectedBank.assignedTransactionsName.map(({ transactionName }) => (

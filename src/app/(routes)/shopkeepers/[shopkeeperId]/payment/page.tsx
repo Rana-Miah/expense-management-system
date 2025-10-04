@@ -1,6 +1,6 @@
 import { CardWrapper } from '@/components'
 import { BankSelectValue } from '@/drizzle/type'
-import { ShopkeeperPayBillForm } from '@/features/components/shopkeeper/form'
+import { ShopkeeperBillPaymentForm } from '@/features/components/shopkeeper/form'
 import { currentUserId } from '@/lib/current-user-id'
 import { uuidValidator } from '@/lib/zod'
 import { getBanksByClerkUserId } from '@/services/bank/GET'
@@ -19,7 +19,6 @@ const ShopkeeperPaymentPage = async ({ params }: { params: Promise<{ shopkeeperI
     if (!shopkeeper) return redirect('/shopkeepers')
 
     const banks = await getBanksByClerkUserId(userId, {
-
         where: (table, { eq }) => (
             eq(table.isActive, true)
         ),
@@ -38,9 +37,10 @@ const ShopkeeperPaymentPage = async ({ params }: { params: Promise<{ shopkeeperI
         }
     })
 
+    //TODO: check the bank type for assigned transaction names
+
     const trxNames = await getTrxNamesByClerkUserId(userId)
 
-    console.log({ banks, shopkeeperId });
 
 
     return (
@@ -48,7 +48,7 @@ const ShopkeeperPaymentPage = async ({ params }: { params: Promise<{ shopkeeperI
             title='Pay Bill'
             description='Pay bill to shopkeeper'
         >
-            <ShopkeeperPayBillForm banks={banks} shopkeeper={shopkeeper} trxNames={trxNames} />
+            <ShopkeeperBillPaymentForm banks={banks} shopkeeper={shopkeeper} trxNames={trxNames} />
         </CardWrapper>
     )
 }

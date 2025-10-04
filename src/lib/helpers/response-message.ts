@@ -48,6 +48,9 @@ export const existMessage = (value: string) => `${capitalize(value)} already exi
 export const newAssignMessage = (trxName: string, bankName: string) => `Transaction name "${trxName.toUpperCase()}" assigned to "${bankName.toUpperCase()}" bank!`
 export const assignedMessage = (trxName: string, bankName: string) => `Transaction name "${trxName.toUpperCase()} already assigned with "${bankName}" bank!`
 export const notActiveMessage = (value: string) => `${capitalize(value)} is not active!`
+export const missingFieldValue = (field: string) => `${capitalize(field)} is missing!`
+export const itemsRequiredMessage = (message?: string) => message || `Did you forget to add items?`
+export const insufficientBalance = (message?: string) => message || `Insufficient balance!`
 
 export const messageUtils = {
     notFoundMessage,
@@ -65,5 +68,8 @@ export const messageUtils = {
     unauthorizedMessage,
     invalidFieldsMessage,
     clerkErrorMessage,
-    notActiveMessage
+    notActiveMessage,
+    missingFieldValue,
+    itemsRequiredMessage,
+    insufficientBalance,
 }

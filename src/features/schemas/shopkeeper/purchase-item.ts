@@ -1,17 +1,18 @@
 import z from "zod";
 
 const purchaseItemSchema = z.object({
-    itemUnitId: z.string().nonempty(),
+    itemUnitId: z.uuid().nonempty(),
     name: z.string().nonempty(),
     price: z.coerce.number<number>().gt(0, 'Price must grater than 0'),
     quantity: z.coerce.number<number>().gt(0, 'Quantity must grater than 0'),
 })
 
 export const shopkeeperPurchaseItemFormSchema = z.object({
-    shopkeeperId:z.string().nonempty(),
-    sourceBankId: z.string().optional(),
-    totalAmount: z.coerce.number<number>(),
-    paidAmount: z.coerce.number<number>(),
+    shopkeeperId: z.uuid().nonempty(),
+    sourceBankId: z.uuid().optional(),
+    trxNameId: z.uuid().optional(),
+    totalAmount: z.coerce.number<number>().gt(0),
+    paidAmount: z.coerce.number<number>().gt(0),
     purchaseDate: z.coerce.date<Date>().refine(date => {
         const currentDate = new Date()
         const inputDate = new Date(date)
@@ -22,9 +23,8 @@ export const shopkeeperPurchaseItemFormSchema = z.object({
 
     }, 'Date must be today or before today.'),
     isIncludedItems: z.coerce.boolean<boolean>().nonoptional(),
-    description:z.string().optional(),
+    description: z.string().optional(),
     items: z.array(purchaseItemSchema).optional()
-
 })
 
 export type ShopkeeperPurchaseItemFormValue = z.infer<typeof shopkeeperPurchaseItemFormSchema>
