@@ -53,8 +53,8 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
     //TODO : REMOVE trxNames, it will included in banks
 
     const [selectedtrxTypeWithBoth, setSeletedtrxTypeWithBoth] = useState<typeof trxTypeWithBoth[number] | null>(null)
-    const [selectedTrxVariant, setSeletedTrxVariant] = useState<typeof trxVariant[number] | null>(null)
-    const [selectedTrxName, setSeletedTrxName] = useState<string | null>(null)
+    const [selectedTrxVariant, setSelectedTrxVariant] = useState<typeof trxVariant[number] | null>(null)
+    const [selectedTrxName, setSelectedTrxName] = useState<string | null>(null)
     const [isIncludeItems, setIsIncludeItems] = useState<boolean>(false)
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [inx, setInx] = useState<number>()
@@ -133,7 +133,7 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
                                 <FormControl className="w-full">
                                     <Select onValueChange={(value) => {
                                         field.onChange(value)
-                                        setSeletedTrxName(value)
+                                        setSelectedTrxName(value)
                                     }} defaultValue={field.value} >
                                         <SelectTrigger className="w-full">
                                             <SelectValue placeholder="Select a Transaction Name" />
@@ -165,7 +165,7 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
                                     <FormLabel>Transaction Variant</FormLabel>
                                     <FormControl className="w-full">
                                         <RadioGroup defaultValue={field.value} onValueChange={(value) => {
-                                            setSeletedTrxVariant(value as typeof trxVariant[number])
+                                            setSelectedTrxVariant(value as typeof trxVariant[number])
                                             field.onChange(value)
                                         }} className="flex items-center gap-3">
                                             {

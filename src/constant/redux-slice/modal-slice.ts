@@ -10,4 +10,5 @@ export const MODAL_TYPE = {
     FINANCIER: 'FINANCIER',
     LOADING: 'LOADING',
     ASSIGN_TRX_NAME: 'ASSIGN_TRX_NAME',
+    ITEM_UNIT: 'ITEM_UNIT',
 } as const

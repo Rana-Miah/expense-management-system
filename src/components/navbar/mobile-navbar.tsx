@@ -30,13 +30,18 @@ const routes: Route[] = [
     Icon: <Home size={18} />
   },
   {
+    href: '/transaction-name',
+    label: "Transaction Name",
+    Icon: <Home size={18} />
+  },
+  {
     href: '/transactions',
     label: "Transactions",
     Icon: <Home size={18} />
   },
   {
-    href: '/transaction-name',
-    label: "Transaction Name",
+    href: '/units',
+    label: "Item Units",
     Icon: <Home size={18} />
   },
   {

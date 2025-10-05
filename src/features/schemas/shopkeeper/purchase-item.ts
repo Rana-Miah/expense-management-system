@@ -11,8 +11,8 @@ export const shopkeeperPurchaseItemFormSchema = z.object({
     shopkeeperId: z.uuid().nonempty(),
     sourceBankId: z.uuid().optional(),
     trxNameId: z.uuid().optional(),
-    totalAmount: z.coerce.number<number>().gt(0),
-    paidAmount: z.coerce.number<number>().gt(0),
+    totalAmount: z.coerce.number<number>().gt(0, 'Total amount must be grater than 1').nonoptional(),
+    paidAmount: z.coerce.number<number>().gte(0, 'Total amount must be grater than equal 0'),
     purchaseDate: z.coerce.date<Date>().refine(date => {
         const currentDate = new Date()
         const inputDate = new Date(date)
@@ -24,7 +24,7 @@ export const shopkeeperPurchaseItemFormSchema = z.object({
     }, 'Date must be today or before today.'),
     isIncludedItems: z.coerce.boolean<boolean>().nonoptional(),
     description: z.string().optional(),
-    items: z.array(purchaseItemSchema).optional()
+    // items: z.array(purchaseItemSchema).optional()
 })
 
 export type ShopkeeperPurchaseItemFormValue = z.infer<typeof shopkeeperPurchaseItemFormSchema>

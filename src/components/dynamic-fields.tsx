@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Trash, PlusCircle } from "lucide-react"
-import { Control, FieldArrayPath, FieldArrayWithId, FieldValues, useFieldArray, UseFieldArrayAppend, UseFieldArrayReturn } from "react-hook-form"
+import { FieldArrayPath, FieldValues, UseFieldArrayReturn } from "react-hook-form"
 import { Dispatch, SetStateAction, useState } from "react"
 import { AlertModal } from "./alert-modal"
 import { useAppDispatch, useModal } from "@/hooks/redux"
@@ -21,10 +21,10 @@ type DynamicFormSheetProps<
     TFieldValues extends FieldValues,
     TFieldArrayName extends FieldArrayPath<TFieldValues>
 > = {
-    fieldArrayValue :UseFieldArrayReturn<TFieldValues,TFieldArrayName,'id'>
+    fieldArrayValue: UseFieldArrayReturn<TFieldValues, TFieldArrayName, 'id'>
     onOpenChange: Dispatch<SetStateAction<boolean>>
     open: boolean;
-    appendHandler:()=>void
+    appendHandler: () => void
     title?: string
     description?: string
     renderItem: (index: number) => React.ReactNode
@@ -44,8 +44,8 @@ export function DynamicFormSheet<
 }: DynamicFormSheetProps<TFieldValues, TFieldArrayName>) {
     const [removeIndex, setRemoveIndex] = useState<number | null>(null)
 
-    const {fields,append,remove} = fieldArrayValue
-    
+    const { fields, append, remove } = fieldArrayValue
+
     const { isOpen, type } = useModal()
     const isOpenAlert = isOpen && type === MODAL_TYPE.ALERT_MODAL
     const dispatch = useAppDispatch()

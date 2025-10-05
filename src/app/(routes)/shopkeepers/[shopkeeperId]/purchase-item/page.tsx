@@ -1,4 +1,5 @@
 import { CardWrapper } from '@/components'
+import { db } from '@/drizzle/db'
 import { PurchaseItemsForm } from '@/features/components/shopkeeper/form/purchase-item-form'
 import { currentUserId } from '@/lib/current-user-id'
 import { uuidValidator } from '@/lib/zod'
@@ -19,17 +20,30 @@ const PurchaseItemPage = async ({ params }: { params: Promise<{ shopkeeperId: st
     columns: {
       id: true,
       name: true,
-      isActive: true
+      isActive: true,
+      balance: true,
+    },
+    with: {
+      assignedTransactionsName: {
+        with: {
+          transactionName: true
+        }
+      }
     }
   })
 
+  const itemUtils = await db.query.itemUnitTable.findMany({
+    where: ({ clerkUserId }, { eq }) => (eq(clerkUserId, userId))
+  })
+
+  console.log({ itemUtils })
   return (
     <div>
       <CardWrapper
         title='Shopkeeper Purchase Item Form'
         description='Add bill to shopkeeper'
       >
-        <PurchaseItemsForm banks={banks} shopkeeper={shopkeeper} />
+        <PurchaseItemsForm banks={banks} shopkeeper={shopkeeper} itemUnits={itemUtils} />
       </CardWrapper>
     </div>
   )

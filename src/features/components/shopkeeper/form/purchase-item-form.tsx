@@ -13,7 +13,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { CalendarIcon, PlusCircle } from "lucide-react"
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
@@ -24,38 +24,72 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { shopkeeperPurchaseItemFormSchema, ShopkeeperPurchaseItemFormValue } from "@/features/schemas/shopkeeper/purchase-item"
 import { useParams } from "next/navigation"
-import { InputField, SelectInput } from "@/components/input"
+import { InputField, SelectInput, SwitchInput, TextAreaField } from "@/components/input"
 import { DynamicFormSheet } from "@/components/dynamic-fields"
-import { ShopkeeperSelectValue } from "@/drizzle/type"
+import { AssignTrxNameSelectValue, ItemUnitInsertValue, ItemUnitSelectValue, ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
+import { createShopkeeperPurchaseItemAction } from "@/features/actions/shopkeeper-purchase-item/create-action"
+import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
+import z from "zod"
+import { useUuidValidation } from "@/hooks/use-uuid-validation"
+
+const itemSchema = z.object({
+    itemUnitId: z.uuid().nonempty(),
+    price: z.coerce.number<number>().nonnegative(),
+    quantity: z.coerce.number<number>().nonnegative(),
+    name: z.string().nonempty().min(3, 'Name must be 3 characters long!')
+})
+
+const schema = z.object({
+    shopkeeperId: z.uuid().nonempty(),
+    totalAmount: z.coerce.number<number>().nonnegative().gte(1, 'Total amount must be grater than 1 TK!'),
+    paidAmount: z.coerce.number<number>().nonnegative(),
+    sourceBankId: z.uuid().nonempty().optional(),
+    trxNameId: z.uuid().nonempty().optional(),
+    purchaseDate: z.coerce.date<Date>().optional(),
+    description: z.coerce.string<string>().optional(),
+    isIncludedItems: z.coerce.boolean<boolean>(),
+    items: z.array(itemSchema).optional()
+})
+type Schema = z.infer<typeof schema>
 
 
-
-
-
-export const PurchaseItemsForm = ({ banks, shopkeeper }: { banks: { id: string; name: string, isActive: boolean }[], shopkeeper: ShopkeeperSelectValue }) => {
-
+export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
+    banks: {
+        id: string;
+        name: string,
+        isActive: boolean;
+        balance: number;
+        assignedTransactionsName: (AssignTrxNameSelectValue & {
+            transactionName: TrxNameSelectValue
+        })[]
+    }[],
+    shopkeeper: ShopkeeperSelectValue;
+    itemUnits: ItemUnitSelectValue[]
+}) => {
+    const [pending, startTransition] = useTransition()
     const [isIncludeItems, setIsIncludeItems] = useState<boolean>(false)
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [paidAmountValue, setPaidAmountValue] = useState<number>(0)
+    const [selectedBankId, setSelectedBankId] = useState<string>("")
     const params = useParams()
 
+    const selectedBank = banks.find(({ id }) => selectedBankId === id)
 
     // 1. Define your form.
-    const form = useForm<ShopkeeperPurchaseItemFormValue>({
-        resolver: zodResolver(shopkeeperPurchaseItemFormSchema),
+    const form = useForm<Schema>({
+        resolver: zodResolver(schema),
         defaultValues: {
-            shopkeeperId: params.shopkeeperId as string,
-            sourceBankId: "",
-            description: "",
+            shopkeeperId: shopkeeper.id,
             totalAmount: 0,
             paidAmount: 0,
+            purchaseDate: new Date(),
+            description: "",
             isIncludedItems: false,
-            items: [],
-            purchaseDate: new Date()
+            items: []
         },
     })
 
-    const { control, handleSubmit } = form
+    const { control, handleSubmit, resetField } = form
 
     const fieldArray = useFieldArray({
         control,
@@ -64,10 +98,18 @@ export const PurchaseItemsForm = ({ banks, shopkeeper }: { banks: { id: string; 
 
     const { fields, append } = fieldArray
 
-
     // 2. Define a submit handler.
     const onSubmitHandler = handleSubmit(values => {
-        console.log({ values })
+
+        console.log(values)
+        startTransition(
+            async () => {
+                const res = await createShopkeeperPurchaseItemAction(values)
+                console.log({
+                    res
+                })
+            }
+        )
     })
 
     const appendHandler = () => {
@@ -85,287 +127,269 @@ export const PurchaseItemsForm = ({ banks, shopkeeper }: { banks: { id: string; 
 
             <Form {...form}>
                 <form onSubmit={onSubmitHandler} className={cn("space-y-4 max-w-full")}>
-
                     <FormField
                         control={control}
                         name="shopkeeperId"
                         render={({ field }) => (
                             <SelectInput
-                                field={field}
                                 label="Shopkeeper"
+                                placeholder="hello"
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                value={field.value}
                                 disabled
-                                placeholder="Select a shopkeeper"
                                 items={[
                                     {
-                                        label: `${shopkeeper.name} - ${shopkeeper.phone.slice(6, shopkeeper.phone.length)}`,
-                                        value: shopkeeper.id
+                                        label: shopkeeper.name,
+                                        value: shopkeeper.id,
+                                        disabled: shopkeeper.isBan,
+                                        badgeLabel: shopkeeper.totalDue.toString(),
+                                        badgeProp: {
+                                            variant: shopkeeper.isBan ? 'destructive' : 'success'
+                                        }
                                     }
                                 ]}
                             />
                         )}
                     />
 
-                    {/* total amount */}
-                    <FormField
-                        control={control}
-                        name="totalAmount"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Total purchase amount</FormLabel>
-                                <FormControl className="w-full">
-                                    <Input
-                                        type='number'
-                                        placeholder="e.g. 570"
-                                        {...field}
-                                        onChange={field.onChange}
-                                        value={field.value}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
 
-                    {/* Paid amount */}
-                    <FormField
-                        control={control}
-                        name="paidAmount"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Today you pay</FormLabel>
-                                <FormControl className="w-full">
-                                    <Input
-                                        type='number'
-                                        placeholder="e.g. 150"
-                                        {...field}
-                                        onChange={(e) => {
-                                            setPaidAmountValue(e.target.valueAsNumber)
-                                            field.onChange(e)
-                                        }}
-                                        value={field.value}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* bank name */}
-                    {paidAmountValue > 0 && (
-                        < FormField
+                    {/* total & due amount fields  */}
+                    <div className="flex items-center md:justify-between gap-2">
+                        <FormField
                             control={control}
-                            name="sourceBankId"
+                            name="totalAmount"
                             render={({ field }) => (
-                                <SelectInput
-                                    label="Your Banks"
-                                    placeholder="Select a Transaction Name"
-                                    field={field}
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                    items={banks.map(({ id, name, isActive }) => ({
-                                        label: name,
-                                        value: id,
-                                        isActive: !isActive,
-                                    }))}
+                                <InputField
+                                    type="number"
+                                    label="Total Amount"
+                                    placeholder="e.g. 150"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    disabled={false}
                                 />
-
                             )}
                         />
-                    )}
-
-                    {/* date */}
-                    <FormField
-                        control={control}
-                        name="purchaseDate"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Purchase date</FormLabel>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "w-full pl-3 text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                            >
-                                                {field.value ? (
-                                                    format(field.value, "PPP")
-                                                ) : (
-                                                    <span>Pick a date</span>
-                                                )}
-                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value}
-                                            onSelect={field.onChange}
-                                            disabled={(date) =>
-                                                date > new Date() || date < new Date("1900-01-01")
-                                            }
-                                            captionLayout="dropdown"
-                                            className="w-full"
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* description */}
-                    <FormField
-                        control={control}
-                        name="description"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Description</FormLabel>
-                                <FormControl className="w-full">
-                                    <Textarea {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Items include switch */}
-                    <FormField
-                        control={control}
-                        name="isIncludedItems"
-                        render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                                <div className="space-y-0.5">
-                                    <FormLabel>Purchase Items Details</FormLabel>
-                                    <FormDescription>
-                                        Add items details
-                                    </FormDescription>
-                                </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={(value) => {
-                                            setIsIncludeItems(value)
-                                            field.onChange(value)
-                                            if (value) {
-                                                appendHandler()
-                                                setIsOpenSheet(true)
-                                            }
-                                        }}
-                                        disabled={fields.length >= 1}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* dynamic purchase item fields*/}
-                    {
-                        isIncludeItems && (
-                            <>
-                                <DynamicFormSheet
-                                    title="title"
-                                    description="description"
-                                    open={isOpenSheet}
-                                    fieldArrayValue={fieldArray}
-                                    appendHandler={appendHandler}
-                                    onOpenChange={setIsOpenSheet}
-                                    renderItem={(index) => {
-                                        return (
-                                            <div className="flex flex-col items-center gap-2">
-                                                <div className="space-y-2 w-full">
-                                                    <FormField
-                                                        control={control}
-                                                        name={`items.${index}.name`}
-                                                        render={({ field }) => (
-                                                            <InputField
-                                                                field={field}
-                                                                label="Item Name"
-                                                                type="text"
-                                                                placeholder="e.g. Tomato"
-                                                            />
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={control}
-                                                        name={`items.${index}.itemUnitId`}
-                                                        render={({ field }) => (
-                                                            <SelectInput
-                                                                field={field}
-                                                                label="Item Unit"
-                                                                placeholder="Select Unit"
-                                                                onValueChange={field.onChange}
-                                                                defaultValue={field.value}
-                                                                items={dummyItemUnits.map(({ id, unit }) => ({ value: id, label: unit }))}
-
-                                                            />
-                                                        )}
-                                                    />
-                                                </div>
-
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <FormField
-                                                        control={control}
-                                                        name={`items.${index}.price`}
-                                                        render={({ field }) => (
-                                                            <InputField
-                                                                field={field}
-                                                                label="Price"
-                                                                type="number"
-                                                                placeholder="Price"
-                                                            />
-                                                        )}
-                                                    />
-
-                                                    <FormField
-                                                        control={control}
-                                                        name={`items.${index}.quantity`}
-                                                        render={({ field }) => (
-                                                            <InputField
-                                                                field={field}
-                                                                label="Quantity"
-                                                                type="number"
-                                                                placeholder="Quantity"
-                                                            />
-                                                        )}
-                                                    />
-                                                </div>
-                                            </div>
-                                        )
+                        <FormField
+                            control={control}
+                            name="paidAmount"
+                            render={({ field }) => (
+                                <InputField
+                                    type="number"
+                                    label="Paid Amount (optional)"
+                                    placeholder="e.g. 150"
+                                    value={field.value}
+                                    onChange={(e) => {
+                                        const value = e.target.valueAsNumber
+                                        field.onChange(value)
+                                        setPaidAmountValue(value)
+                                        if (value === 0 || isNaN(value)) {
+                                            resetField('sourceBankId')
+                                            resetField('trxNameId')
+                                        }
                                     }}
+                                    disabled={false}
                                 />
+                            )}
+                        />
+                    </div>
+
+                    {
+                        paidAmountValue > 0 && (
+                            <>
+                                <FormField
+                                    control={control}
+                                    name="sourceBankId"
+                                    render={({ field }) => (
+                                        <SelectInput
+                                            defaultValue={field.value}
+                                            onValueChange={(value) => {
+                                                field.onChange(value)
+                                                setSelectedBankId(value)
+                                                resetField('trxNameId')
+                                            }}
+                                            label="Source Bank"
+                                            placeholder="Select a bank to pay"
+                                            items={
+                                                banks.map(({ id, name, isActive, balance }) => {
+                                                    const variant = (shopkeeper.totalDue > balance) ? 'destructive' : 'success'
+                                                    return {
+                                                        label: name,
+                                                        value: id,
+                                                        disabled: !isActive,
+                                                        badgeLabel: balance.toString(),
+                                                        badgeProp: {
+                                                            variant
+                                                        }
+                                                    }
+                                                })
+                                            }
+                                        />
+                                    )}
+                                />
+
+                                {
+                                    !!selectedBank && (
+                                        <FormField
+                                            control={control}
+                                            name="trxNameId"
+                                            render={({ field }) => (
+                                                <SelectInput
+                                                    label="Transaction Name"
+                                                    placeholder="Select a transaction name"
+                                                    onValueChange={field.onChange}
+                                                    defaultValue={field.value}
+                                                    items={
+                                                        selectedBank.assignedTransactionsName.map(assignedTrx => {
+                                                            const { transactionName: { name, isActive, id } } = assignedTrx
+                                                            return {
+                                                                label: name,
+                                                                value: id,
+                                                                disabled: !isActive
+                                                            }
+                                                        })
+                                                    }
+                                                />
+                                            )}
+                                        />
+                                    )
+                                }
                             </>
                         )
                     }
 
-                    {/* button */}
-                    <div className={cn(
-                        "w-full flex flex-col gap-2",
-                        fields.length >= 1 && ""
-                    )}>
-                        {
-                            isIncludeItems && (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    className="flex items-center gap-1.5"
-                                    onClick={() =>
+                    <FormField
+                        control={control}
+                        name="description"
+                        render={({ field }) => (
+                            <TextAreaField
+                                onChange={field.onChange}
+                                value={field.value}
+                                label="Description (optional)"
+                                placeholder="Write something..."
+                            />
+                        )}
+                    />
+
+
+                    <FormField
+                        control={control}
+                        name="isIncludedItems"
+                        render={({ field }) => (
+                            <SwitchInput
+                                label="Purchase items"
+                                description="Purchase Items"
+                                checked={field.value}
+                                onCheckedChange={(value) => {
+                                    setIsIncludeItems(value)
+                                    field.onChange(value)
+                                    if (value) {
+                                        append({
+                                            name: "",
+                                            price: 0,
+                                            quantity: 0,
+                                            itemUnitId: ""
+                                        })
                                         setIsOpenSheet(true)
                                     }
+                                }}
+                                disabled={fields.length >= 1}
+                            />
+                        )}
+                    />
+
+
+                    <DynamicFormSheet
+                        appendHandler={appendHandler}
+                        fieldArrayValue={fieldArray}
+                        onOpenChange={setIsOpenSheet}
+                        open={isOpenSheet}
+                        renderItem={(index) => (
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="space-y-2 w-full">
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${index}.name`}
+                                        render={({ field }) => (
+                                            <InputField
+                                                label="Item name"
+                                                type="text"
+                                                placeholder="e.g Tomato"
+                                                onChange={field.onChange}
+                                                value={field.value}
+                                            />
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${index}.itemUnitId`}
+                                        render={({ field }) => (
+                                            <SelectInput
+                                                label="Item Unit"
+                                                placeholder="Unit"
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                                items={itemUnits.map(({ id, unit }) => {
+
+                                                    return {
+                                                        label: unit,
+                                                        value: id
+                                                    }
+                                                })}
+                                            />
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-center gap-2">
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${index}.price`}
+                                        render={({ field }) => (
+                                            <InputField
+                                                label="Price"
+                                                type="number"
+                                                placeholder="e.g 15"
+                                                onChange={field.onChange}
+                                                value={field.value}
+                                            />
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${index}.quantity`}
+                                        render={({ field }) => (
+                                            <InputField
+                                                label="Quantity"
+                                                type="number"
+                                                placeholder="e.g 5"
+                                                onChange={field.onChange}
+                                                value={field.value}
+                                            />
+                                        )}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    />
+
+
+
+
+                    <div className="flex items-center justify-center w-full">
+                        {pending ? (
+                            <TextShimmerWave className="flex items-center justify-center w-full">Purchasing...</TextShimmerWave>
+                        ) :
+                            (
+                                <Button
+                                    type="submit"
+                                    className="w-full"
                                 >
-                                    <PlusCircle />
-                                    {fields.length > 0
-                                        ? <span>Add More Items</span>
-                                        : <span>Add Item</span>
-                                    }
+                                    Purchase
                                 </Button>
                             )
                         }
-
-                        <Button type="submit">Submit</Button>
                     </div>
                 </form>
             </Form >
