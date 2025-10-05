@@ -1,7 +1,13 @@
-import { assignTrxNameTable, bankAccountTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable } from "./schema";
+import { assignTrxNameTable, bankAccountTable, itemTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable, trxTable } from "./schema";
 
 export type BankInsertValue = typeof bankAccountTable.$inferInsert
 export type BankSelectValue = typeof bankAccountTable.$inferSelect
+
+export type TrxInsertValue = typeof trxTable.$inferInsert
+export type TrxSelectValue = typeof trxTable.$inferSelect
+
+export type TrxItemInsertValue = typeof itemTable.$inferInsert
+export type TrxItemSelectValue = typeof itemTable.$inferSelect
 
 export type TrxNameInsertValue = typeof trxNameTable.$inferInsert
 export type TrxNameSelectValue = typeof trxNameTable.$inferSelect
@@ -11,6 +17,9 @@ export type AssignTrxNameSelectValue = typeof assignTrxNameTable.$inferSelect
 
 export type ShopkeeperInsertValue = typeof shopkeeperTable.$inferInsert
 export type ShopkeeperSelectValue = typeof shopkeeperTable.$inferSelect
+
+export type ShopkeeperItemInsertValue = typeof shopKeeperItemTable.$inferInsert
+export type ShopkeeperItemSelectValue = typeof shopKeeperItemTable.$inferSelect
 
 export type ShopkeeperPaymentInsertValue = typeof shopkeeperPaymentTable.$inferInsert
 export type ShopkeeperPaymentSelectValue = typeof shopkeeperPaymentTable.$inferSelect
