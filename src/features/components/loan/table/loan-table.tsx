@@ -1,42 +1,58 @@
 'use client'
 
 import { CardWrapper, DataTable } from "@/components"
-import { Loan } from "@/constant/dummy-db/loan"
 import { loanColumns } from "./columns"
 import { pluralize } from "@/lib/helpers"
-import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
-import { onOpen } from "@/lib/redux/slice/modal-slice"
-import { MODAL_TYPE } from "@/constant"
-import { useAppDispatch } from "@/hooks/redux"
+import { LoanFinancierSelectValue, LoanSelectValue } from "@/drizzle/type"
+import { Modal } from '@/components/modal'
+import { useAppDispatch, useModal, } from '@/hooks/redux'
+import { onClose } from '@/lib/redux/slice/modal-slice'
+import { MODAL_TYPE } from '@/constant'
+import { LoanForm } from '@/features/components/loan/form'
+import { ModalTriggerButton } from "@/components/modal-trigger-button"
 
-export const LoanTable = ({ loans }: { loans: Loan[] }) => {
+export const LoanTable = ({ loans, financiers }: { loans: LoanSelectValue[]; financiers: LoanFinancierSelectValue[] }) => {
     const dispatch = useAppDispatch()
-    const onClickHandler = () => dispatch(onOpen(MODAL_TYPE.LOAN))
+    const { isOpen, type } = useModal()
+    const open = isOpen && type === MODAL_TYPE.LOAN
+
     return (
-        <CardWrapper
-            title={`${pluralize(loans.length, 'Loan')} ( ${loans.length} )`}
-            description="Manage your loans"
-            headerElement={
-                <Button
-                    onClick={onClickHandler}
+
+        <>
+            <Modal
+                open={open}
+                onClose={() => dispatch(onClose())}
+                title="Loan Form"
+                description='Nothing to say!'
+            >
+                <CardWrapper
+                    title='Create your loan'
+                    description='Fill the below details'
                 >
-                    <PlusCircle />
-                    <span>
-                        New
-                    </span>
-                </Button>
-            }
-        >
-            <DataTable
-                data={loans}
-                columns={loanColumns}
-                pagination={{
-                    page:1,
-                    limit:1,
-                    total:2
-                }}
-            />
-        </CardWrapper>
+                    <LoanForm financiers={financiers} />
+                </CardWrapper>
+            </Modal>
+
+            <CardWrapper
+                title={`${pluralize(loans.length, 'Loan')} ( ${loans.length} )`}
+                description="Manage your loans"
+                headerElement={
+                    <ModalTriggerButton
+                        label="Loan"
+                        modalType={MODAL_TYPE.LOAN}
+                    />
+                }
+            >
+                <DataTable
+                    data={loans}
+                    columns={loanColumns}
+                    pagination={{
+                        page: 1,
+                        limit: 1,
+                        total: 2
+                    }}
+                />
+            </CardWrapper>
+        </>
     )
 }

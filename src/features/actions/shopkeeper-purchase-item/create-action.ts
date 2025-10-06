@@ -34,8 +34,6 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
         items
     } = validation.data
 
-    if (totalAmount < 1) return failureResponse('Total amount must be grater than 0!')
-
     //! get exist shopkeeper
     const [existShopkeeper, getExistShopkeeperError] = await tryCatch(getShopkeeperByIdAndClerkUserId(shopkeeperId, userId))
     if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)

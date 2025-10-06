@@ -4,12 +4,13 @@ import z from "zod";
 
 export const loanCreateFormSchema = z.object({
     title: z.string().trim().nonempty().nonoptional(),
-    loanType:z.enum(loanType),
-    receiveBankId:z.string().optional(),
-    sourceBankId:z.string().optional(),
-    financierId:z.string().optional(),
-    amount:z.coerce.number<number>().nonnegative(),
-    loanDate:z.coerce.date<Date>().refine(date => {
+    loanType: z.enum(loanType),
+    financierId: z.uuid().nonempty().nonoptional(),
+    trxNameId: z.uuid().nonempty().nonoptional(),
+    receiveBankId: z.uuid().optional(),
+    sourceBankId: z.uuid().optional(),
+    amount: z.coerce.number<number>().nonnegative(),
+    loanDate: z.coerce.date<Date>().refine(date => {
         const currentDate = new Date()
         const inputDate = new Date(date)
         const inputTime = inputDate.getTime()
@@ -18,7 +19,7 @@ export const loanCreateFormSchema = z.object({
         return inputTime <= currentTime
 
     }, 'Date must be today or before today.'),
-    detailsOfLoan:z.string().optional()
+    detailsOfLoan: z.string().optional()
 })
 
 export type LoanCreateFormValue = z.infer<typeof loanCreateFormSchema>

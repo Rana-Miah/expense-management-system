@@ -17,10 +17,11 @@ import { dummyBanks } from '@/constant/dummy-db/bank-account'
 import { trxType as loanType } from '@/drizzle/schema-helpers'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { dummyLoanFinanciers, getFinancierById } from '@/constant/dummy-db/loan-financier'
+import { getFinancierById } from '@/constant/dummy-db/loan-financier'
 import { Badge } from '@/components/ui/badge'
+import { LoanFinancierSelectValue } from '@/drizzle/type'
 
-export const LoanForm = () => {
+export const LoanForm = ({ financiers }: { financiers: LoanFinancierSelectValue[] }) => {
 
   //TODO: fetch Bank From db
   const [selectedLoanFinancier, setSelectedLoanFinancier] = useState<string>()
@@ -48,11 +49,20 @@ export const LoanForm = () => {
     console.log({ value })
   })
 
-  const selectedFinancier = getFinancierById(selectedLoanFinancier ?? "")
+  const selectedFinancier = financiers.find(financier => financier.id === selectedLoanFinancier)
 
   const isBoth = selectedFinancier?.financierType === 'Both'
   const isProvider = selectedFinancier?.financierType === 'Provider' || isBoth
   const isRecipient = selectedFinancier?.financierType === 'Recipient' || isBoth
+
+
+  console.log({
+    isBoth,
+    isProvider,
+    isRecipient,
+    selectedFinancier,
+  })
+
 
   return (
     <Form {...form}>
@@ -75,7 +85,7 @@ export const LoanForm = () => {
                   </SelectTrigger>
                   <SelectContent className="w-full">
                     {
-                      dummyLoanFinanciers.map(item => (
+                      financiers.map(item => (
                         <SelectItem key={item.id} value={item.id} className="relative flex items-center justify-between">
                           <span>
                             {item.name}

@@ -25,8 +25,18 @@ const PurchaseItemPage = async ({ params }: { params: Promise<{ shopkeeperId: st
     },
     with: {
       assignedTransactionsName: {
+        columns: {
+          id: true,
+          trxNameId: true
+        },
         with: {
-          transactionName: true
+          transactionName: {
+            columns: {
+              id: true,
+              isActive: true,
+              name: true
+            }
+          }
         }
       }
     }
@@ -36,7 +46,9 @@ const PurchaseItemPage = async ({ params }: { params: Promise<{ shopkeeperId: st
     where: ({ clerkUserId }, { eq }) => (eq(clerkUserId, userId))
   })
 
-  console.log({ itemUtils })
+
+  console.dir({ banks }, { depth: null })
+
   return (
     <div>
       <CardWrapper

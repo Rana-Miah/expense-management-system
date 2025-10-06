@@ -1,14 +1,15 @@
-import { Financier } from "@/constant/dummy-db/loan-financier";
+'use client'
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { FinancierNameColumnCell } from "./financier-name-column-cell";
 import { FinancierTypeColumnCell } from "./financier-type-column-cell";
 import { FinancierPhoneColumnCell } from "./financier-phone-column-cell";
 import { FinancierUpdateDateColumnCell } from "./financier-update-date-column-cell";
-import { FinancierDueAamountColumnCell } from "./financier-due-amount-column-cell";
+import { FinancierDueAmountColumnCell } from "./financier-due-amount-column-cell";
 import { FinancierActionsColumnCell } from "./actions-column-cell";
+import { LoanFinancierSelectValue } from "@/drizzle/type";
 
-export type FinancierTableCellContext = CellContext<Financier, unknown>;
-export type FinancierColumnDef = ColumnDef<Financier>
+export type FinancierTableCellContext = CellContext<LoanFinancierSelectValue, unknown>;
+export type FinancierColumnDef = ColumnDef<LoanFinancierSelectValue>
 
 
 // Financier's name column
@@ -20,9 +21,9 @@ const FinancierNameColumn: FinancierColumnDef = {
 
 // Financier's type column
 const FinancierDueAmountColumn: FinancierColumnDef = {
-    id:'due-amounts',
-    header:"Due Amount",
-    cell: FinancierDueAamountColumnCell
+    id: 'due-amounts',
+    header: "Due Amount",
+    cell: FinancierDueAmountColumnCell
 }
 
 // Financier's type column
@@ -48,7 +49,7 @@ const FinancierUpdateColumn: FinancierColumnDef = {
 
 // Financier's update column
 const FinancierActionColumn: FinancierColumnDef = {
-    id:'Actions',
+    id: 'Actions',
     cell: FinancierActionsColumnCell
 }
 
