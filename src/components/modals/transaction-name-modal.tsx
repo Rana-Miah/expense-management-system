@@ -3,12 +3,12 @@
 import React from 'react'
 import { Modal } from '../modal'
 import { CardWrapper } from '../card-wrapper'
-import { TraxNameForm } from '@/features/components/transaction-name'
+import { TrxNameForm } from '@/features/components/transaction-name'
 import { useAppDispatch, useModal } from '@/hooks/redux'
 import { MODAL_TYPE } from '@/constant'
 import { onClose } from '@/lib/redux/slice/modal-slice'
 
-export const TraxNameModal = () => {
+export const TrxNameModal = () => {
   const { isOpen, type } = useModal()
   const dispatch = useAppDispatch()
   const open = isOpen && type === MODAL_TYPE.TRX_NAME
@@ -23,9 +23,9 @@ export const TraxNameModal = () => {
     >
       <CardWrapper
         title='Transaction name Form'
-        description='Fill the following fileds'
+        description='Fill the following fields'
       >
-        <TraxNameForm />
+        <TrxNameForm />
       </CardWrapper>
     </Modal>
   )

@@ -5,6 +5,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { Textarea } from "@/components/ui/textarea"
 import { ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
 import { shopkeeperPaymentCreateAction } from "@/features/actions/shopkeeper-payment"
@@ -57,15 +58,18 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
     const onSubmitHandler = handleSubmit(values => {
         startTransition(
             async () => {
-                const { success, error, message } = await shopkeeperPaymentCreateAction(values)
+                const res = await shopkeeperPaymentCreateAction(values)
                 const description = generateToasterDescription()
-                if (!success) {
-                    console.log(error)
-                    toast.error(message, { description })
+                if (!res.success) {
+                    if(res.isError){
+                        console.log(res.error)
+                        toast.error(res.errorMessage, { description })
+                    }
+                    toast.error(res.message, { description })
                     return
                 }
                 router.push('/shopkeepers')
-                toast.success(message, { description })
+                toast.success(res.message, { description })
             }
         )
 
@@ -83,7 +87,7 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                     name="shopkeeperId"
                     render={({ field }) => (
                         <SelectInput
-                            field={field}
+                            {...field}
                             label="Shopkeeper"
                             placeholder="Select your shopkeeper"
                             disabled
@@ -91,7 +95,8 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                                 {
                                     value: shopkeeper.id,
                                     label: shopkeeper.name,
-                                    badgeLabel: shopkeeper.totalDue.toString()
+                                    badgeLabel: shopkeeper.totalDue.toString(),
+                                    badgeProp:{}
                                 }
                             ]}
                         />
@@ -129,14 +134,14 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                             name="sourceBankId"
                             render={({ field }) => (
                                 <SelectInput
-                                    field={field}
+                                    {...field}
                                     onValueChange={(value) => {
                                         setSelectedBankId(value)
                                         field.onChange(value)
                                     }}
                                     label="Your Banks"
                                     placeholder="Select your bank"
-                                    items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString() }))}
+                                    items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString(),badgeProp:{} }))}
                                 />
                             )}
                         />
@@ -148,7 +153,7 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                     name="trxNameId"
                     render={({ field }) => (
                         <SelectInput
-                            field={field}
+                            {...field}
                             label="Transaction Name"
                             onValueChange={(value) => field.onChange(value)}
                             placeholder="Select your bank"
@@ -221,7 +226,13 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                 />
 
                 {/* button */}
-                <Button type="submit">Submit</Button>
+                <div className="flex items-center justify-center w-full">
+                    {
+                        pending?(
+                            <TextShimmerWave className="w-full">Creating Transaction Name...</TextShimmerWave>
+                        ):<Button>Create Transaction Name</Button>
+                    }
+                </div>
             </form>
         </Form >
     )

@@ -5,10 +5,12 @@ import { LucideProps, MoreHorizontal, } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 type DropdownItem = {
     label: string
     inset?: boolean
+    href?: string
     disabled?: boolean
     separator?: boolean
     onClick?: () => void
@@ -61,22 +63,41 @@ export function ReusableDropdown({
             </DropdownMenuTrigger >
             <DropdownMenuContent {...contextProps}>
                 <DropdownMenuLabel>{menuLabel ?? "Actions"}</DropdownMenuLabel>
-                {items.map(({ label, Icon, separator, conditionalRender = true, ...itemProp }, idx) => (
+                {items.map(({ label, Icon, separator, conditionalRender = true, href, ...itemProp }, idx) => (
                     <div key={idx}>
                         {separator && <DropdownMenuSeparator />}
                         {
                             conditionalRender && (
-                                <DropdownMenuItem
-                                    {...itemProp}
-                                    onClick={() => {
-                                        setOpen(false)
-                                        if (itemProp.onClick) itemProp.onClick()
-                                    }}
-                                    className={cn('flex items-center', Icon && 'justify-between', itemProp.className)}
-                                >
-                                    <span>{label}</span>
-                                    {Icon && <Icon />}
-                                </DropdownMenuItem>
+                                <>{
+                                    href ? (
+                                        <Link href={href}>
+                                            <DropdownMenuItem
+                                                {...itemProp}
+                                                onClick={() => {
+                                                    setOpen(false)
+                                                    if (itemProp.onClick) itemProp.onClick()
+                                                }}
+                                                className={cn('flex items-center', Icon && 'justify-between', itemProp.className)}
+                                            >
+                                                <span>{label}</span>
+                                                {Icon && <Icon />}
+                                            </DropdownMenuItem>
+                                        </Link>
+                                    ) : (
+                                        <DropdownMenuItem
+                                            {...itemProp}
+                                            onClick={() => {
+                                                setOpen(false)
+                                                if (itemProp.onClick) itemProp.onClick()
+                                            }}
+                                            className={cn('flex items-center', Icon && 'justify-between', itemProp.className)}
+                                        >
+                                            <span>{label}</span>
+                                            {Icon && <Icon />}
+                                        </DropdownMenuItem>
+                                    )
+
+                                }</>
                             )
                         }
 

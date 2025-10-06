@@ -8,11 +8,14 @@ import {
     FormField,
 } from "@/components/ui/form"
 import { bankCreateFormSchema, BankCreateFormValue } from "@/features/schemas/banks"
-import {  useTransition } from "react"
+import { useTransition } from "react"
 import { InputField } from "@/components/input"
 import { createBankAccountAction } from "@/features/actions/bank/create-bank-account"
 import { useRouter } from "next/navigation"
 import { useModalClose } from "@/hooks/redux"
+import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
+import { toast } from "sonner"
+import { generateToasterDescription } from "@/lib/helpers"
 // import { TrxNameSelectValue } from "@/drizzle/type"
 
 export const BankForm = () => {
@@ -37,15 +40,19 @@ export const BankForm = () => {
     function onSubmit(values: BankCreateFormValue) {
         startTransition(
             async () => {
-                const res= await createBankAccountAction(values)
+                const res = await createBankAccountAction(values)
+                const description = generateToasterDescription()
                 if (!res.success || !res.data) {
                     console.log(res)
+                    toast.error(res.message,{description})
                     return
                 }
-
+                
+                toast.success(res.message,{description})
                 form.reset()
-                onModalCloseHandler()
+                
                 router.push(`/accounts/${res.data.id}`)
+                onModalCloseHandler()
             }
         )
     }
@@ -62,8 +69,8 @@ export const BankForm = () => {
                     name="name"
                     render={({ field }) => (
                         <InputField
+                            {...field}
                             disabled={pending}
-                            field={field}
                             label="Bank Name"
                             placeholder="e.g. CASH"
                             type="text"
@@ -75,11 +82,13 @@ export const BankForm = () => {
                     name="balance"
                     render={({ field }) => (
                         <InputField
+                        {...field}
                             disabled={pending}
-                            field={field}
                             label="Available Balance"
                             placeholder="e.g. 200"
                             type="number"
+                            onChange={field.onChange}
+                            value={field.value}
                         />
                     )}
                 />
@@ -88,15 +97,18 @@ export const BankForm = () => {
                     name="phone"
                     render={({ field }) => (
                         <InputField
+                        {...field}
                             disabled={pending}
-                            field={field}
                             label="Phone"
                             placeholder="e.g. 01xxxxxxxxx"
                             type="number"
+                            onChange={field.onChange}
+                            value={field.value}
+
                         />
                     )}
                 />
-{/* 
+                {/* 
                 {
                     trxNames.length > 0 && (
                         <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
@@ -135,7 +147,14 @@ export const BankForm = () => {
                         )}
                     />
                 } */}
-                <Button type="submit">Submit</Button>
+                <div className="flex items-center justify-center w">
+                    {
+                        pending?(
+                            <TextShimmerWave className="w-full flex items-center justify-center">Creating Bank...</TextShimmerWave>
+                        ):(<Button type="submit" className="w-full">Creating Bank</Button>)
+                        
+                    }
+                </div>
             </form>
         </Form>
     )

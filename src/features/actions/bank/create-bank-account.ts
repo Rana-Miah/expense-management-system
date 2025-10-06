@@ -23,7 +23,14 @@ export const createBankAccountAction = async (payload: unknown) => {
 
     const { balance, phone, name, assignAbleTrxNames } = validation.data
 
-    const lban = generateLban(name, phone)
+    const upperCaseName = name.toUpperCase()
+
+    const lban = generateLban(upperCaseName, phone)
+
+    console.log({
+        upperCaseName,
+        lban
+    })
 
     const [existBank, getExistBankError] = await tryCatch(getBankByLban(lban))
 
@@ -33,7 +40,7 @@ export const createBankAccountAction = async (payload: unknown) => {
     if (existBank) return failureResponse(messageUtils.existMessage(`Bank with lban: ${lban}`))
 
     const [newBank, newBankError] = await tryCatch(createBank({
-        name,
+        name:upperCaseName,
         lban,
         balance,
         clerkUserId: userId

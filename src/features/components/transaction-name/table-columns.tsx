@@ -1,9 +1,10 @@
+import { ReusableDropdown } from '@/components/drop-down'
 import { Badge } from '@/components/ui/badge'
 import { CardDescription, CardTitle } from '@/components/ui/card'
 import { TrxNameSelectValue } from '@/drizzle/type'
 import { dateFormatter } from '@/lib/helpers'
 import { ColumnDef } from '@tanstack/react-table'
-import { Check, X } from 'lucide-react'
+import { Check, Edit, Trash, X } from 'lucide-react'
 
 export const TraxNameTableColumns: ColumnDef<TrxNameSelectValue>[] = [
     {
@@ -23,7 +24,7 @@ export const TraxNameTableColumns: ColumnDef<TrxNameSelectValue>[] = [
                                 className='rounded-full p-0.5'
                             >
                                 {
-                                    isActive ? <Check/> : <X />
+                                    isActive ? <Check /> : <X />
                                 }
                             </Badge>
                         </span>
@@ -39,6 +40,23 @@ export const TraxNameTableColumns: ColumnDef<TrxNameSelectValue>[] = [
         cell: ({ row: { original: { updatedAt } } }) => {
 
             return dateFormatter(new Date(updatedAt))
+        }
+    },
+    {
+        id: 'Action',
+        cell: ({ row: { original: { updatedAt, id } } }) => {
+
+            return <ReusableDropdown
+                onTrigger={(setIsDropDownOpen) => { setIsDropDownOpen(pre => !pre) }}
+                items={[
+                    {
+                        label: 'Edit', href: `/transaction-name/${id}/edit`, Icon: Edit
+                    },
+                    {
+                        label: 'Delete', separator: true, Icon: Trash, variant: 'destructive'
+                    },
+                ]}
+            />
         }
     }
 ]

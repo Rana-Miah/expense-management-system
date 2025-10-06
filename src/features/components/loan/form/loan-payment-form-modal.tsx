@@ -56,7 +56,7 @@ export const LoanPaymentFormModal = () => {
   const isDebit = loan?.loanType == 'Debit'
   const isCredit = loan?.loanType == 'Credit'
 
-  const modifieldSelectInputValue: SelectInputItem[] = dummyBanks.map(({ name, id }) => ({
+  const modifiedSelectInputValue: SelectInputItem[] = dummyBanks.map(({ name, id }) => ({
     label: name,
     value: id
   }))
@@ -76,7 +76,7 @@ export const LoanPaymentFormModal = () => {
           name="loanId"
           render={({ field }) => (
             <SelectInput
-              field={field}
+              {...field}
               label='All Loans'
               placeholder='Select a loan to pay'
               items={dummyLoans.map(({ id, title, loanType }) => {
@@ -113,7 +113,7 @@ export const LoanPaymentFormModal = () => {
           name="financierId"
           render={({ field }) => (
             <SelectInput
-              field={field}
+              {...field}
               label='Financier'
               defaultValue={field.value}
               placeholder={financierUnderLoan?.name ?? "Depended input not selected!"}
@@ -122,7 +122,7 @@ export const LoanPaymentFormModal = () => {
               items={[{
                 label: financierUnderLoan?.name ?? "not-found",
                 value: loan?.financierId ?? "not-found",
-                badgeLabel: financierUnderLoan?.financierType,
+                badgeLabel: financierUnderLoan?.financierType||"",
                 badgeProp: {
                   className: 'rounded-full'
                 }
@@ -187,7 +187,7 @@ export const LoanPaymentFormModal = () => {
                   name="sourceBankId"
                   render={({ field }) => (
                     <SelectInput
-                      field={field}
+                      {...field}
                       label='Source Bank'
                       placeholder='Select a source bank'
                       onValueChange={(value) => {
@@ -196,7 +196,7 @@ export const LoanPaymentFormModal = () => {
                       }}
                       defaultValue={field.value}
                       disabled={amount > 0}
-                      items={modifieldSelectInputValue}
+                      items={modifiedSelectInputValue}
                       Icon={<Landmark size={16} />}
                     />
                   )}
@@ -209,7 +209,7 @@ export const LoanPaymentFormModal = () => {
                   name="receiveBankId"
                   render={({ field }) => (
                     <SelectInput
-                      field={field}
+                      {...field}
                       label='Receive Bank'
                       placeholder='Select a receive bank'
                       onValueChange={(value) => {
@@ -218,7 +218,7 @@ export const LoanPaymentFormModal = () => {
                       }}
                       defaultValue={field.value}
                       disabled={amount > 0}
-                      items={modifieldSelectInputValue}
+                      items={modifiedSelectInputValue}
                       Icon={<Landmark size={16} />}
                     />
                   )}
@@ -237,7 +237,7 @@ export const LoanPaymentFormModal = () => {
                 name="amount"
                 render={({ field }) => (
                   <InputField
-                    field={field}
+                    {...field}
                     type='number'
                     label='Payment Amount'
                     placeholder='e.g. 150'

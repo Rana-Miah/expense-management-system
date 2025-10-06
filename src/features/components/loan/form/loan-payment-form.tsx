@@ -69,7 +69,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
           name="financierId"
           render={({ field }) => (
             <SelectInput
-              field={field}
+              {...field}
               label='Financier'
               defaultValue={field.value}
               placeholder={financierUnderLoan?.name??""}
@@ -77,7 +77,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
               Icon={
                 <User size={16} />
               }
-              items={[{value:loan?.financierId??"not found",label:financierUnderLoan?.name??"not found",badgeLabel:financierUnderLoan?.financierType}]}
+              items={[{value:loan?.financierId??"not found",label:financierUnderLoan?.name??"not found",badgeLabel:financierUnderLoan?.financierType||"",badgeProp:{}}]}
             />
           )}
         />
@@ -89,7 +89,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
           name="loanId"
           render={({ field }) => (
             <SelectInput
-              field={field}
+              {...field}
               label='Loan'
               defaultValue={field.value}
               placeholder={loan.title}
@@ -97,7 +97,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
               Icon={
                 <Receipt size={16}/>
               }
-              items={[{value:loan.id,label:loan.title,badgeLabel:loan.loanType}]}
+              items={[{value:loan.id,label:loan.title,badgeLabel:loan.loanType,badgeProp:{}}]}
             />
           )}
         />
@@ -158,7 +158,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
                   name="sourceBankId"
                   render={({ field }) => (
                     <SelectInput
-                      field={field}
+                      {...field}
                       items={dummyBanks.map(({ id, name }) => ({ value: id, label: name }))}
                       placeholder='Select a source bank'
                       label='Source Bank'
@@ -184,7 +184,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
                       label='Receive Bank'
                       placeholder='Select a receive bank'
                       disabled={amount > 0}
-                      field={field}
+                      {...field}
                       Icon={<Landmark size={16}/>}
                       onValueChange={(value) => {
                         field.onChange(value)
@@ -206,7 +206,7 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
               name="amount"
               render={({ field }) => (
                 <InputField
-                  field={field}
+                  {...field}
                   label='Payment Amount'
                   type='number'
                   placeholder='e.g. 150'

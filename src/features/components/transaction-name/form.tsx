@@ -29,11 +29,11 @@ export const bankCreateFormSchema = z.object({
     name: z.string().nonempty('Bank Name is required!').min(3, 'Bank Name must be 3 characters long!'),
     balance: z.string(),
     // phone: z.string().nonempty('Phone is required!').min(11, 'Phone must be 11 characters long!').max(11, 'Phone must be less than 12 characters!'),
-    assignAbletrxNames: z.array(optionSchema).optional()
+    assignAbleTrxNames: z.array(optionSchema).optional()
 })
 export type BankCreateFormValue = z.infer<typeof bankCreateFormSchema>
 
-export const TraxNameForm = () => {
+export const TrxNameForm = () => {
 
     const [pending, startTransition] = useTransition()
     const onCloseHandler = useModalClose()
@@ -69,7 +69,7 @@ export const TraxNameForm = () => {
                     name="name"
                     render={({ field }) => (
                         <InputField
-                            field={field}
+                            {...field}
                             label="Transact Name"
                             placeholder="e.g. Income"
                             type="text"

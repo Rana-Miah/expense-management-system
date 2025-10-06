@@ -47,10 +47,9 @@ export const ItemUnitForm = () => {
                     name='unit'
                     render={({ field }) => (
                         <InputField
+                            {...field}
                             label='Unit'
                             placeholder='e.g. KG,PC,BAG'
-                            onChange={field.onChange}
-                            value={field.value}
                             type='text'
                         />
                     )}

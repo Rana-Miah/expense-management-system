@@ -7,7 +7,7 @@ import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { shopkeeperCreateAction } from "@/features/actions/shopkeeper/create-action"
 import { shopkeeperCreateFormSchema, ShopkeeperCreateFormValue } from "@/features/schemas/shopkeeper"
 import { useModalClose } from "@/hooks/redux"
-import { dateFormatter } from "@/lib/helpers"
+import { dateFormatter, generateToasterDescription } from "@/lib/helpers"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTransition } from "react"
 import { useForm } from "react-hook-form"
@@ -30,27 +30,22 @@ export const ShopkeeperForm = () => {
     const onSubmitHandler = handleSubmit((value) => {
         startTransition(
             async () => {
-                const { error, success, message } = await shopkeeperCreateAction(value)
+                const res = await shopkeeperCreateAction(value)
 
-                const now = new Date()
-                const weekName = dateFormatter(now, 'EEEE')
-                const date = dateFormatter(now, 'PP')
-                const time = dateFormatter(now, 'pp')
 
-                const description = `${weekName}, ${date} at ${time}`
-                if (!success) {
+                const description = generateToasterDescription()
+                if (!res.success) {
                     console.log({
-                        error,
-                        message
+                        res
                     })
-                    toast.error(message, {
+                    toast.error(res.message, {
                         description,
                     })
 
                     return
                 }
 
-                toast.success(message, {
+                toast.success(res.message, {
                     description,
                 })
                 onModalCloseHandler()
@@ -72,7 +67,7 @@ export const ShopkeeperForm = () => {
                     name="name"
                     render={({ field }) => (
                         <InputField
-                            field={field}
+                            {...field}
                             label="Name"
                             type="text"
                             placeholder="Ibrahim"
@@ -84,7 +79,7 @@ export const ShopkeeperForm = () => {
                     name="phone"
                     render={({ field }) => (
                         <InputField
-                            field={field}
+                            {...field}
                             label="Phone"
                             type="number"
                             placeholder="01xxxxxxxxx"
@@ -96,7 +91,7 @@ export const ShopkeeperForm = () => {
                     name="totalDue"
                     render={({ field }) => (
                         <InputField
-                            field={field}
+                            {...field}
                             label="Previous Due"
                             type="number"
                             placeholder="e.g. 500"

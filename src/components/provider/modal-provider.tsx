@@ -1,7 +1,7 @@
 'use client'
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { BankAccountModal } from "../modals/bank-account-modal"
-import { ShopkeeperModal, TraxNameModal } from "../modals"
+import { ShopkeeperModal, TrxNameModal } from "../modals"
 import { LoanModal } from "../modals/loan-modal"
 import { FinancierModal } from "../modals/financier-modal"
 import { LoanPaymentModal } from "../modals/loan-payment-modaL"
@@ -19,7 +19,7 @@ export const ModalProvider = () => {
     return (
         <>
             <LoanModal />
-            <TraxNameModal />
+            <TrxNameModal />
             <ShopkeeperModal />
             <BankAccountModal />
             <FinancierModal />

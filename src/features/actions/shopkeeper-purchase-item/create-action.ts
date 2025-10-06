@@ -10,6 +10,7 @@ import { getBankByIdAndClerkUserId } from "@/services/bank"
 import { getShopkeeperByIdAndClerkUserId } from "@/services/shopkeeper"
 import { getTrxNameByIdAndClerkUserId } from "@/services/trx-name"
 import { and, eq } from "drizzle-orm"
+import { revalidatePath } from "next/cache"
 
 export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
 
@@ -22,12 +23,12 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
     if (!validation.success) return failureResponse(messageUtils.invalidFieldsMessage(), validation.error)
 
     const {
-        isIncludedItems,
-        trxNameId,
         shopkeeperId,
-        sourceBankId,
         totalAmount,
         paidAmount,
+        isIncludedItems,
+        trxNameId,
+        sourceBankId,
         description,
         purchaseDate,
         items
@@ -224,20 +225,45 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                     }
 
 
-                    //! Shopkeeper payment create
-                    const [newShopkeeperPayment, newShopkeeperPaymentError] = await tryCatch(createShopkeeperPayment({
-                        amount: paidAmount,
-                        clerkUserId: userId,
-                        paymentDate: purchaseDate,
-                        shopkeeperId: existShopkeeper.id,
-                        sourceBankId: existBank.id,
-                        description: generateDescription('Shopkeeper payment'),
-                    }))
 
-                    if (newShopkeeperPaymentError || !newShopkeeperPayment) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.failedCreateMessage('shopkeeper payment during purchasing'), newShopkeeperPaymentError)
+                    //* update shopkeeper if total amount and paid amount not equal and paid amount must be grater than zero
+                    if (!isEqualPaid) {
+                        let shopkeeperTotalDue: number = existShopkeeper.totalDue
+
+                        if (isOverPaid) {
+                            shopkeeperTotalDue -= overPaid
+                            //! Shopkeeper payment create
+                            const [newShopkeeperPayment, newShopkeeperPaymentError] = await tryCatch(createShopkeeperPayment({
+                                amount: overPaid,
+                                clerkUserId: userId,
+                                paymentDate: purchaseDate,
+                                shopkeeperId: existShopkeeper.id,
+                                sourceBankId: existBank.id,
+                                description: generateDescription('Shopkeeper payment'),
+                            }))
+
+                            if (newShopkeeperPaymentError || !newShopkeeperPayment) {
+                                tx.rollback()
+                                return failureResponse(messageUtils.failedCreateMessage('shopkeeper payment during purchasing'), newShopkeeperPaymentError)
+                            }
+                        }
+
+                        if (isLessPaid) {
+                            shopkeeperTotalDue += dueAmount
+                        }
+                        const [updatedShopkeeper, updateShopkeeperError] = await tryCatch(
+                            updateShopkeeper(existShopkeeper.id, userId, {
+                                totalDue: shopkeeperTotalDue
+                            })
+                        )
+
+                        if (!updatedShopkeeper || updateShopkeeperError) {
+                            tx.rollback()
+                            return failureResponse(messageUtils.failedUpdateMessage('shopkeeper total due during purchase'))
+                        }
+
                     }
+                } else {
 
 
                     //* update shopkeeper if total amount and paid amount not equal and paid amount must be grater than zero
@@ -263,7 +289,26 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                         }
 
                     }
+
+
                 }
+
+
+
+                console.log({
+                    sourceBankId,
+                    existSourceBankId,
+                    isOverPaid,
+                    overPaid,
+                    isLessPaid,
+                    isPaidAvailable,
+                    paidAmount,
+                    dueAmount,
+                    line: 69,
+
+                })
+
+
 
 
                 //! create new purchase
@@ -275,7 +320,7 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                         totalAmount,
                         purchaseDate,
                         shopkeeperId: existShopkeeper.id,
-                        description: `${description} => Additional Description:`,
+                        description: generateDescription('Shopkeeper Purchase'),
                         isIncludedItems,
                         sourceBankId: existSourceBankId
                     })
@@ -316,6 +361,9 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
 
 
     if (txError) return failureResponse(messageUtils.failedCreateMessage('shopkeeper items purchase'), txError)
+
+
+    revalidatePath(`/shopkeepers/${existShopkeeper.id}/purchase-item`)
 
     return txResult
 }

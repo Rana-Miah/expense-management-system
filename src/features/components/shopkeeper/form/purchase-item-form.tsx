@@ -29,28 +29,6 @@ import { DynamicFormSheet } from "@/components/dynamic-fields"
 import { AssignTrxNameSelectValue, ItemUnitInsertValue, ItemUnitSelectValue, ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
 import { createShopkeeperPurchaseItemAction } from "@/features/actions/shopkeeper-purchase-item/create-action"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
-import z from "zod"
-import { useUuidValidation } from "@/hooks/use-uuid-validation"
-
-const itemSchema = z.object({
-    itemUnitId: z.uuid().nonempty(),
-    price: z.coerce.number<number>().nonnegative(),
-    quantity: z.coerce.number<number>().nonnegative(),
-    name: z.string().nonempty().min(3, 'Name must be 3 characters long!')
-})
-
-const schema = z.object({
-    shopkeeperId: z.uuid().nonempty(),
-    totalAmount: z.coerce.number<number>().nonnegative().gte(1, 'Total amount must be grater than 1 TK!'),
-    paidAmount: z.coerce.number<number>().nonnegative(),
-    sourceBankId: z.uuid().nonempty().optional(),
-    trxNameId: z.uuid().nonempty().optional(),
-    purchaseDate: z.coerce.date<Date>().optional(),
-    description: z.coerce.string<string>().optional(),
-    isIncludedItems: z.coerce.boolean<boolean>(),
-    items: z.array(itemSchema).optional()
-})
-type Schema = z.infer<typeof schema>
 
 
 export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
@@ -76,8 +54,8 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
     const selectedBank = banks.find(({ id }) => selectedBankId === id)
 
     // 1. Define your form.
-    const form = useForm<Schema>({
-        resolver: zodResolver(schema),
+    const form = useForm<ShopkeeperPurchaseItemFormValue>({
+        resolver: zodResolver(shopkeeperPurchaseItemFormSchema),
         defaultValues: {
             shopkeeperId: shopkeeper.id,
             totalAmount: 0,
@@ -85,7 +63,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
             purchaseDate: new Date(),
             description: "",
             isIncludedItems: false,
-            items: []
+            // items: []
         },
     })
 
@@ -100,14 +78,10 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
 
     // 2. Define a submit handler.
     const onSubmitHandler = handleSubmit(values => {
-
-        console.log(values)
         startTransition(
             async () => {
                 const res = await createShopkeeperPurchaseItemAction(values)
-                console.log({
-                    res
-                })
+                console.log({ values, res })
             }
         )
     })
@@ -161,6 +135,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                             name="totalAmount"
                             render={({ field }) => (
                                 <InputField
+                                    {...field}
                                     type="number"
                                     label="Total Amount"
                                     placeholder="e.g. 150"
@@ -175,6 +150,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                             name="paidAmount"
                             render={({ field }) => (
                                 <InputField
+                                    {...field}
                                     type="number"
                                     label="Paid Amount (optional)"
                                     placeholder="e.g. 150"
@@ -184,8 +160,8 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                         field.onChange(value)
                                         setPaidAmountValue(value)
                                         if (value === 0 || isNaN(value)) {
-                                            resetField('sourceBankId')
-                                            resetField('trxNameId')
+                                            // resetField('sourceBankId')
+                                            // resetField('trxNameId')
                                         }
                                     }}
                                     disabled={false}
@@ -206,7 +182,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                             onValueChange={(value) => {
                                                 field.onChange(value)
                                                 setSelectedBankId(value)
-                                                resetField('trxNameId')
+                                                // resetField('trxNameId')
                                             }}
                                             label="Source Bank"
                                             placeholder="Select a bank to pay"
@@ -312,6 +288,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                         name={`items.${index}.name`}
                                         render={({ field }) => (
                                             <InputField
+                                                {...field}
                                                 label="Item name"
                                                 type="text"
                                                 placeholder="e.g Tomato"
@@ -347,6 +324,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                         name={`items.${index}.price`}
                                         render={({ field }) => (
                                             <InputField
+                                                {...field}
                                                 label="Price"
                                                 type="number"
                                                 placeholder="e.g 15"
@@ -361,6 +339,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                         name={`items.${index}.quantity`}
                                         render={({ field }) => (
                                             <InputField
+                                                {...field}
                                                 label="Quantity"
                                                 type="number"
                                                 placeholder="e.g 5"
@@ -382,12 +361,26 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                             <TextShimmerWave className="flex items-center justify-center w-full">Purchasing...</TextShimmerWave>
                         ) :
                             (
-                                <Button
-                                    type="submit"
-                                    className="w-full"
-                                >
-                                    Purchase
-                                </Button>
+                                <div className="w-full space-y-2.5">
+                                    {
+                                        isIncludeItems && (
+                                            <Button
+                                                type="button"
+                                                className="w-full"
+                                                variant='secondary'
+                                                onClick={() => setIsOpenSheet(true)}
+                                            >
+                                                Add more item
+                                            </Button>
+                                        )
+                                    }
+                                    <Button
+                                        type="submit"
+                                        className="w-full"
+                                    >
+                                        Purchase
+                                    </Button>
+                                </div>
                             )
                         }
                     </div>

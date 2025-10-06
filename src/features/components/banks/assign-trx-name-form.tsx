@@ -65,7 +65,7 @@ export const AssignTrxNameForm = (
                     name="trxNameId"
                     render={({ field }) => (
                         <SelectInput
-                            field={field}
+                            {...field}
                             label="Transaction Name"
                             placeholder="Select a Transaction name"
                             disabled={pending}
@@ -74,7 +74,7 @@ export const AssignTrxNameForm = (
                             items={trxNames.map(({ id, name, isActive, assignedBanks }) => ({
                                 label: name,
                                 value: id,
-                                isActive: !isActive || !!assignedBanks.find(item => item.bankAccountId === bank.id),
+                                disabled: !isActive || !!assignedBanks.find(item => item.bankAccountId === bank.id),
                                 Icon: assignedBanks.find(item => item.bankAccountId === bank.id) ? Cable : undefined
                             }))}
                         />

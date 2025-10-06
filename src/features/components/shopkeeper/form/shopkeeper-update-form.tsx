@@ -73,7 +73,7 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                     name="name"
                     render={({ field }) => (
                         <InputField
-                            field={field}
+                            {...field}
                             label="Name"
                             type="text"
                             placeholder="Ibrahim"
@@ -85,7 +85,7 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                     name="phone"
                     render={({ field }) => (
                         <InputField
-                            field={field}
+                            {...field}
                             label="Phone"
                             type="number"
                             placeholder="01xxxxxxxxx"
@@ -97,7 +97,7 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                     name="totalDue"
                     render={({ field }) => (
                         <InputField
-                            field={field}
+                            {...field}
                             label="Previous Due"
                             type="number"
                             placeholder="e.g. 500"
@@ -110,11 +110,12 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                     name="isBan"
                     render={({ field }) => (
                         <SwitchInput
-                            field={field}
                             label="Are you sure?"
                             description={`you want to ban the ${shopkeeper.name} shopkeeper`}
                             disabled={reason.length > 0}
-                            onChange={(value) => {
+                            checked={field.value}
+                            onCheckedChange={(value) => {
+                                field.onChange(value)
                                 setToggleIsBan(value)
                             }}
                         />
