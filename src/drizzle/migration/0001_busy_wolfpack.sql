@@ -1,0 +1,1 @@
+ALTER TABLE "loan_financier" DROP CONSTRAINT "loan_financier_phone_unique";

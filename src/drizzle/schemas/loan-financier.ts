@@ -9,7 +9,7 @@ export const loanFinancierTable = pgTable('loan_financier', {
     id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
     name: text('name').notNull(),
-    phone: text('phone').notNull().unique(),
+    phone: text('phone').notNull(),
     financierType: text('financier_type', { enum: financierTypeWithBoth }).notNull(),
     totalProvided: numericAmount('total_provided', 7, 2),
     totalReceipt: numericAmount('total_receipt', 7, 2),
@@ -17,7 +17,8 @@ export const loanFinancierTable = pgTable('loan_financier', {
     receiptDue: numericAmount('receipt_due', 7, 2),
     isBan: booleans('is_ban', false),
     reasonOfBan: text('reason_of_ban'),
-    iaBothFinancierBan: booleans('is_both_financier_ban', false),
+    banFor: text('ban_for', { enum: financierTypeWithBoth }).notNull(),
+    isBothFinancierBan: booleans('is_both_financier_ban', false),
     createdAt,
     updatedAt
 })

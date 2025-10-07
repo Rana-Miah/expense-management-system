@@ -2,6 +2,7 @@
 import { SelectInput } from "@/components/input"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { DateTimePicker } from "@/components/ui/extension/date-picker"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -10,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
 import { shopkeeperPaymentCreateAction } from "@/features/actions/shopkeeper-payment"
 import { shopkeeperBillPaymentFormSchema, ShopkeeperBillPaymentFormValue } from "@/features/schemas/shopkeeper/payment"
+import { disableCalendarDay } from "@/lib/disable-calendar-day"
 import { generateToasterDescription } from "@/lib/helpers"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -61,7 +63,7 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                 const res = await shopkeeperPaymentCreateAction(values)
                 const description = generateToasterDescription()
                 if (!res.success) {
-                    if(res.isError){
+                    if (res.isError) {
                         console.log(res.error)
                         toast.error(res.errorMessage, { description })
                     }
@@ -96,7 +98,7 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                                     value: shopkeeper.id,
                                     label: shopkeeper.name,
                                     badgeLabel: shopkeeper.totalDue.toString(),
-                                    badgeProp:{}
+                                    badgeProp: {}
                                 }
                             ]}
                         />
@@ -141,7 +143,7 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                                     }}
                                     label="Your Banks"
                                     placeholder="Select your bank"
-                                    items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString(),badgeProp:{} }))}
+                                    items={banks.map(bank => ({ value: bank.id, label: bank.name, badgeLabel: bank.balance.toString(), badgeProp: {} }))}
                                 />
                             )}
                         />
@@ -173,40 +175,15 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Purchase date</FormLabel>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full pl-3 text-left font-normal",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value ? (
-                                                format(field.value, "PPP")
-                                            ) : (
-                                                <span>Pick a date</span>
-                                            )}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-full p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={field.value}
-                                        onSelect={field.onChange}
-                                        disabled={(date) =>
-                                            date > new Date() || date < new Date("1900-01-01")
-                                        }
-                                        captionLayout="dropdown"
-                                        className="w-full"
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                            <DateTimePicker
+                            isCalenderInsideModal={false}
+                            disableCalendarDay={disableCalendarDay(new Date())}
+                            value={field.value}
+                            onChange={field.onChange}
+                            />
                             <FormMessage />
                         </FormItem>
+
                     )}
                 />
 
@@ -228,9 +205,9 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                 {/* button */}
                 <div className="flex items-center justify-center w-full">
                     {
-                        pending?(
+                        pending ? (
                             <TextShimmerWave className="w-full">Creating Transaction Name...</TextShimmerWave>
-                        ):<Button>Create Transaction Name</Button>
+                        ) : <Button>Create Transaction Name</Button>
                     }
                 </div>
             </form>

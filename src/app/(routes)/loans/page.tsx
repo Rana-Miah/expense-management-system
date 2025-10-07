@@ -1,5 +1,9 @@
+import { LoanModal } from '@/components/modals/loan-modal'
+import { db } from '@/drizzle/db'
+import { BankWithAssignedTrxName } from '@/drizzle/type'
 import { LoanTable } from '@/features/components/loan/table'
 import { currentUserId } from '@/lib/current-user-id'
+import {  getBanksByClerkUserId } from '@/services/bank'
 import { getLoansByClerkUserId } from '@/services/loan'
 import { getLoanFinanciersByClerkUserId } from '@/services/loan-financier'
 import React from 'react'
@@ -18,10 +22,42 @@ const LoansPage = async () => {
     }
   })
 
+  const banks = await db.query.bankAccountTable.findMany({
+    where:(table,{eq})=>eq(table.clerkUserId,userId),
+    columns: {
+      id: true,
+      name: true,
+      balance:true,
+      isActive:true
+    },
+    with:{
+      assignedTransactionsName:{
+        columns:{
+          id:true,
+          trxNameId:true
+        },
+        with:{
+          transactionName:{
+            columns:{
+              id:true,
+              name:true,
+              isActive:true
+            }
+          }
+        }
+      }
+    }
+  })
+
   const loans = await getLoansByClerkUserId(userId)
+
 
   return (
     <div>
+      <LoanModal
+        financiers={financiers}
+        banks={banks}
+      />
       <LoanTable
         loans={loans}
         financiers={financiers}

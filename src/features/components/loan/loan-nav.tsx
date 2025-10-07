@@ -3,9 +3,8 @@ import { LayoutNav } from '@/components/layout-nav'
 import { Banknote } from 'lucide-react'
 import React from 'react'
 
-export const LoanNav = ({ param }: { param: { loanId: string } }) => {
+export const LoanNav = () => {
 
-    console.log({ loanParam: param })
     const loanRoutes = [
         { label: 'Loans', href: '/loans', Icon: <Banknote /> },
         { label: 'Loan Payments', href: '/loans/loan-payments', },

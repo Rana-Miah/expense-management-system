@@ -54,6 +54,7 @@ export const LoanFinancierForm = () => {
           toast.error(res.message, { description })
           if (res.isError) {
             toast.error(res.errorMessage, { description })
+            console.error(res.error)
           }
           return
         }

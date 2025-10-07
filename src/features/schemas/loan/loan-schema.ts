@@ -5,10 +5,10 @@ import z from "zod";
 export const loanCreateFormSchema = z.object({
     title: z.string().trim().nonempty().nonoptional(),
     loanType: z.enum(loanType),
-    financierId: z.uuid().nonempty().nonoptional(),
-    trxNameId: z.uuid().nonempty().nonoptional(),
-    receiveBankId: z.uuid().optional(),
-    sourceBankId: z.uuid().optional(),
+    financierId: z.string().nonempty().nonoptional(),
+    trxNameId: z.string().nonempty().nonoptional(),
+    receiveBankId: z.string().optional(),
+    sourceBankId: z.string().optional(),
     amount: z.coerce.number<number>().nonnegative(),
     loanDate: z.coerce.date<Date>().refine(date => {
         const currentDate = new Date()

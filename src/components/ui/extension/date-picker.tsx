@@ -640,6 +640,8 @@ type Granularity = 'day' | 'hour' | 'minute' | 'second';
 
 type DateTimePickerProps = {
   value?: Date;
+  isCalenderInsideModal:boolean
+  disableCalendarDay?: (date: Date) => boolean;
   onChange?: (date: Date | undefined) => void;
   onMonthChange?: (date: Date | undefined) => void;
   disabled?: boolean;
@@ -689,6 +691,8 @@ const DateTimePicker = React.forwardRef<Partial<DateTimePickerRef>, DateTimePick
       granularity = 'second',
       placeholder = 'Pick a date',
       className,
+      disableCalendarDay,
+      isCalenderInsideModal,
       ...props
     },
     ref,
@@ -696,7 +700,11 @@ const DateTimePicker = React.forwardRef<Partial<DateTimePickerRef>, DateTimePick
     const [month, setMonth] = React.useState<Date>(value ?? defaultPopupValue);
     const buttonRef = useRef<HTMLButtonElement>(null);
     const [displayDate, setDisplayDate] = React.useState<Date | undefined>(value ?? undefined);
+    
     onMonthChange ||= onChange;
+
+    const [isOpen,setIsOpen] = React.useState(false)
+
 
     /**
      * Makes sure display date updates when value change on
@@ -771,9 +779,10 @@ const DateTimePicker = React.forwardRef<Partial<DateTimePickerRef>, DateTimePick
     }
 
     return (
-      <Popover>
+      <Popover modal={isCalenderInsideModal}>
         <PopoverTrigger asChild disabled={disabled}>
           <Button
+          type='button'
             variant="outline"
             className={cn(
               'w-full justify-start text-left font-normal',
@@ -781,6 +790,7 @@ const DateTimePicker = React.forwardRef<Partial<DateTimePickerRef>, DateTimePick
               className,
             )}
             ref={buttonRef}
+            onClick={()=>setIsOpen((prev)=>!prev)}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {displayDate ? (
@@ -796,7 +806,7 @@ const DateTimePicker = React.forwardRef<Partial<DateTimePickerRef>, DateTimePick
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto p-0 z-50">
           <Calendar
             mode="single"
             selected={displayDate}
@@ -814,6 +824,7 @@ const DateTimePicker = React.forwardRef<Partial<DateTimePickerRef>, DateTimePick
             onMonthChange={handleMonthChange}
             yearRange={yearRange}
             locale={locale}
+            disabled={disableCalendarDay}
             {...props}
           />
           {granularity !== 'day' && (

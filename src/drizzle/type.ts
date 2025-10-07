@@ -1,4 +1,6 @@
-import { assignTrxNameTable, bankAccountTable, itemTable, itemUnitTable, loanFinancierTable, loanPaymentTable, loanTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable, trxTable } from "./schema";
+import { Many, One, Relations, Table } from "drizzle-orm";
+import { InferSelectModel } from "drizzle-orm";
+import { assignTrxNameTable, bankAccountTable, bankAccountTableRelation, itemTable, itemUnitTable, loanFinancierTable, loanPaymentTable, loanTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable, trxTable } from "./schema";
 
 export type BankInsertValue = typeof bankAccountTable.$inferInsert
 export type BankSelectValue = typeof bankAccountTable.$inferSelect
@@ -38,3 +40,35 @@ export type ShopkeeperPaymentSelectValue = typeof shopkeeperPaymentTable.$inferS
 
 export type ShopkeeperPurchaseInsertValue = typeof shopkeeperPurchaseTable.$inferInsert
 export type ShopkeeperPurchaseSelectValue = typeof shopkeeperPurchaseTable.$inferSelect
+
+
+export interface BankWithAssignedTrxName {
+  id: string
+  name: string
+  isActive: boolean
+  balance: number
+  assignedTransactionsName: AssignedTransactionsName[]
+}
+
+export interface AssignedTransactionsName {
+  id: string
+  trxNameId: string
+  transactionName: TransactionName
+}
+
+export interface TransactionName {
+  id: string
+  isActive: boolean
+  name: string
+}
+
+export type Financier = {
+    id: string;
+    name: string;
+    financierType: "Provider" | "Recipient" | "Both";
+    isBan: boolean;
+    isBothFinancierBan: boolean;
+}
+
+type Demo<Key extends keyof LoanFinancierSelectValue = keyof LoanFinancierSelectValue> = Pick<LoanFinancierSelectValue, Key>
+

@@ -13,7 +13,7 @@ export const ShopkeeperLink = () => {
     ]
 
     const header = {
-        title: "Shopkeeper Navigations",
+        title: "Shopkeeper Navigation",
         description: 'Direct links to navigate'
     }
     return (
