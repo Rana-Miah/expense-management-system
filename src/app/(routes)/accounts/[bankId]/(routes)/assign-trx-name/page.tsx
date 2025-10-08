@@ -42,13 +42,7 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
 
     return (
         <div className='space-y-3'>
-            <CardWrapper
-                title='Assign Transaction'
-                description='Assign your transaction name under bank'
-            >
-                <AssignTrxNameForm bank={bank} trxNames={trxNames} />
-            </CardWrapper>
-
+            <AssignTrxNameForm bank={bank} trxNames={trxNames} />
             <AssignedTrxName assignedTrxNames={bank.assignedTransactionsName} />
         </div>
     )

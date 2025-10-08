@@ -15,6 +15,8 @@ import { trxNameCreateFormSchema, TrxNameCreateFormValue } from "@/features/sche
 import { InputField } from "@/components/input"
 import { createTransactionNameAction } from "@/features/actions/transaction-name/create-action"
 import { useModalClose, useModalOpen } from "@/hooks/redux"
+import { generateToasterDescription } from "@/lib/helpers"
+import { toast } from "sonner"
 
 
 
@@ -51,10 +53,19 @@ export const TrxNameForm = () => {
         startTransition(
             async () => {
                 const res = await createTransactionNameAction(values)
+                const description = generateToasterDescription()
                 if (!res.success) {
-                    if (res.isError) console.log({ res, inside: `isError block`, from: `transaction name on submit` })
+                    if (res.isError) {
+                        toast.error(res.errorMessage,{description})
+                    }
+                    console.log({
+                        errorResponse: res
+                    })
+                    toast.error(res.message,{description})
+                    return
                 }
-                console.log({ res, inside: `onsubmit fn block`, from: `transaction name on submit` })
+
+                toast.success(res.message,{description})
                 onCloseHandler()
                 form.reset()
             }

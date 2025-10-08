@@ -94,11 +94,11 @@ CREATE TABLE "loan_financier" (
 	"receipt_due" numeric(7, 2) NOT NULL,
 	"is_ban" boolean DEFAULT false NOT NULL,
 	"reason_of_ban" text,
+	"ban_for" text,
 	"is_both_financier_ban" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
-	CONSTRAINT "loan_financier_id_unique" UNIQUE("id"),
-	CONSTRAINT "loan_financier_phone_unique" UNIQUE("phone")
+	CONSTRAINT "loan_financier_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
 CREATE TABLE "loan_payment" (
@@ -122,12 +122,12 @@ CREATE TABLE "loan" (
 	"financier_id" uuid NOT NULL,
 	"receive_bank_id" uuid,
 	"source_bank_id" uuid,
-	"loan_type" text,
+	"loan_type" text NOT NULL,
 	"title" text NOT NULL,
 	"amount" numeric(7, 2) NOT NULL,
 	"loan_date" timestamp with time zone NOT NULL,
 	"details_of_loan" text NOT NULL,
-	"loan_status" text DEFAULT 'Settled' NOT NULL,
+	"loan_status" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone NOT NULL,
 	CONSTRAINT "loan_id_unique" UNIQUE("id"),
