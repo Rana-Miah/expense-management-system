@@ -11,13 +11,13 @@ export const loanTable = pgTable('loan', {
     financierId: uuid('financier_id').notNull(),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),
     sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
-    loanType: text('loan_type', { enum: loanType }),
+    loanType: text('loan_type', { enum: loanType }).notNull(),
     title: text('title').notNull(),
     amount: numericAmount('amount', 7, 2),
     loanDate: times('loan_date'),
     due: numericAmount('amount', 7, 2),
     detailsOfLoan: text('details_of_loan').notNull(),
-    loanStatus: text('loan_status', { enum: loanStatus }).notNull().default('Settled'),
+    loanStatus: text('loan_status', { enum: loanStatus }).notNull(),
     createdAt,
     updatedAt
 })

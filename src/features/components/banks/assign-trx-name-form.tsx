@@ -18,6 +18,9 @@ import { toast } from "sonner"
 import { generateToasterDescription } from "@/lib/helpers"
 import { Cable } from "lucide-react"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
+import { CardWrapper } from "@/components"
+import { ModalTriggerButton } from "@/components/modal-trigger-button"
+import { MODAL_TYPE } from "@/constant"
 
 export const AssignTrxNameForm = (
     { bank, trxNames }: {
@@ -58,40 +61,52 @@ export const AssignTrxNameForm = (
     }
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                    control={form.control}
-                    name="trxNameId"
-                    render={({ field }) => (
-                        <SelectInput
-                            {...field}
-                            label="Transaction Name"
-                            placeholder="Select a Transaction name"
-                            disabled={pending}
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            items={trxNames.map(({ id, name, isActive, assignedBanks }) => ({
-                                label: name,
-                                value: id,
-                                disabled: !isActive || !!assignedBanks.find(item => item.bankAccountId === bank.id),
-                                Icon: assignedBanks.find(item => item.bankAccountId === bank.id) ? Cable : undefined
-                            }))}
-                        />
-                    )}
+        <CardWrapper
+            title='Assign Transaction'
+            description='Assign your transaction name under bank'
+            headerElement={
+                <ModalTriggerButton
+                    label="Transaction name"
+                    modalType={MODAL_TYPE.TRX_NAME}
                 />
-                {
-                    pending ? (
-                        <TextShimmerWave
-                            className="flex items-center justify-center w-full"
-                        >
-                            Assigning...
-                        </TextShimmerWave>
-                    ) : (
-                        <Button type="submit" className="w-full" disabled={pending}>Assign Transaction Name</Button>
-                    )
-                }
-            </form>
-        </Form>
+            }
+        >
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                        control={form.control}
+                        name="trxNameId"
+                        render={({ field }) => (
+                            <SelectInput
+                                {...field}
+                                label="Transaction Name"
+                                placeholder="Select a Transaction name"
+                                disabled={pending}
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                items={trxNames.map(({ id, name, isActive, assignedBanks }) => ({
+                                    label: name,
+                                    value: id,
+                                    disabled: !isActive || !!assignedBanks.find(item => item.bankAccountId === bank.id),
+                                    Icon: assignedBanks.find(item => item.bankAccountId === bank.id) ? Cable : undefined
+                                }))}
+                            />
+                        )}
+                    />
+                    {
+                        pending ? (
+                            <TextShimmerWave
+                                className="flex items-center justify-center w-full"
+                            >
+                                Assigning...
+                            </TextShimmerWave>
+                        ) : (
+                            <Button type="submit" className="w-full" disabled={pending}>Assign Transaction Name</Button>
+                        )
+                    }
+                </form>
+            </Form>
+        </CardWrapper>
+
     )
 }

@@ -1,5 +1,5 @@
 {
-  "id": "f6d117d0-8bdc-4fe5-9f87-19bf9e267762",
+  "id": "d7287b85-ae44-45ae-9bff-ad35b1be10c1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -631,6 +631,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "ban_for": {
+          "name": "ban_for",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "is_both_financier_ban": {
           "name": "is_both_financier_ban",
           "type": "boolean",
@@ -661,13 +667,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "id"
-          ]
-        },
-        "loan_financier_phone_unique": {
-          "name": "loan_financier_phone_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "phone"
           ]
         }
       },
@@ -856,7 +855,7 @@
           "name": "loan_type",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "title": {
           "name": "title",
@@ -886,8 +885,7 @@
           "name": "loan_status",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'Settled'"
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",

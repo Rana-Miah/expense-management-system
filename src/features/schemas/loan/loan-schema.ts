@@ -1,14 +1,13 @@
-import { Loan } from "@/constant/dummy-db/loan";
-import { loanStatus, trxTypeWithBoth as loanType } from "@/drizzle/schema-helpers";
+import {  trxType as loanType,  } from "@/drizzle/schema-helpers";
 import z from "zod";
 
 export const loanCreateFormSchema = z.object({
     title: z.string().trim().nonempty().nonoptional(),
-    loanType: z.enum(loanType),
     financierId: z.string().nonempty().nonoptional(),
-    trxNameId: z.string().nonempty().nonoptional(),
+    loanType: z.enum(loanType),
     receiveBankId: z.string().optional(),
     sourceBankId: z.string().optional(),
+    trxNameId: z.string().nonempty().nonoptional(),
     amount: z.coerce.number<number>().nonnegative(),
     loanDate: z.coerce.date<Date>().refine(date => {
         const currentDate = new Date()
@@ -19,7 +18,7 @@ export const loanCreateFormSchema = z.object({
         return inputTime <= currentTime
 
     }, 'Date must be today or before today.'),
-    detailsOfLoan: z.string().optional()
+    detailsOfLoan: z.string()
 })
 
 export type LoanCreateFormValue = z.infer<typeof loanCreateFormSchema>
