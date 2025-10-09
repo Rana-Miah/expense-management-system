@@ -15,7 +15,7 @@ type DropdownItem = {
     separator?: boolean
     onClick?: () => void
     conditionalRender?: boolean
-    variant?: "default" | "destructive"
+    variant?: "default" | "destructive" | 'success'
     Icon?: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>
 } & React.ComponentProps<typeof DropdownMenuPrimitive.Item>
 

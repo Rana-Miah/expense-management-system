@@ -1,3 +1,4 @@
+
 type TryCatchSuccess<T> = readonly [T, null]
 type TryCatchError<E = Error> = readonly [null, E]
 
@@ -13,6 +14,7 @@ export const tryCatch = async <T, E = Error>(promise: Promise<T>): Promise<Resul
             errorMessage: (error as Error)?.message || 'unknown error',
             error, from: "tryCatch utils "
         })
+
         return [null, error as E] as const
     }
 }

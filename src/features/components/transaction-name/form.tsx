@@ -3,37 +3,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
     Form,
     FormField,
 } from "@/components/ui/form"
-import { useState, useTransition } from "react"
+import { useTransition } from "react"
 import { trxNameCreateFormSchema, TrxNameCreateFormValue } from "@/features/schemas/transaction-name"
 import { InputField } from "@/components/input"
-import { createTransactionNameAction } from "@/features/actions/transaction-name/create-action"
-import { useModalClose, useModalOpen } from "@/hooks/redux"
+import { createTransactionNameAction } from "@/features/actions/transaction-name"
+import { useModalClose } from "@/hooks/redux"
 import { generateToasterDescription } from "@/lib/helpers"
 import { toast } from "sonner"
-
-
-
-const optionSchema = z.object({
-    label: z.string(),
-    value: z.string(),
-    disable: z.boolean().optional(),
-});
-
-
-export const bankCreateFormSchema = z.object({
-    name: z.string().nonempty('Bank Name is required!').min(3, 'Bank Name must be 3 characters long!'),
-    balance: z.string(),
-    // phone: z.string().nonempty('Phone is required!').min(11, 'Phone must be 11 characters long!').max(11, 'Phone must be less than 12 characters!'),
-    assignAbleTrxNames: z.array(optionSchema).optional()
-})
-export type BankCreateFormValue = z.infer<typeof bankCreateFormSchema>
 
 export const TrxNameForm = () => {
 
@@ -56,16 +38,16 @@ export const TrxNameForm = () => {
                 const description = generateToasterDescription()
                 if (!res.success) {
                     if (res.isError) {
-                        toast.error(res.errorMessage,{description})
+                        toast.error(res.errorMessage, { description })
                     }
                     console.log({
                         errorResponse: res
                     })
-                    toast.error(res.message,{description})
+                    toast.error(res.message, { description })
                     return
                 }
 
-                toast.success(res.message,{description})
+                toast.success(res.message, { description })
                 onCloseHandler()
                 form.reset()
             }

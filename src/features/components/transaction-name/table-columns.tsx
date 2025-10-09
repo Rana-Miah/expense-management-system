@@ -1,12 +1,20 @@
-import { ReusableDropdown } from '@/components/drop-down'
 import { Badge } from '@/components/ui/badge'
 import { CardDescription, CardTitle } from '@/components/ui/card'
 import { TrxNameSelectValue } from '@/drizzle/type'
 import { dateFormatter } from '@/lib/helpers'
-import { ColumnDef } from '@tanstack/react-table'
-import { Check, Edit, Trash, X } from 'lucide-react'
+import { CellContext, ColumnDef } from '@tanstack/react-table'
+import { Check, X } from 'lucide-react'
+import { ActionColumn } from './action-column'
 
-export const TraxNameTableColumns: ColumnDef<TrxNameSelectValue>[] = [
+type TrxNameTableColumnDef = ColumnDef<TrxNameSelectValue>
+export type TrxNameTableColumnCellContext = CellContext<TrxNameSelectValue, unknown>
+
+const actionColumn: TrxNameTableColumnDef = {
+    id: 'Action',
+    cell: ActionColumn
+}
+
+export const TraxNameTableColumns: TrxNameTableColumnDef[] = [
     {
         accessorKey: 'name',
         header: 'Name',
@@ -42,21 +50,5 @@ export const TraxNameTableColumns: ColumnDef<TrxNameSelectValue>[] = [
             return dateFormatter(new Date(updatedAt))
         }
     },
-    {
-        id: 'Action',
-        cell: ({ row: { original: { updatedAt, id } } }) => {
-
-            return <ReusableDropdown
-                onTrigger={(setIsDropDownOpen) => { setIsDropDownOpen(pre => !pre) }}
-                items={[
-                    {
-                        label: 'Edit', href: `/transaction-name/${id}/edit`, Icon: Edit
-                    },
-                    {
-                        label: 'Delete', separator: true, Icon: Trash, variant: 'destructive'
-                    },
-                ]}
-            />
-        }
-    }
+    actionColumn
 ]

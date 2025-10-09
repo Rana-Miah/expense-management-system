@@ -2,6 +2,7 @@
 import { Modal } from "./modal";
 import { DialogFooter } from "./ui/dialog";
 import { Button } from "./ui/button";
+import { TextShimmerWave } from "./ui/text-shimmer-wave";
 
 type AlertModalProps = {
     title: string;
@@ -12,6 +13,7 @@ type AlertModalProps = {
     onConfirm: () => void;
     cancelBtnLabel?: string;
     confirmBtnLabel?: string;
+    pending?: boolean
 }
 
 export const AlertModal = ({
@@ -22,7 +24,9 @@ export const AlertModal = ({
     onConfirm,
     disabled,
     cancelBtnLabel,
-    confirmBtnLabel, }: AlertModalProps
+    confirmBtnLabel,
+    pending
+}: AlertModalProps
 ) => {
 
     return (
@@ -34,22 +38,35 @@ export const AlertModal = ({
 
         >
             <DialogFooter className="flex flex-row items-center justify-end gap-4">
-                <Button
-                    type="button"
-                    onClick={onCancel}
-                    variant={'secondary'}
-                    disabled={disabled}
-                >
-                    {cancelBtnLabel || 'Cancel'}
-                </Button>
-                <Button
-                    type="button"
-                    onClick={onConfirm}
-                    variant={'destructive'}
-                    disabled={disabled}
-                >
-                    {confirmBtnLabel || "Continue"}
-                </Button>
+
+                {
+                    pending ? (
+                        <div className="flex items-center justify-center w-full">
+                            <TextShimmerWave className="w-full">
+                                Processing...
+                            </TextShimmerWave>
+                        </div>
+                    ) : (
+                        <>
+                            <Button
+                                type="button"
+                                onClick={onCancel}
+                                variant={'secondary'}
+                                disabled={disabled}
+                            >
+                                {cancelBtnLabel || 'Cancel'}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={onConfirm}
+                                variant={'destructive'}
+                                disabled={disabled}
+                            >
+                                {confirmBtnLabel || "Continue"}
+                            </Button>
+                        </>
+                    )
+                }
             </DialogFooter>
         </Modal>
     )

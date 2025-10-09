@@ -1,11 +1,9 @@
 'use client'
 import { SelectInput } from "@/components/input"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { DateTimePicker } from "@/components/ui/extension/date-picker"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { Textarea } from "@/components/ui/textarea"
 import { ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
@@ -15,8 +13,6 @@ import { disableCalendarDay } from "@/lib/disable-calendar-day"
 import { generateToasterDescription } from "@/lib/helpers"
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
@@ -25,10 +21,17 @@ import { toast } from "sonner"
 
 export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
     banks: {
-        id: string,
-        name: string,
-        isActive: boolean
-        balance: number
+        id: string;
+        name: string;
+        isActive: boolean;
+        balance: number;
+        assignedTransactionsName: (
+            {
+                id: string;
+                trxNameId: string
+                transactionName: { id: string; isActive: boolean; name: string; }
+            }
+        )[]
     }[],
     shopkeeper: ShopkeeperSelectValue;
     trxNames: TrxNameSelectValue[]
@@ -158,10 +161,10 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                             {...field}
                             label="Transaction Name"
                             onValueChange={(value) => field.onChange(value)}
-                            placeholder="Select your bank"
+                            placeholder="Select transaction name"
                             items={
                                 selectedBank.assignedTransactionsName.map(({ transactionName }) => (
-                                    { value: transactionName.id, label: transactionName.name }
+                                    { value: transactionName.id, label: transactionName.name, disabled: !transactionName.isActive }
                                 ))
                             }
                         />
@@ -176,10 +179,10 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                         <FormItem>
                             <FormLabel>Purchase date</FormLabel>
                             <DateTimePicker
-                            isCalenderInsideModal={false}
-                            disableCalendarDay={disableCalendarDay(new Date())}
-                            value={field.value}
-                            onChange={field.onChange}
+                                isCalenderInsideModal={false}
+                                disableCalendarDay={disableCalendarDay(new Date())}
+                                value={field.value}
+                                onChange={field.onChange}
                             />
                             <FormMessage />
                         </FormItem>
@@ -206,8 +209,8 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                 <div className="flex items-center justify-center w-full">
                     {
                         pending ? (
-                            <TextShimmerWave className="w-full">Creating Transaction Name...</TextShimmerWave>
-                        ) : <Button>Create Transaction Name</Button>
+                            <TextShimmerWave className="w-full">Payment Processing...</TextShimmerWave>
+                        ) : <Button type="submit" className="w-full">Pay now</Button>
                     }
                 </div>
             </form>

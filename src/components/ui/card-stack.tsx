@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
-import { dummyBanks } from '@/constant/dummy-db/bank-account'
 import { Card } from "./card";
 import { Badge } from "./badge";
 import { CardWrapper } from "../card-wrapper";
@@ -12,7 +11,6 @@ import { ModalTriggerButton } from "../modal-trigger-button";
 import { MODAL_TYPE } from "@/constant";
 
 
-let interval: any;
 
 type Card = BankSelectValue & {
   content: React.ReactNode;
@@ -69,13 +67,13 @@ export const CardStack = ({
               <CardWrapper
                 title={card.name}
                 description={card.balance.toString()}
-                headerElement={<Badge variant={card.isActive ? 'success' : 'destructive'} className="">{card.isActive ? 'Active' : 'Deactived'}</Badge>}
+                headerElement={<Badge variant={card.isActive ? 'success' : 'destructive'} className="">{card.isActive ? 'Active' : 'Deactivated'}</Badge>}
               >
                 <div className="flex items-center justify-between">
                   <div>{card.lban}</div>
                   <Link href={`/accounts/${card.id}`}>
                     <Button variant={'secondary'} className="rounded-full border px-4 w-full">
-                      Let's go
+                      Let&#39;s go
                     </Button>
                   </Link>
                 </div>
