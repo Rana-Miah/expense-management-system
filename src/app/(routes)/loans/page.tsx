@@ -21,25 +21,25 @@ const LoansPage = async () => {
   })
 
   const banks = await db.query.bankAccountTable.findMany({
-    where:(table,{eq})=>eq(table.clerkUserId,userId),
+    where: (table, { eq }) => eq(table.clerkUserId, userId),
     columns: {
       id: true,
       name: true,
-      balance:true,
-      isActive:true
+      balance: true,
+      isActive: true
     },
-    with:{
-      assignedTransactionsName:{
-        columns:{
-          id:true,
-          trxNameId:true
+    with: {
+      assignedTransactionsName: {
+        columns: {
+          id: true,
+          trxNameId: true
         },
-        with:{
-          transactionName:{
-            columns:{
-              id:true,
-              name:true,
-              isActive:true
+        with: {
+          transactionName: {
+            columns: {
+              id: true,
+              name: true,
+              isActive: true
             }
           }
         }
@@ -47,7 +47,20 @@ const LoansPage = async () => {
     }
   })
 
-  const loans = await getLoansByClerkUserId(userId)
+  const loans = await db.query.loanTable.findMany({
+    where: (table, { eq }) => (eq(table.clerkUserId, userId)),
+    with: {
+      financier: {
+        columns: { name: true, id: true }
+      },
+      receiveBank: {
+        columns: { id: true, name: true }
+      },
+      sourceBank:{
+        columns:{ id: true, name: true }
+      }
+    }
+  })
 
 
   return (
@@ -58,7 +71,6 @@ const LoansPage = async () => {
       />
       <LoanTable
         loans={loans}
-        financiers={financiers}
       />
     </div>
   )
