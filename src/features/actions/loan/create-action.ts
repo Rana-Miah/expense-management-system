@@ -106,6 +106,8 @@ export const createLoanAction = async (value: unknown) => {
                         receiveBankId: existReceiveBank.id,
                     }))
                     if (newLoanError || !newLoan) {
+
+                        console.log(newLoanError)
                         tx.rollback()
                         return failureResponse(messageUtils.failedCreateMessage('loan'), newLoanError)
                     }
@@ -215,7 +217,7 @@ export const createLoanAction = async (value: unknown) => {
         )
     )
 
-    if (dbTxError) return failureResponse(messageUtils.failedCreateMessage('loan'), dbTxError)
+    if (dbTxError) return failureResponse(messageUtils.failedCreateMessage('loan todo'), dbTxError)
 
     revalidatePath('/loans')
 

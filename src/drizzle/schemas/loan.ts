@@ -7,7 +7,7 @@ import { bankAccountTable } from "./bank-account";
 
 export const loanTable = pgTable('loan', {
     id: uuid('id').primaryKey().notNull().unique().defaultRandom(),
-    clerkUserId: text('clerk_user_id').notNull().unique(),
+    clerkUserId: text('clerk_user_id').notNull(),
     financierId: uuid('financier_id').notNull(),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),
     sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
@@ -15,7 +15,7 @@ export const loanTable = pgTable('loan', {
     title: text('title').notNull(),
     amount: numericAmount('amount', 7, 2),
     loanDate: times('loan_date'),
-    due: numericAmount('amount', 7, 2),
+    due: numericAmount('due', 7, 2),
     detailsOfLoan: text('details_of_loan').notNull(),
     loanStatus: text('loan_status', { enum: loanStatus }).notNull(),
     createdAt,

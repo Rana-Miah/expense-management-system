@@ -13,7 +13,7 @@ type Financier = {
     name: string;
     financierType: "Provider" | "Recipient" | "Both";
     isBan: boolean;
-    iaBothFinancierBan: boolean;
+    isBothFinancierBan: boolean;
 }
 
 export const LoanModal = ({ financiers, banks }: { financiers: Financier[], banks: BankWithAssignedTrxName[] }) => {
