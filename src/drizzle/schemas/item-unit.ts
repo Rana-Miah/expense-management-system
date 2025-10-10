@@ -1,5 +1,5 @@
-import { pgTable, uuid, text } from "drizzle-orm/pg-core";
-import { createdAt, updatedAt,relationBetween } from "../schema-helpers";
+import { pgTable, uuid, text,boolean } from "drizzle-orm/pg-core";
+import { createdAt, updatedAt, relationBetween } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { itemTable } from "./item";
 import { shopKeeperItemTable } from "./shopkeeper-items";
@@ -10,6 +10,7 @@ export const itemUnitTable = pgTable('item_unit', {
     id: uuid('id').primaryKey().unique().notNull().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
     unit: text('unit').notNull(),
+    isDeleted: boolean('is_deleted').default(false).notNull(),
     createdAt,
     updatedAt
 })

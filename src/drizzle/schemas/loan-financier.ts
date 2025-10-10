@@ -15,10 +15,11 @@ export const loanFinancierTable = pgTable('loan_financier', {
     totalReceipt: numericAmount('total_receipt', 7, 2),
     providedDue: numericAmount('provided_due', 7, 2),
     receiptDue: numericAmount('receipt_due', 7, 2),
-    isBan: booleans('is_ban', false),
-    reasonOfBan: text('reason_of_ban'),
-    banFor: text('ban_for', { enum: financierTypeWithBoth }),
-    isBothFinancierBan: booleans('is_both_financier_ban', false),
+    isDeleted: booleans('is_deleted',false),
+    isBlock: booleans('is_block', false),
+    reasonOfBlock: text('reason_of_block'),
+    blockFor: text('block_for', { enum: financierTypeWithBoth }),
+    isBothFinancierBan: booleans('is_both_financier_block', false),
     createdAt,
     updatedAt
 })

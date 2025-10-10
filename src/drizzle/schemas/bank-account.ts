@@ -16,6 +16,7 @@ export const bankAccountTable = pgTable("bank_account", {
     balance: numericAmount('balance', 7, 2).default(0),
     lban: text('local_bank_account_number').notNull().unique(),
     isActive: boolean('is_active').default(true).notNull(),
+    isDeleted: boolean('is_deleted').default(false).notNull(),
     createdAt,
     updatedAt
 })

@@ -11,8 +11,8 @@ export const shopkeeperTable = pgTable('shopkeeper', {
     name: text('name').notNull(),
     phone: text('phone').notNull(),
     totalDue: numericAmount('total_due', 7, 0),
-    isBan: booleans('is_ban', false),
-    reasonOfBan: text('reason_of_ban'),
+    isBlock: booleans('is_block', false),
+    reasonOfBlock: text('reason_of_block'),
     createdAt,
     updatedAt
 })
