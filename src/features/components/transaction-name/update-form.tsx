@@ -93,10 +93,10 @@ export const TrxNameUpdateForm = ({ trxName }: { trxName: { id: string, name: st
                     name="isActive"
                     render={({ field }) => (
                         <SwitchInput
+                            label="Transaction Name"
                             description="Deactivated the transaction name"
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            label="Transact Name"
                             disabled={pending}
                         />
                     )}

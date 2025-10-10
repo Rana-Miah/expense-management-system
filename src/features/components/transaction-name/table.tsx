@@ -1,7 +1,7 @@
 'use client'
 import { CardWrapper, DataTable } from '@/components'
 import { pluralize } from '@/lib/helpers'
-import { TraxNameTableColumns } from './table-columns'
+import { TrxNameTableColumns } from './table-columns'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { useAppDispatch } from '@/hooks/redux'
@@ -10,12 +10,12 @@ import { onOpen } from '@/lib/redux/slice/modal-slice'
 import { TrxNameSelectValue } from '@/drizzle/type'
 
 
-export const TraxNameTable = ({ traxName }: { traxName: TrxNameSelectValue[] }) => {
+export const TrxNameTable = ({ trxName }: { trxName: TrxNameSelectValue[] }) => {
     const dispatch = useAppDispatch()
     const onClickHandler = () => dispatch(onOpen(MODAL_TYPE.TRX_NAME))
     return (
         <CardWrapper
-            title={`${pluralize(traxName.length, 'Transaction')} Name ( ${traxName.length} )`}
+            title={`${pluralize(trxName.length, 'Transaction')} Name ( ${trxName.length} )`}
             description='Transaction name'
             headerElement={
                 <Button
@@ -32,8 +32,8 @@ export const TraxNameTable = ({ traxName }: { traxName: TrxNameSelectValue[] }) 
             }
         >
             <DataTable
-                data={traxName}
-                columns={TraxNameTableColumns}
+                data={trxName}
+                columns={TrxNameTableColumns}
             />
         </CardWrapper>
     )

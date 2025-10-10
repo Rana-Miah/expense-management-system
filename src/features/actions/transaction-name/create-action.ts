@@ -21,8 +21,9 @@ export const createTransactionNameAction = async (payload: unknown) => {
     if (!validation.success) return failureResponse(messageUtils.invalidFieldsMessage(), validation.error)
 
     const { name, } = validation.data
+    const capitalizedName = capitalize(name)
 
-    const [existTrxName, getExistTrxNameError] = await tryCatch(getTrxNameByNameAndClerkUserId(name, userId))
+    const [existTrxName, getExistTrxNameError] = await tryCatch(getTrxNameByNameAndClerkUserId(capitalizedName, userId))
 
     if (getExistTrxNameError) return failureResponse(messageUtils.failedGetMessage('exist transaction name'), getExistTrxNameError)
 
@@ -30,7 +31,7 @@ export const createTransactionNameAction = async (payload: unknown) => {
     if (existTrxName) return failureResponse(messageUtils.existMessage(`Transaction Name with ${name}`))
 
     const [newTrxName, newTrxNameError] = await tryCatch(createTrxName({
-        name: capitalize(name),
+        name: capitalizedName,
         clerkUserId: userId
     }))
 
