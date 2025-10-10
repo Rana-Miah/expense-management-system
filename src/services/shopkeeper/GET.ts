@@ -49,7 +49,7 @@ export const getShopkeepersByClerkUserId = async (clerkUserId: string, options?:
         offset = (page - 1) * pageLimit
     }
 
-    const total = await db.$count(shopkeeperTable,eq(shopkeeperTable.clerkUserId, clerkUserId))
+    const total = await db.$count(shopkeeperTable, eq(shopkeeperTable.clerkUserId, clerkUserId))
 
     const shopkeepers = await db.query.shopkeeperTable.findMany({
         where: (shopkeeper, { eq }) => (

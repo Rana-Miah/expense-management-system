@@ -38,8 +38,9 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
     const [existShopkeeper, getExistShopkeeperError] = await tryCatch(getShopkeeperByIdAndClerkUserId(shopkeeperId, userId))
     if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)
     if (!existShopkeeper) return failureResponse(messageUtils.notFoundMessage('shopkeeper'))
+    if (existShopkeeper.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`shopkeeper "${existShopkeeper.name}"`))
     if (existShopkeeper.totalDue < paidAmount) return failureResponse(`Paid amount exceeds the shopkeeper total due!`)
-    if (existShopkeeper.isBan) return failureResponse(`Shopkeeper is ban! Not allow to purchase from ${existShopkeeper.name} shopkeeper`)
+    if (existShopkeeper.isBlock) return failureResponse(`Shopkeeper is ban! Not allow to purchase from ${existShopkeeper.name} shopkeeper`)
 
 
     if (items && isIncludedItems && items.length < 1) return failureResponse(messageUtils.itemsRequiredMessage())
@@ -140,15 +141,19 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                     }
                     if (!existBank) {
                         tx.rollback()
-                        return failureResponse(messageUtils.notFoundMessage('bank'), getExistBankError)
+                        return failureResponse(messageUtils.notFoundMessage('bank'))
                     }
                     if (!existBank.isActive) {
                         tx.rollback()
-                        return failureResponse(messageUtils.notActiveMessage(`${existBank.name} bank`), getExistBankError)
+                        return failureResponse(messageUtils.notActiveMessage(`${existBank.name} bank`))
+                    }
+                    if (existBank.isDeleted) {
+                        tx.rollback()
+                        return failureResponse(messageUtils.deletedRowMessage(`bank ${existBank.name}`))
                     }
                     if (existBank.balance < paidAmount) {
                         tx.rollback()
-                        return failureResponse(messageUtils.insufficientBalance(), getExistBankError)
+                        return failureResponse(messageUtils.insufficientBalance())
                     }
 
                     existSourceBankId = existBank.id
@@ -162,11 +167,15 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                     }
                     if (!existTrxName) {
                         tx.rollback()
-                        return failureResponse(messageUtils.notFoundMessage('transaction name'), getExistBankError)
+                        return failureResponse(messageUtils.notFoundMessage('transaction name'))
                     }
                     if (!existTrxName.isActive) {
                         tx.rollback()
-                        return failureResponse(messageUtils.notActiveMessage(`transaction name ${existBank.name}`), getExistBankError)
+                        return failureResponse(messageUtils.notActiveMessage(`transaction name ${existBank.name}`))
+                    }
+                    if (existTrxName.isDeleted) {
+                        tx.rollback()
+                        return failureResponse(messageUtils.deletedRowMessage(`transaction name ${existBank.name}`))
                     }
 
 
@@ -207,7 +216,7 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                         for (const item of items) {
                             const [existItemUnit, getExistItemUnitError] = await tryCatch(getItemUnitByIdAndClerkUserId(item.itemUnitId, userId))
                             if (getExistItemUnitError) continue
-                            if (!existItemUnit) continue
+                            if (!existItemUnit || existItemUnit.isDeleted) continue
                             trxItemPromises.push(createTrxItems({ ...item, trxId: newTrx.id }))
                         }
 
@@ -292,23 +301,6 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                 }
 
 
-
-                console.log({
-                    sourceBankId,
-                    existSourceBankId,
-                    isOverPaid,
-                    overPaid,
-                    isLessPaid,
-                    isPaidAvailable,
-                    paidAmount,
-                    dueAmount,
-                    line: 69,
-
-                })
-
-
-
-
                 //! create new purchase
                 const [newPurchase, newPurchaseError] = await tryCatch(
                     createShopkeeperPurchase({
@@ -336,7 +328,7 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                     for (const item of items) {
                         const [existItemUnit, getExistItemUnitError] = await tryCatch(getItemUnitByIdAndClerkUserId(item.itemUnitId, userId))
                         if (getExistItemUnitError) continue
-                        if (!existItemUnit) continue
+                        if (!existItemUnit || existItemUnit.isDeleted) continue
                         shopkeeperItemPromises.push(createShopkeeperItem({ ...item, shopkeeperPurchaseId: newPurchase.id }))
                     }
 

@@ -29,6 +29,9 @@ export const createAssignTrxNameAction = async (value: unknown) => {
     if (!existBank) return failureResponse(messageUtils.notFoundMessage('bank'))
     if (!existTrxName) return failureResponse(messageUtils.notFoundMessage('transaction name'))
 
+    if (existBank.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`bank "${existBank.name}"`))
+    if (existTrxName.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`transaction name "${existTrxName.name}"`))
+
     const [existAssignedTrxName, getExistAssignedTrxNameError] = await tryCatch(getAssignTrxNameByIdAndBankIdAndClerkUserId(
         existTrxName.id,
         existBank.id,

@@ -26,6 +26,7 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
     if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)
 
     if (!existShopkeeper) return failureResponse(messageUtils.notFoundMessage('Shopkeeper'))
+    if (existShopkeeper.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`shopkeeper "${existShopkeeper.name}"`))
 
     if (amount > existShopkeeper.totalDue) return failureResponse(`Amount exceeds the total due of ${existShopkeeper.totalDue}`)
 
@@ -35,6 +36,7 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
 
     // if bank not exist return
     if (!existBank) return failureResponse('Bank does not exist!')
+    if (existBank.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`bank "${existBank.name}"`))
 
     // if bank not active return
     if (!existBank.isActive) return failureResponse(messageUtils.notActiveMessage('Bank'))
@@ -48,7 +50,7 @@ export const shopkeeperPaymentCreateAction = async (payload: unknown) => {
 
     // if transaction name not exist return
     if (!existTrxName) return failureResponse(messageUtils.notFoundMessage('Transaction name'))
-
+    if (existTrxName.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`transaction name "${existTrxName.name}"`))
     // if transaction name not active return
     if (!existTrxName.isActive) return failureResponse(messageUtils.notActiveMessage('Transaction name'))
 

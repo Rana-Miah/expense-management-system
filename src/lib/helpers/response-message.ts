@@ -51,6 +51,7 @@ export const notActiveMessage = (value: string) => `${capitalize(value)} is not 
 export const missingFieldValue = (field: string) => `${capitalize(field)} is missing!`
 export const itemsRequiredMessage = (message?: string) => message || `Did you forget to add items?`
 export const insufficientBalance = (message?: string) => message || `Insufficient balance!`
+export const deletedRowMessage = (rowName: string) => `${capitalize(rowName)} is deleted! Try to restore!`
 
 export const messageUtils = {
     notFoundMessage,
@@ -72,4 +73,5 @@ export const messageUtils = {
     missingFieldValue,
     itemsRequiredMessage,
     insufficientBalance,
+    deletedRowMessage,
 }

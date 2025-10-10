@@ -2,7 +2,7 @@ import { pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { booleans, createdAt, numericAmount, relationBetween, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { shopkeeperPaymentTable } from "./shopkeeper-payment";
-import { shopKeeperItemTable } from "./shopkeeper-items"; 
+import { shopKeeperItemTable } from "./shopkeeper-items";
 
 
 export const shopkeeperTable = pgTable('shopkeeper', {
@@ -11,6 +11,7 @@ export const shopkeeperTable = pgTable('shopkeeper', {
     name: text('name').notNull(),
     phone: text('phone').notNull(),
     totalDue: numericAmount('total_due', 7, 0),
+    isDeleted: booleans('is_deleted', false),
     isBlock: booleans('is_block', false),
     reasonOfBlock: text('reason_of_block'),
     createdAt,
