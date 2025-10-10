@@ -9,7 +9,7 @@ export const trxNameTable = pgTable("trx_name", {
     clerkUserId: text('clerk_user_id').notNull(),
     name: text('name').notNull(),
     isActive: boolean('is_active').default(true).notNull(),
-    isDeleted: boolean('is_deleted').default(true).notNull(),
+    isDeleted: boolean('is_deleted').default(false).notNull(),
     createdAt,
     updatedAt
 })

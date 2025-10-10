@@ -14,7 +14,7 @@ const actionColumn: TrxNameTableColumnDef = {
     cell: ActionColumn
 }
 
-export const TraxNameTableColumns: TrxNameTableColumnDef[] = [
+export const TrxNameTableColumns: TrxNameTableColumnDef[] = [
     {
         accessorKey: 'name',
         header: 'Name',

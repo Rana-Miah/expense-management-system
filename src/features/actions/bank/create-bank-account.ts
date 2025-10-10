@@ -5,7 +5,7 @@ import { currentUserId } from "@/lib/current-user-id"
 import { generateLban } from "@/lib/generate-lban"
 import { failedCreateMessage, failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
 import { createAssignTrxName } from "@/services/assign-trx-name"
-import { getBankByLban, createBank } from "@/services/bank"
+import { getBankByLban, createBank, getBankByLbanAndClerkUserId } from "@/services/bank"
 import { getTrxNameById } from "@/services/trx-name"
 import { revalidatePath } from "next/cache"
 
@@ -27,10 +27,11 @@ export const createBankAccountAction = async (payload: unknown) => {
 
     const lban = generateLban(upperCaseName, phone)
 
-    console.log({
-        upperCaseName,
-        lban
-    })
+    const [bankUnderUser, bankUnderUserError] = await tryCatch(getBankByLbanAndClerkUserId(lban, userId))
+
+    if (bankUnderUserError) return failureResponse(messageUtils.failedGetMessage('exist bank'))
+
+    if (bankUnderUser && bankUnderUser.isDeleted) return successResponse('Please try to restore!', bankUnderUser)
 
     const [existBank, getExistBankError] = await tryCatch(getBankByLban(lban))
 
@@ -39,8 +40,9 @@ export const createBankAccountAction = async (payload: unknown) => {
     //if exist the bank with lban 
     if (existBank) return failureResponse(messageUtils.existMessage(`Bank with lban: ${lban}`))
 
+
     const [newBank, newBankError] = await tryCatch(createBank({
-        name:upperCaseName,
+        name: upperCaseName,
         lban,
         balance,
         clerkUserId: userId

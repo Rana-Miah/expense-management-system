@@ -60,6 +60,16 @@ export const getBankByLban = async (lban: string, options?: BankQueryOptionsFind
     where: (bankTable, { eq }) => (eq(bankTable.lban, lban)),
 })
 
+export const getBankByLbanAndClerkUserId = async (lban: string, clerkUserId: string, options?: BankQueryOptionsFindFirst) => await db.query.bankAccountTable.findFirst({
+    ...options,
+    where: (bankTable, { and,eq }) => (
+        and(
+            eq(bankTable.lban, lban),
+            eq(bankTable.clerkUserId, clerkUserId)
+        )
+    ),
+})
+
 export const getBankById = async (id: string, options?: BankQueryOptionsFindFirst) => await db.query.bankAccountTable.findFirst({
     ...options,
     where: (bankTable, { eq }) => (eq(bankTable.id, id)),

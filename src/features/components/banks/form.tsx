@@ -44,13 +44,18 @@ export const BankForm = () => {
                 const description = generateToasterDescription()
                 if (!res.success || !res.data) {
                     console.log(res)
-                    toast.error(res.message,{description})
+                    toast.error(res.message, { description })
                     return
                 }
-                
-                toast.success(res.message,{description})
+
+                if (res.data.isDeleted) {
+                    toast.error(res.message, { description })
+                    return router.push(`/restore/deleted-banks/${res.data.id}`)
+                }
+
+                toast.success(res.message, { description })
                 form.reset()
-                
+
                 router.push(`/accounts/${res.data.id}`)
                 onModalCloseHandler()
             }
@@ -82,7 +87,7 @@ export const BankForm = () => {
                     name="balance"
                     render={({ field }) => (
                         <InputField
-                        {...field}
+                            {...field}
                             disabled={pending}
                             label="Available Balance"
                             placeholder="e.g. 200"
@@ -97,7 +102,7 @@ export const BankForm = () => {
                     name="phone"
                     render={({ field }) => (
                         <InputField
-                        {...field}
+                            {...field}
                             disabled={pending}
                             label="Phone"
                             placeholder="e.g. 01xxxxxxxxx"
@@ -149,10 +154,10 @@ export const BankForm = () => {
                 } */}
                 <div className="flex items-center justify-center w">
                     {
-                        pending?(
+                        pending ? (
                             <TextShimmerWave className="w-full flex items-center justify-center">Creating Bank...</TextShimmerWave>
-                        ):(<Button type="submit" className="w-full">Creating Bank</Button>)
-                        
+                        ) : (<Button type="submit" className="w-full">Creating Bank</Button>)
+
                     }
                 </div>
             </form>

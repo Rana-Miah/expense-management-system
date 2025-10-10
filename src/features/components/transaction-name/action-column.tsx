@@ -4,7 +4,7 @@ import { ReusableDropdown } from "@/components/drop-down"
 import { TrxNameTableColumnCellContext } from "./table-columns"
 import { Ban, Check, Edit, Info, Trash } from "lucide-react"
 import { AlertModal } from "@/components"
-import { useAlertModal, useAlertModalClose } from "@/hooks/redux"
+import { useAlertModal, useAlertModalClose, useAlertModalOpen } from "@/hooks/redux"
 import { toast } from "sonner"
 import { useTransition } from "react"
 import { deleteTransactionNameAction, updateTransactionNameAction } from "@/features/actions/transaction-name"
@@ -14,6 +14,7 @@ type TrxNameDeleteAlertModalPayload = { id: string; name: string; }
 
 export const ActionColumn = ({ row: { original: { id, name, isActive } } }: TrxNameTableColumnCellContext) => {
     const onClose = useAlertModalClose()
+    const onOpen = useAlertModalOpen<TrxNameDeleteAlertModalPayload>()
     const { isAlertOpen, payload } = useAlertModal<TrxNameDeleteAlertModalPayload>()
     const [pending, startTransition] = useTransition()
 
@@ -96,6 +97,7 @@ export const ActionColumn = ({ row: { original: { id, name, isActive } } }: TrxN
                         label: 'Delete',
                         Icon: Trash,
                         variant: 'destructive',
+                        onClick:()=>onOpen({id,name})
                     },
                 ]}
             />

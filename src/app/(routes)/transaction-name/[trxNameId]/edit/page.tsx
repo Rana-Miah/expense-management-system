@@ -1,3 +1,4 @@
+import { LayoutNav } from '@/components/layout-nav'
 import { TrxNameUpdateForm } from '@/features/components/transaction-name/update-form'
 import { WithParams } from '@/interface/components-common-props'
 import { currentUserId } from '@/lib/current-user-id'
@@ -23,6 +24,9 @@ const TrxNameEditPage = async ({ params }: TrxNameEditPageProps) => {
 
   return (
     <div>
+      <LayoutNav
+        links={[]}
+      />
       <TrxNameUpdateForm trxName={trxName} />
     </div>
   )
