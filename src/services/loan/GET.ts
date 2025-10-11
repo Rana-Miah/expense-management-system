@@ -59,32 +59,32 @@ export const getLoansByClerkUserId = async (clerkUserId: string, options?: FindM
 
 
 
-// export const getLoanFinancierByIdAndClerkUserId = async (loanFinancierId: string, clerkUserId: string, options?: FindFirstLoanFinancierOptions) => {
+export const getLoanByIdAndClerkUserId = async (loanFinancierId: string, clerkUserId: string, options?: FindFirstLoanOptions) => {
 
-//     const { where: whereFn, ...rest } = options ?? {}
+    const { where: whereFn, ...rest } = options ?? {}
 
-//     const existLoanFinancier = await db.query.loanFinancierTable.findFirst({
-//         where: (table, operators) => {
+    const existLoanFinancier = await db.query.loanTable.findFirst({
+        where: (table, operators) => {
 
-//             const { and, eq } = operators
+            const { and, eq } = operators
 
-//             const base = and(
-//                 eq(table.id, loanFinancierId),
-//                 eq(table.clerkUserId, clerkUserId),
-//             )
+            const base = and(
+                eq(table.id, loanFinancierId),
+                eq(table.clerkUserId, clerkUserId),
+            )
 
-//             if (!!whereFn && typeof whereFn === 'function') {
-//                 const extra = whereFn(table, operators)
-//                 return and(base, extra)
-//             }
+            if (!!whereFn && typeof whereFn === 'function') {
+                const extra = whereFn(table, operators)
+                return and(base, extra)
+            }
 
-//             return base
-//         },
-//         ...rest
-//     })
+            return base
+        },
+        ...rest
+    })
 
-//     return existLoanFinancier
-// }
+    return existLoanFinancier
+}
 
 
 // export const getLoanFinanciersByClerkUserId = async (clerkUserId: string, options?: FindManyLoanFinancierOptions) => {

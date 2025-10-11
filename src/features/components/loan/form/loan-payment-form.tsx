@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarIcon, DollarSign, Landmark,Receipt,User } from 'lucide-react'
+import { CalendarIcon, DollarSign, Landmark, Receipt, User } from 'lucide-react'
 
 import { Loan } from '@/constant/dummy-db/loan'
 import {
@@ -22,9 +22,10 @@ import { getFinancierById } from '@/constant/dummy-db/loan-financier'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from '@/components/ui/form'
+import { BankSelectValue, LoanSelectValue } from '@/drizzle/type'
 
 
-export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
+export const LoanPaymentForm = ({ loan, banks }: { loan: LoanSelectValue, banks: BankSelectValue[] }) => {
   const { id, financierId } = loan
   const [selectedBank, setSelectedBank] = useState<string>()
   const [selectedPaymentType, setSelectedPaymentType] = useState<typeof paymentType[number]>()
@@ -72,12 +73,13 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
               {...field}
               label='Financier'
               defaultValue={field.value}
-              placeholder={financierUnderLoan?.name??""}
+              placeholder={financierUnderLoan?.name ?? ""}
               disabled
               Icon={
                 <User size={16} />
               }
-              items={[{value:loan?.financierId??"not found",label:financierUnderLoan?.name??"not found",badgeLabel:financierUnderLoan?.financierType||"",badgeProp:{}}]}
+              items={[{ value: loan.financier?.id ?? "not found", label: loan.financier?.name ?? "not found",
+                 badgeLabel: loan.financier?.financierType || "", badgeProp: {} }]}
             />
           )}
         />
@@ -95,9 +97,9 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
               placeholder={loan.title}
               disabled
               Icon={
-                <Receipt size={16}/>
+                <Receipt size={16} />
               }
-              items={[{value:loan.id,label:loan.title,badgeLabel:loan.loanType,badgeProp:{}}]}
+              items={[{ value: loan.id, label: loan.title, badgeLabel: `${loan.loanType}-${loan.due} Remaining`, badgeProp: {} }]}
             />
           )}
         />
@@ -159,7 +161,13 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
                   render={({ field }) => (
                     <SelectInput
                       {...field}
-                      items={dummyBanks.map(({ id, name }) => ({ value: id, label: name }))}
+                      items={banks.map(({ id, name,isActive,balance }) => ({
+                        value: id,
+                        label: name,
+                        disabled:!isActive,
+                        badgeLabel:balance.toString(),
+                        badgeProp:{}
+                      }))}
                       placeholder='Select a source bank'
                       label='Source Bank'
                       onValueChange={(value) => {
@@ -180,12 +188,18 @@ export const LoanPaymentForm = ({ loan }: { loan: Loan }) => {
                   name="receiveBankId"
                   render={({ field }) => (
                     <SelectInput
-                      items={dummyBanks.map(({ id, name }) => ({ value: id, label: name }))}
+                      items={banks.map(({ id, name,isActive,balance }) => ({
+                        value: id,
+                        label: name,
+                        disabled:!isActive,
+                        badgeLabel:balance.toString(),
+                        badgeProp:{}
+                      }))}
                       label='Receive Bank'
                       placeholder='Select a receive bank'
                       disabled={amount > 0}
                       {...field}
-                      Icon={<Landmark size={16}/>}
+                      Icon={<Landmark size={16} />}
                       onValueChange={(value) => {
                         field.onChange(value)
                         setSelectedBank(value)

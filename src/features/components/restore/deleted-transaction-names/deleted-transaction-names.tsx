@@ -3,35 +3,35 @@ import React from 'react'
 
 import { currentUserId } from '@/lib/current-user-id'
 import { db } from '@/drizzle/db'
-import { ReusableAccordion } from '@/components/reusable-accordion'
-import { TrxNameRestoreCard } from './transaction-name-restore-card'
+import { TrxNameRestoreCards } from './transaction-name-restore-cards'
+import { trxNameTable } from '@/drizzle/schema'
+import { and, eq } from 'drizzle-orm'
 export const DeletedTrxNames = async () => {
 
     const userId = await currentUserId()
-    const deletedTrxNames = await db.query.trxNameTable.findMany({
-        where: (table, { and, eq }) => (and(
-            eq(table.clerkUserId, userId),
-            eq(table.isDeleted, true),
-        )),
-        columns: { id: true, name: true }
-    })
+
+    const deletedTrxNames = await db.select({
+        id: trxNameTable.id,
+        label: trxNameTable.name,
+    }).from(trxNameTable).where(
+        and(
+            eq(trxNameTable.clerkUserId, userId),
+            eq(trxNameTable.isDeleted, true),
+        )
+    )
 
     return (
-        <CardWrapper
-            title='Deleted transaction names'
-            description='Recover your deleted transaction names'
-        >
-            <ReusableAccordion
-                accordionItemValue='deleted-trx-names'
-                triggerLabel='Deleted Transaction names'
-                items={deletedTrxNames}
-                render={({ id, name }) => (
-                    <TrxNameRestoreCard
-                        id={id}
-                        label={name}
+        <>
+            {deletedTrxNames.length > 0 && (
+                < CardWrapper
+                    title='Deleted transaction names'
+                    description='Recover your deleted transaction names'
+                >
+                    <TrxNameRestoreCards
+                        items={deletedTrxNames}
                     />
-                )}
-            />
-        </CardWrapper>
+                </ CardWrapper >
+            )}
+        </>
     )
 }

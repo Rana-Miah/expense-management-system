@@ -27,6 +27,8 @@ export const createTransactionNameAction = async (payload: unknown) => {
 
     if (getExistTrxNameError) return failureResponse(messageUtils.failedGetMessage('exist transaction name'), getExistTrxNameError)
 
+    if (existTrxName && existTrxName.isDeleted) return successResponse(messageUtils.deletedRowMessage(`transaction name "${existTrxName.name}"`), existTrxName)
+
     //if exist the bank with lban 
     if (existTrxName) return failureResponse(messageUtils.existMessage(`Transaction Name with ${name}`))
 

@@ -26,9 +26,20 @@ export const getBanksByClerkUserId = async (clerkUserId: string, options?: BankQ
 }
 
 export const getBankByClerkUserId = async (clerkUserId: string, options?: BankQueryOptionsFindFirst) => {
+
+    const { where: whereFn } = options ?? {}
+
     const bank = await db.query.bankAccountTable.findFirst({
         ...options,
-        where: (bankTable, { eq }) => (eq(bankTable.clerkUserId, clerkUserId)),
+        where: (bankTable, { eq, ...rest }) => {
+            const base = eq(bankTable.clerkUserId, clerkUserId)
+            if (whereFn && typeof whereFn === 'function') {
+                const extra = whereFn(bankTable, { eq, ...rest })
+                return rest.and(base, extra)
+            }
+            return base
+
+        },
     })
     return bank
 }
@@ -62,7 +73,7 @@ export const getBankByLban = async (lban: string, options?: BankQueryOptionsFind
 
 export const getBankByLbanAndClerkUserId = async (lban: string, clerkUserId: string, options?: BankQueryOptionsFindFirst) => await db.query.bankAccountTable.findFirst({
     ...options,
-    where: (bankTable, { and,eq }) => (
+    where: (bankTable, { and, eq }) => (
         and(
             eq(bankTable.lban, lban),
             eq(bankTable.clerkUserId, clerkUserId)

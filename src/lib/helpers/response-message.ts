@@ -52,6 +52,9 @@ export const missingFieldValue = (field: string) => `${capitalize(field)} is mis
 export const itemsRequiredMessage = (message?: string) => message || `Did you forget to add items?`
 export const insufficientBalance = (message?: string) => message || `Insufficient balance!`
 export const deletedRowMessage = (rowName: string) => `${capitalize(rowName)} is deleted! Try to restore!`
+export const restoredRowMessage = (rowName: string) => `${capitalize(rowName)} is already restored!`
+export const restoreRowMessage = (rowName: string) => `${capitalize(rowName)} is restored!`
+export const failedRestoredRowMessage = (rowName: string) => `Failed to restore ${capitalize(rowName)}!`
 
 export const messageUtils = {
     notFoundMessage,
@@ -74,4 +77,7 @@ export const messageUtils = {
     itemsRequiredMessage,
     insufficientBalance,
     deletedRowMessage,
+    restoredRowMessage,
+    restoreRowMessage,
+    failedRestoredRowMessage
 }
