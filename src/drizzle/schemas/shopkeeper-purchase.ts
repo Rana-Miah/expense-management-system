@@ -1,8 +1,9 @@
 import { pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { shopkeeperTable } from "./shopkeepers";
-import { booleans, createdAt, numericAmount, times, updatedAt, } from "../schema-helpers";
+import { booleans, createdAt, numericAmount, relationBetween, times, updatedAt, } from "../schema-helpers";
 import { bankAccountTable } from "./bank-account";
 import { relations } from "drizzle-orm";
+import { shopKeeperItemTable } from "./shopkeeper-items";
 
 export const shopkeeperPurchaseTable = pgTable('shopkeeper_purchase', {
     id: uuid('id').primaryKey().unique().notNull().defaultRandom(),
@@ -20,12 +21,13 @@ export const shopkeeperPurchaseTable = pgTable('shopkeeper_purchase', {
 })
 
 export const shopkeeperPurchaseTableRelation = relations(shopkeeperPurchaseTable, ({ one, many }) => ({
-    shopkeeper:one(shopkeeperTable,{
-        fields:[shopkeeperPurchaseTable.shopkeeperId],
-        references:[shopkeeperTable.id]
+    shopkeeper: one(shopkeeperTable, {
+        fields: [shopkeeperPurchaseTable.shopkeeperId],
+        references: [shopkeeperTable.id]
     }),
-    sourceBank:one(bankAccountTable,{
-        fields:[shopkeeperPurchaseTable.sourceBankId],
-        references:[bankAccountTable.id]
+    sourceBank: one(bankAccountTable, {
+        fields: [shopkeeperPurchaseTable.sourceBankId],
+        references: [bankAccountTable.id]
     }),
+    purchaseItems: many(shopKeeperItemTable, { relationName: relationBetween('shopkeeper_item', 'shopkeeper_purchase') })
 }))
