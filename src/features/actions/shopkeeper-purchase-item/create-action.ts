@@ -34,13 +34,28 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
         items
     } = validation.data
 
+    const isOverPaid = paidAmount > totalAmount
+    const isEqualPaid = paidAmount === totalAmount
+    const isLessPaid = paidAmount < totalAmount
+    const isPaidAvailable = paidAmount > 0
+
+    const overPaid = isOverPaid ? paidAmount - totalAmount : 0
+    const dueAmount = isLessPaid ? totalAmount - paidAmount : 0
+
+
     //! get exist shopkeeper
     const [existShopkeeper, getExistShopkeeperError] = await tryCatch(getShopkeeperByIdAndClerkUserId(shopkeeperId, userId))
+
     if (getExistShopkeeperError) return failureResponse(messageUtils.failedGetMessage('exist shopkeeper'), getExistShopkeeperError)
+
     if (!existShopkeeper) return failureResponse(messageUtils.notFoundMessage('shopkeeper'))
+
     if (existShopkeeper.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`shopkeeper "${existShopkeeper.name}"`))
-    if (existShopkeeper.totalDue < paidAmount) return failureResponse(`Paid amount exceeds the shopkeeper total due!`)
+
     if (existShopkeeper.isBlock) return failureResponse(`Shopkeeper is ban! Not allow to purchase from ${existShopkeeper.name} shopkeeper`)
+
+    if (existShopkeeper.totalDue < overPaid) return failureResponse('You are trying to pay more that shopkeeper due after purchase!')
+
 
 
     if (items && isIncludedItems && items.length < 1) return failureResponse(messageUtils.itemsRequiredMessage())
@@ -52,13 +67,7 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
         db.transaction(
             async (tx) => {
                 // !================================DB TRANSACTION START================================
-                const isOverPaid = paidAmount > totalAmount
-                const isEqualPaid = paidAmount === totalAmount
-                const isLessPaid = paidAmount < totalAmount
-                const isPaidAvailable = paidAmount > 0
 
-                const overPaid = isOverPaid ? paidAmount - totalAmount : 0
-                const dueAmount = isLessPaid ? totalAmount - paidAmount : 0
 
                 const generateDescription = (descriptionFor: string) => {
                     const customDescription = `1. Total bill is ${totalAmount}, 2. Total paid amount is ${paidAmount}, 3. Over payment is ${overPaid}, 4. Total due amount is ${dueAmount}`
@@ -136,23 +145,18 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                     //! get exist bank
                     const [existBank, getExistBankError] = await tryCatch(getBankByIdAndClerkUserId(sourceBankId, userId))
                     if (getExistBankError) {
-                        tx.rollback()
                         return failureResponse(messageUtils.failedGetMessage('exist bank'), getExistBankError)
                     }
                     if (!existBank) {
-                        tx.rollback()
                         return failureResponse(messageUtils.notFoundMessage('bank'))
                     }
                     if (!existBank.isActive) {
-                        tx.rollback()
                         return failureResponse(messageUtils.notActiveMessage(`${existBank.name} bank`))
                     }
                     if (existBank.isDeleted) {
-                        tx.rollback()
                         return failureResponse(messageUtils.deletedRowMessage(`bank ${existBank.name}`))
                     }
                     if (existBank.balance < paidAmount) {
-                        tx.rollback()
                         return failureResponse(messageUtils.insufficientBalance())
                     }
 
