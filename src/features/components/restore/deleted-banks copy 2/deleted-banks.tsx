@@ -3,32 +3,32 @@ import React from 'react'
 
 import { currentUserId } from '@/lib/current-user-id'
 import { db } from '@/drizzle/db'
-import { TrxNameRestoreCards } from './transaction-name-restore-cards'
-import { trxNameTable } from '@/drizzle/schema'
+import { BanksRestoreCards } from './bank-restore-cards'
+import { bankAccountTable } from '@/drizzle/schema'
 import { and, eq } from 'drizzle-orm'
-export const DeletedTrxNames = async ({ revalidatePathname }: { revalidatePathname?: string }) => {
+export const DeletedBanks = async ({ revalidatePathname }: { revalidatePathname?: string }) => {
 
     const userId = await currentUserId()
 
-    const deletedTrxNames = await db.select({
-        id: trxNameTable.id,
-        label: trxNameTable.name,
-    }).from(trxNameTable).where(
+    const deletedBanks = await db.select({
+        id: bankAccountTable.id,
+        label: bankAccountTable.name,
+    }).from(bankAccountTable).where(
         and(
-            eq(trxNameTable.clerkUserId, userId),
-            eq(trxNameTable.isDeleted, true),
+            eq(bankAccountTable.clerkUserId, userId),
+            eq(bankAccountTable.isDeleted, true),
         )
     )
 
     return (
         <>
-            {deletedTrxNames.length > 0 && (
+            {deletedBanks.length > 0 && (
                 < CardWrapper
                     title='Deleted transaction names'
                     description='Recover your deleted transaction names'
                 >
-                    <TrxNameRestoreCards
-                        items={deletedTrxNames}
+                    <BanksRestoreCards
+                        items={deletedBanks}
                         revalidatePathname={revalidatePathname}
                     />
                 </ CardWrapper >

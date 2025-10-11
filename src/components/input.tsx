@@ -30,7 +30,7 @@ import { Textarea } from "./ui/textarea"
 
 //! Input 
 type InputFieldProp = {
-  label: string;
+  label?: string;
   Icon?: JSX.Element;
 } & React.ComponentProps<"input">
 
@@ -42,7 +42,7 @@ export function InputField({
 }: InputFieldProp) {
   return (
     <FormItem>
-      <FormLabel>{label}</FormLabel>
+      {label && (<FormLabel>{label}</FormLabel>)}
       <FormControl>
         <div className={cn(!!Icon && 'relative')}>
           <Input

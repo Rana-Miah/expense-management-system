@@ -8,6 +8,9 @@ import { ModalTriggerButton } from '@/components/modal-trigger-button'
 import { MODAL_TYPE } from '@/constant'
 import { useAlertModal, useAlertModalClose } from '@/hooks/redux'
 import { toast } from 'sonner'
+import { updateItemUnitAction } from '@/features/actions/item-unit/update-action'
+import { generateToasterDescription } from '@/lib/helpers'
+import { useRouter } from 'next/navigation'
 
 type AlertModalPayload = {
     id: string;
@@ -15,7 +18,7 @@ type AlertModalPayload = {
 }
 
 const ItemUnits = ({ itemUnits }: { itemUnits: ItemUnitSelectValue[] }) => {
-
+    const router = useRouter()
     const [pending, startTransition] = useTransition()
     const { isAlertOpen, payload } = useAlertModal<AlertModalPayload>()
 
@@ -25,7 +28,28 @@ const ItemUnits = ({ itemUnits }: { itemUnits: ItemUnitSelectValue[] }) => {
     const onConfirm = () => {
         startTransition(
             async () => {
-                toast.success('clicked')
+
+                const description = generateToasterDescription()
+
+                if (!payload) {
+                    toast.error('Item unit alert modal payload is missing!', { description })
+                    return
+                }
+                const res = await updateItemUnitAction({ id: payload.id, isDeleted: true })
+                if (!res.success) {
+                    toast.error(res.message, { description })
+                    if (res.isError) console.log({ errorResponse: res })
+                    return
+                }
+
+                if (res.data.isDeleted) {
+                    toast.error(res.message)
+                    return router.push(`/restore/deleted-item-units/${res.data.id}`)
+                }
+
+                toast.success(res.message)
+                onClose()
+
             }
         )
     }
@@ -40,6 +64,8 @@ const ItemUnits = ({ itemUnits }: { itemUnits: ItemUnitSelectValue[] }) => {
                 onCancel={onClose}
                 onConfirm={onConfirm}
                 open={isAlertOpen}
+                disabled={pending}
+                pending={pending}
             />
 
 
@@ -53,7 +79,7 @@ const ItemUnits = ({ itemUnits }: { itemUnits: ItemUnitSelectValue[] }) => {
                     />
                 }
             >
-                <div className="grid grid-cols-2 gap-3">{
+                <div className="grid grid-cols-1 gap-3">{
                     itemUnits.map(itemUnit => (
                         <UnitCard key={itemUnit.id} itemUnit={itemUnit} />
                     ))

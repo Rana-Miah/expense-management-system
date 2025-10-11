@@ -6,7 +6,12 @@ import React from 'react'
 const UnitsPage = async () => {
     const userId = await currentUserId()
     const itemUnits = await db.query.itemUnitTable.findMany({
-        where: ({ clerkUserId }, { eq }) => (eq(clerkUserId, userId)),
+        where: ({ clerkUserId, isDeleted }, { eq, and }) => (
+            and(
+                eq(clerkUserId, userId),
+                eq(isDeleted, false)
+            )
+        ),
     })
 
     return (

@@ -11,12 +11,12 @@ import { RestoreAlertModalPayload } from '@/interface/modal-slice'
 import { restoreDeletedTrxNameAction } from '@/features/actions/restore/deleted-trx-name'
 
 
-export const TrxNameRestoreCards = ({ items, revalidatePathname }: { items: { id: string, label: string }[], revalidatePathname?: string }) => {
+export const ShopkeepersRestoreCards = ({ items, revalidatePathname }: { items: { id: string, label: string }[], revalidatePathname?: string }) => {
 
     const onClose = useAlertModalClose()
     const { isAlertOpen, payload } = useAlertModal<RestoreAlertModalPayload>()
     const [pending, startTransition] = useTransition()
-    const isOpen = !!payload && isAlertOpen && payload.modalType === RESTORE_MODAL_TYPE.RESTORE_BANK
+    const isOpen = !!payload && isAlertOpen && payload.modalType === RESTORE_MODAL_TYPE.RESTORE_SHOPKEEPER
 
 
     const onConfirm = () => {
@@ -64,7 +64,7 @@ export const TrxNameRestoreCards = ({ items, revalidatePathname }: { items: { id
                             <RestoreCard
                                 id={id}
                                 label={label}
-                                modalType={RESTORE_MODAL_TYPE.RESTORE_BANK}
+                                modalType={RESTORE_MODAL_TYPE.RESTORE_SHOPKEEPER}
                                 key={id}
                             />
                         )

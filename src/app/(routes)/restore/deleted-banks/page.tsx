@@ -1,8 +1,9 @@
+import { DeletedBanks } from '@/features/components/restore/deleted-banks'
 import React from 'react'
 
 const DeletedBanksPage = () => {
   return (
-    <div>DeletedBanksPage</div>
+    <DeletedBanks revalidatePathname='/restore/deleted-banks' />
   )
 }
 

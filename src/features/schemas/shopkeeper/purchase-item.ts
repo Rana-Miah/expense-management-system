@@ -3,7 +3,11 @@ import z from "zod";
 const purchaseItemSchema = z.object({
     itemUnitId: z.uuid().nonempty(),
     price: z.coerce.number<number>().nonnegative().gt(0, 'Item price must be grater than $0 !'),
+    isKnowPrice: z.coerce.boolean<boolean>(),
+    total: z.coerce.number<number>().nonnegative().gt(0, 'Item total must be grater than $0 !'),
+    isKnowTotal: z.coerce.boolean<boolean>(),
     quantity: z.coerce.number<number>().nonnegative(),
+    isKnowQuantity: z.coerce.boolean<boolean>(),
     name: z.string().nonempty().min(3, 'Name must be 3 characters long!')
 })
 

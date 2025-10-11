@@ -44,7 +44,7 @@ export function DynamicFormSheet<
 }: DynamicFormSheetProps<TFieldValues, TFieldArrayName>) {
     const [removeIndex, setRemoveIndex] = useState<number | null>(null)
 
-    const { fields, append, remove } = fieldArrayValue
+    const { fields, remove } = fieldArrayValue
 
     const { isOpen, type } = useModal()
     const isOpenAlert = isOpen && type === MODAL_TYPE.ALERT_MODAL

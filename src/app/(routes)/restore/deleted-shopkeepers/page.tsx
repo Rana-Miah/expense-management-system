@@ -1,8 +1,9 @@
+import { DeletedShopkeepers } from '@/features/components/restore/deleted-shopkeepers'
 import React from 'react'
 
 const DeletedShopkeepersPage = () => {
   return (
-    <div>DeletedShopkeepersPage</div>
+    <DeletedShopkeepers revalidatePathname='/restore/deleted-shopkeepers' />
   )
 }
 

@@ -8,15 +8,19 @@ import { toast } from 'sonner'
 import { RestoreCard } from '../restore-card'
 import { RESTORE_MODAL_TYPE } from '@/constant'
 import { RestoreAlertModalPayload } from '@/interface/modal-slice'
-import { restoreDeletedTrxNameAction } from '@/features/actions/restore/deleted-trx-name'
+import { updateItemUnitAction } from '@/features/actions/item-unit/update-action'
+import { restoreItemUnitAction } from '@/features/actions/item-unit/restore-action'
 
 
-export const TrxNameRestoreCards = ({ items, revalidatePathname }: { items: { id: string, label: string }[], revalidatePathname?: string }) => {
+export const ItemUnitRestoreCards = ({ items, revalidatePathname }: {
+    items: { id: string, label: string }[],
+    revalidatePathname?: string
+}) => {
 
     const onClose = useAlertModalClose()
     const { isAlertOpen, payload } = useAlertModal<RestoreAlertModalPayload>()
     const [pending, startTransition] = useTransition()
-    const isOpen = !!payload && isAlertOpen && payload.modalType === RESTORE_MODAL_TYPE.RESTORE_BANK
+    const isOpen = !!payload && isAlertOpen && payload.modalType === RESTORE_MODAL_TYPE.RESTORE_ITEM_UNIT
 
 
     const onConfirm = () => {
@@ -27,7 +31,7 @@ export const TrxNameRestoreCards = ({ items, revalidatePathname }: { items: { id
                     toast.error('Missing restore alert modal payload!', { description })
                     return
                 }
-                const res = await restoreDeletedTrxNameAction(payload.id, revalidatePathname)
+                const res = await restoreItemUnitAction(payload.id, revalidatePathname)
 
                 if (!res.success) {
                     toast.error(res.message, { description })
@@ -64,7 +68,7 @@ export const TrxNameRestoreCards = ({ items, revalidatePathname }: { items: { id
                             <RestoreCard
                                 id={id}
                                 label={label}
-                                modalType={RESTORE_MODAL_TYPE.RESTORE_BANK}
+                                modalType={RESTORE_MODAL_TYPE.RESTORE_ITEM_UNIT}
                                 key={id}
                             />
                         )

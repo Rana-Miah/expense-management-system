@@ -1,5 +1,5 @@
 'use client'
-import { ReactNode, JSX, } from 'react'
+import React, { ReactNode, JSX, } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -9,6 +9,7 @@ import { CardDescription, CardTitle } from './ui/card'
 export type LayoutLinkType = {
     label: string;
     href: string;
+    visible?: boolean
     Icon?: JSX.Element | ReactNode
 }
 
@@ -45,24 +46,29 @@ export const LayoutNav = ({ links, header }: LayoutNavProps) => {
                             className='flex items-center space-x-2 overflow-x-auto pb-4'
                         >
                             {
-                                links.map(({ label, href, Icon }, i) => {
+                                links.map(({ label, href, Icon, visible = true }, i) => {
                                     const isActive = pathname.endsWith(href)
                                     return (
-                                        <Link
-                                            key={`${label}-${i}`}
-                                            href={href}
-                                            className={cn('flex items-center space-x-1 flex-nowrap text-nowrap')}
-                                        >
-                                            <Badge
-                                                variant={isActive ? 'default' : 'outline'}
-                                                className='flex items-center gap-1.5 py-1 rounded-sm'
-                                            >
-                                                {Icon && Icon}
-                                                <span>
-                                                    {label}
-                                                </span>
-                                            </Badge>
-                                        </Link>
+                                        <React.Fragment key={`${label}-${i}`}>
+                                            {
+                                                visible && (
+                                                    <Link
+                                                        href={href}
+                                                        className={cn('flex items-center space-x-1 flex-nowrap text-nowrap')}
+                                                    >
+                                                        <Badge
+                                                            variant={isActive ? 'default' : 'outline'}
+                                                            className='flex items-center gap-1.5 py-1 rounded-sm'
+                                                        >
+                                                            {Icon && Icon}
+                                                            <span>
+                                                                {label}
+                                                            </span>
+                                                        </Badge>
+                                                    </Link>
+                                                )
+                                            }
+                                        </React.Fragment>
                                     )
                                 })
                             }

@@ -1,8 +1,9 @@
+import { DeletedTrxNames } from '@/features/components/restore/deleted-transaction-names'
 import React from 'react'
 
 const DeletedTrxNamesPage = () => {
   return (
-    <div>DeletedTrxNamesPage</div>
+    <DeletedTrxNames revalidatePathname='/restore/deleted-trx-names' />
   )
 }
 

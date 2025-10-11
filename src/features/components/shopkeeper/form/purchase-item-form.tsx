@@ -6,29 +6,21 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { CalendarIcon, PlusCircle } from "lucide-react"
 import { useState, useTransition } from "react"
 import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Calendar } from "@/components/ui/calendar"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { dummyItemUnits } from "@/constant/dummy-db/item"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns"
 import { shopkeeperPurchaseItemFormSchema, ShopkeeperPurchaseItemFormValue } from "@/features/schemas/shopkeeper/purchase-item"
-import { useParams } from "next/navigation"
 import { InputField, SelectInput, SwitchInput, TextAreaField } from "@/components/input"
 import { DynamicFormSheet } from "@/components/dynamic-fields"
-import { AssignTrxNameSelectValue, ItemUnitInsertValue, ItemUnitSelectValue, ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
+import { AssignTrxNameSelectValue, ItemUnitSelectValue, ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
 import { createShopkeeperPurchaseItemAction } from "@/features/actions/shopkeeper-purchase-item/create-action"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
 
 
 export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
@@ -49,7 +41,6 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [paidAmountValue, setPaidAmountValue] = useState<number>(0)
     const [selectedBankId, setSelectedBankId] = useState<string>("")
-    const params = useParams()
 
     const selectedBank = banks.find(({ id }) => selectedBankId === id)
 
@@ -67,21 +58,21 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
         },
     })
 
-    const { control, handleSubmit, resetField } = form
+    const { control, handleSubmit, watch, setValue } = form
 
     const fieldArray = useFieldArray({
         control,
         name: 'items'
     })
 
-    const { fields, append } = fieldArray
+    const { fields, append, } = fieldArray
 
     // 2. Define a submit handler.
     const onSubmitHandler = handleSubmit(values => {
         startTransition(
             async () => {
-                const res = await createShopkeeperPurchaseItemAction(values)
-                console.log({ values, res })
+                // const res = await createShopkeeperPurchaseItemAction(values)
+                console.log({ values, })
             }
         )
     })
@@ -89,8 +80,12 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
     const appendHandler = () => {
         append({
             name: "",
+            total: 0,
+            isKnowTotal: true,
             price: 0,
+            isKnowPrice: true,
             quantity: 0,
+            isKnowQuantity: true,
             itemUnitId: ""
         })
     }
@@ -116,10 +111,10 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                     {
                                         label: shopkeeper.name,
                                         value: shopkeeper.id,
-                                        disabled: shopkeeper.isBan,
+                                        disabled: shopkeeper.isBlock,
                                         badgeLabel: shopkeeper.totalDue.toString(),
                                         badgeProp: {
-                                            variant: shopkeeper.isBan ? 'destructive' : 'success'
+                                            variant: shopkeeper.isBlock ? 'destructive' : 'success'
                                         }
                                     }
                                 ]}
@@ -260,12 +255,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                     setIsIncludeItems(value)
                                     field.onChange(value)
                                     if (value) {
-                                        append({
-                                            name: "",
-                                            price: 0,
-                                            quantity: 0,
-                                            itemUnitId: ""
-                                        })
+                                        appendHandler()
                                         setIsOpenSheet(true)
                                     }
                                 }}
@@ -280,77 +270,183 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                         fieldArrayValue={fieldArray}
                         onOpenChange={setIsOpenSheet}
                         open={isOpenSheet}
-                        renderItem={(index) => (
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="space-y-2 w-full">
-                                    <FormField
-                                        control={form.control}
-                                        name={`items.${index}.name`}
-                                        render={({ field }) => (
-                                            <InputField
-                                                {...field}
-                                                label="Item name"
-                                                type="text"
-                                                placeholder="e.g Tomato"
-                                                onChange={field.onChange}
-                                                value={field.value}
-                                            />
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name={`items.${index}.itemUnitId`}
-                                        render={({ field }) => (
-                                            <SelectInput
-                                                label="Item Unit"
-                                                placeholder="Unit"
-                                                onValueChange={field.onChange}
-                                                defaultValue={field.value}
-                                                items={itemUnits.map(({ id, unit }) => {
+                        renderItem={(index) => {
+                            const isKnowPrice = watch(`items.${index}.isKnowPrice`)
+                            const isKnowTotal = watch(`items.${index}.isKnowTotal`)
+                            const isKnowQuantity = watch(`items.${index}.isKnowQuantity`)
 
-                                                    return {
-                                                        label: unit,
-                                                        value: id
-                                                    }
-                                                })}
-                                            />
-                                        )}
+                            return (
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="space-y-2 w-full">
+                                        <FormField
+                                            control={form.control}
+                                            name={`items.${index}.name`}
+                                            render={({ field }) => (
+                                                <InputField
+                                                    {...field}
+                                                    label="Item name"
+                                                    type="text"
+                                                    placeholder="e.g Tomato"
+                                                    onChange={field.onChange}
+                                                    value={field.value}
+                                                />
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`items.${index}.itemUnitId`}
+                                            render={({ field }) => (
+                                                <SelectInput
+                                                    label="Item Unit"
+                                                    placeholder="Unit"
+                                                    onValueChange={field.onChange}
+                                                    defaultValue={field.value}
+                                                    items={itemUnits.map(({ id, unit }) => {
+
+                                                        return {
+                                                            label: unit,
+                                                            value: id
+                                                        }
+                                                    })}
+                                                />
+                                            )}
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center justify-center gap-2">
+                                        <FormField
+                                            control={form.control}
+                                            name={`items.${index}.price`}
+                                            render={({ field }) => {
+
+                                                return (
+                                                    <FormItem>
+                                                        <FormLabel className="flex items-center justify-between">
+                                                            <span>Price</span>
+                                                            <FormField
+                                                                control={form.control}
+                                                                name={`items.${index}.isKnowPrice`}
+                                                                render={({ field }) => (
+                                                                    <Switch
+                                                                        checked={field.value}
+                                                                        onCheckedChange={field.onChange}
+                                                                        className="mr-1"
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                {...field}
+                                                                onChange={(e) => {
+                                                                    const newPrice = Number(e.target.value);
+                                                                    field.onChange(newPrice); // ✅ correct update
+
+                                                                    // ✅ get latest values from form
+                                                                    const total = form.getValues(`items.${index}.total`);
+                                                                    const isKnowQuantity = form.getValues(`items.${index}.isKnowQuantity`);
+
+                                                                    // ✅ recalculate based on new value
+                                                                    if (!isKnowQuantity && newPrice > 0) {
+                                                                        const newQuantity = total / newPrice;
+                                                                        form.setValue(`items.${index}.quantity`, newQuantity);
+                                                                    }
+                                                                }}
+                                                                placeholder="e.g. 15"
+                                                                type="number"
+                                                                disabled={pending || !isKnowPrice} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )
+                                            }}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name={`items.${index}.quantity`}
+                                            render={({ field }) => {
+
+                                                return (
+                                                    <FormItem>
+                                                        <FormLabel className="flex items-center justify-between">
+                                                            <span>Quantity</span>
+                                                            <FormField
+                                                                control={form.control}
+                                                                name={`items.${index}.isKnowQuantity`}
+                                                                render={({ field }) => (
+                                                                    <Switch
+                                                                        checked={field.value}
+                                                                        onCheckedChange={field.onChange}
+                                                                        className="mr-1"
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                {...field}
+                                                                value={field.value}
+                                                                placeholder="e.g. 15"
+                                                                type="number"
+                                                                disabled={pending || !isKnowQuantity} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )
+                                            }}
+                                        />
+                                    </div>
+                                    <FormField
+                                        control={form.control}
+                                        name={`items.${index}.total`}
+                                        render={({ field }) => {
+
+                                            return (
+                                                <FormItem className="w-full">
+                                                    <FormLabel className="flex items-center justify-between">
+                                                        <span>Total</span>
+                                                        <FormField
+                                                            control={form.control}
+                                                            name={`items.${index}.isKnowTotal`}
+                                                            render={({ field }) => (
+                                                                <Switch
+                                                                    checked={field.value}
+                                                                    onCheckedChange={field.onChange}
+                                                                    className="mr-1"
+                                                                />
+                                                            )}
+                                                        />
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            {...field}
+                                                            onChange={(e) => {
+                                                                const newTotal = Number(e.target.value);
+                                                                field.onChange(newTotal); // ✅ correct update
+
+                                                                // ✅ get latest values from form
+                                                                const price = form.getValues(`items.${index}.price`);
+                                                                const isKnowQuantity = form.getValues(`items.${index}.isKnowQuantity`);
+
+                                                                // ✅ recalculate based on new value
+                                                                if (!isKnowQuantity && newTotal > 0) {
+                                                                    const newQuantity = newTotal / price;
+                                                                    form.setValue(`items.${index}.quantity`, newQuantity);
+                                                                }
+                                                            }}
+                                                            placeholder="e.g. 15"
+                                                            type="number"
+                                                            disabled={pending || !isKnowTotal} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )
+                                        }}
                                     />
                                 </div>
-
-                                <div className="flex items-center justify-center gap-2">
-                                    <FormField
-                                        control={form.control}
-                                        name={`items.${index}.price`}
-                                        render={({ field }) => (
-                                            <InputField
-                                                {...field}
-                                                label="Price"
-                                                type="number"
-                                                placeholder="e.g 15"
-                                                onChange={field.onChange}
-                                                value={field.value}
-                                            />
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name={`items.${index}.quantity`}
-                                        render={({ field }) => (
-                                            <InputField
-                                                {...field}
-                                                label="Quantity"
-                                                type="number"
-                                                placeholder="e.g 5"
-                                                onChange={field.onChange}
-                                                value={field.value}
-                                            />
-                                        )}
-                                    />
-                                </div>
-                            </div>
-                        )}
+                            )
+                        }}
                     />
 
 

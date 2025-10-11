@@ -1,8 +1,8 @@
-import React from 'react'
+import { DeletedItemUnits } from '@/features/components/restore/deleted-item-units'
 
 const DeletedItemUnitsPage = () => {
   return (
-    <div>DeletedItemUnitsPage</div>
+    <DeletedItemUnits revalidatePathname='/restore/deleted-item-units' />
   )
 }
 

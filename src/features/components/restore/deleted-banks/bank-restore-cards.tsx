@@ -11,7 +11,7 @@ import { RestoreAlertModalPayload } from '@/interface/modal-slice'
 import { restoreDeletedTrxNameAction } from '@/features/actions/restore/deleted-trx-name'
 
 
-export const TrxNameRestoreCards = ({ items, revalidatePathname }: { items: { id: string, label: string }[], revalidatePathname?: string }) => {
+export const BanksRestoreCards = ({ items, revalidatePathname }: { items: { id: string, label: string }[], revalidatePathname?: string }) => {
 
     const onClose = useAlertModalClose()
     const { isAlertOpen, payload } = useAlertModal<RestoreAlertModalPayload>()
