@@ -1,10 +1,18 @@
 'use client'
 
 import { CardWrapper, DataTable } from "@/components"
-import { shopkeeperTableColumns } from "./columns"
+import { shopkeeperPaymentTableColumns } from "./columns"
 import { ShopkeeperPaymentSelectValue } from "@/drizzle/type"
 
-export const ShopkeeperPaymentsTable = ({ payments }: { payments: ShopkeeperPaymentSelectValue[] }) => {
+type CommonTypeBetweenShopkeeperAndSourceBank = {
+    id:string;
+    name:string;
+}
+
+export const ShopkeeperPaymentsTable = ({ payments }: { payments: (Omit<ShopkeeperPaymentSelectValue,'shopkeeperId'|'sourceBankId'>&{
+    shopkeeper:CommonTypeBetweenShopkeeperAndSourceBank;
+    sourceBank:CommonTypeBetweenShopkeeperAndSourceBank;
+})[] }) => {
 
     return (
         <CardWrapper
@@ -13,7 +21,7 @@ export const ShopkeeperPaymentsTable = ({ payments }: { payments: ShopkeeperPaym
         >
             <DataTable
                 data={payments}
-                columns={shopkeeperTableColumns}
+                columns={shopkeeperPaymentTableColumns}
             />
         </CardWrapper>
     )

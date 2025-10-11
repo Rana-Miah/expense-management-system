@@ -2,67 +2,55 @@
 
 import { ShopkeeperPaymentSelectValue } from "@/drizzle/type"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
+import {  ShopkeeperNameColumnCell } from "./shopkeeper-name-column-cell"
+import {  SourceBankNameColumnCell } from "./source-bank-name-column-cell"
+import { ShopkeeperPaymentAmountColumnCell } from "./payment-amount-column-cell"
+import { ShopkeeperPaymentDateColumnCell } from "./payment-date-column-cell"
 
-type ShopkeeperTableColumn = ColumnDef<ShopkeeperPaymentSelectValue>
-export type ShopkeeperTableColumnCellContext = CellContext<ShopkeeperPaymentSelectValue, unknown>
+type CommonTypeBetweenShopkeeperAndSourceBank = {
+    id:string;
+    name:string;
+}
+
+type ShopkeeperPayment = (Omit<ShopkeeperPaymentSelectValue,'shopkeeperId'|'sourceBankId'>&{
+    shopkeeper:CommonTypeBetweenShopkeeperAndSourceBank;
+    sourceBank:CommonTypeBetweenShopkeeperAndSourceBank;
+})
+
+type ShopkeeperPaymentTableColumn = ColumnDef<ShopkeeperPayment>
+export type ShopkeeperPaymentTableColumnCellContext = CellContext<ShopkeeperPayment, unknown>
 
 
-const shopkeeperName: ShopkeeperTableColumn = {
+const shopkeeperName: ShopkeeperPaymentTableColumn = {
     accessorKey: 'shopkeeperId',
     header: 'Shopkeeper Name',
-    // cell:({row:{original:{shopkeeperId}}})=>{
-    //     return shopkeeperId
-    // }
+    cell:ShopkeeperNameColumnCell
 }
 
 
-const sourceBankName: ShopkeeperTableColumn = {
+const sourceBankName: ShopkeeperPaymentTableColumn = {
     accessorKey: 'sourceBankId',
     header: 'Source Bank',
-    // cell:({row:{original:{shopkeeperId}}})=>{
-    //     return shopkeeperId
-    // }
+    cell:SourceBankNameColumnCell
 }
 
 
-const shopkeeperPaymentAmount: ShopkeeperTableColumn = {
+const shopkeeperPaymentAmount: ShopkeeperPaymentTableColumn = {
     accessorKey: 'amount',
     header: 'Paid Amount',
-    // cell:({row:{original:{shopkeeperId}}})=>{
-    //     return shopkeeperId
-    // }
+    cell:ShopkeeperPaymentAmountColumnCell
 }
 
 
-const paymentDate: ShopkeeperTableColumn = {
+const paymentDate: ShopkeeperPaymentTableColumn = {
     accessorKey: 'paymentDate',
     header: 'Payment Date',
-    // cell:({row:{original:{shopkeeperId}}})=>{
-    //     return shopkeeperId
-    // }
+    cell:ShopkeeperPaymentDateColumnCell
 }
 
-
-const lastUpdate: ShopkeeperTableColumn = {
-    accessorKey: 'updatedAt',
-    header: 'Last Update',
-    // cell:({row:{original:{shopkeeperId}}})=>{
-    //     return shopkeeperId
-    // }
-}
-
-const action: ShopkeeperTableColumn = {
-    id: 'Actions',
-    cell: ({ row: { original: { id } } }) => {
-        return id
-    }
-}
-
-export const shopkeeperTableColumns: ShopkeeperTableColumn[] = [
+export const shopkeeperPaymentTableColumns: ShopkeeperPaymentTableColumn[] = [
     shopkeeperName,
     sourceBankName,
     shopkeeperPaymentAmount,
     paymentDate,
-    lastUpdate,
-    action
 ]

@@ -7,7 +7,7 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-type DropdownItem = {
+export type DropdownItem = {
     label: string
     inset?: boolean
     href?: string

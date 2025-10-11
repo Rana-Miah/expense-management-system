@@ -8,7 +8,7 @@ export const shopkeeperPaymentTable = pgTable('shopkeeper_payment', {
     id: uuid('id').primaryKey().unique().notNull().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
     shopkeeperId: uuid('shopkeeper_id').notNull().references(() => shopkeeperTable.id),
-    sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
+    sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id).notNull(),
     paymentDate: times('payment_date'),
     amount: numericAmount('amount', 7, 2),
     description:text('description'),
