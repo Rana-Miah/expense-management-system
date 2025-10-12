@@ -172,19 +172,36 @@ export const SelectInput = ({ label, placeholder, items, Icon: LabelIcon, ...sel
 
 
 //! Switch input
-type SwitchInputProp = {
+type SwitchInputWithoutLabelProp = {
+  label?: never;
+  description?: never
+}
+
+type SwitchInputWithLabelProp = {
   label: string;
   description: string;
-} & React.ComponentProps<typeof SwitchPrimitive.Root>
+}
+
+type SwitchInputProp = (SwitchInputWithLabelProp | SwitchInputWithoutLabelProp) & React.ComponentProps<typeof SwitchPrimitive.Root>
 
 
 export const SwitchInput = ({ label, description, ...props }: SwitchInputProp) => {
+
+  const hasLabelAndDescription = !!label && !!description
+
   return (
-    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-      <div className="space-y-0.5">
-        <FormLabel>{label}</FormLabel>
-        <FormDescription>{description}</FormDescription>
-      </div>
+    <FormItem className={cn(
+      'flex items-center justify-center',
+      hasLabelAndDescription ? "flex-row justify-between rounded-lg border p-3 shadow-sm" : ""
+    )}>
+      {
+        hasLabelAndDescription && (
+          <div className="space-y-0.5">
+            <FormLabel>{label}</FormLabel>
+            <FormDescription>{description}</FormDescription>
+          </div>
+        )
+      }
       <FormControl>
         <Switch {...props} />
       </FormControl>
