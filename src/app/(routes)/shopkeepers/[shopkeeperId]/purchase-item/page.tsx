@@ -47,7 +47,6 @@ const PurchaseItemPage = async ({ params }: { params: Promise<{ shopkeeperId: st
   })
 
 
-  console.dir({ banks }, { depth: null })
 
   return (
     <div>

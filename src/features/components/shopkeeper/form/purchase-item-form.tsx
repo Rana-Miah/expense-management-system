@@ -21,6 +21,7 @@ import { createShopkeeperPurchaseItemAction } from "@/features/actions/shopkeepe
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import { isPending } from "@reduxjs/toolkit"
 
 
 export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
@@ -58,7 +59,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
         },
     })
 
-    const { control, handleSubmit, watch, setValue } = form
+    const { control, handleSubmit, getValues, setValue, watch } = form
 
     const fieldArray = useFieldArray({
         control,
@@ -271,9 +272,66 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                         onOpenChange={setIsOpenSheet}
                         open={isOpenSheet}
                         renderItem={(index) => {
-                            const isKnowPrice = watch(`items.${index}.isKnowPrice`)
-                            const isKnowTotal = watch(`items.${index}.isKnowTotal`)
-                            const isKnowQuantity = watch(`items.${index}.isKnowQuantity`)
+                            const isKnowPriceId = `items.${index}.isKnowPrice` as const
+                            const isKnowPrice = watch(isKnowPriceId)
+                            const priceInputId = `items.${index}.price` as const
+                            const priceValue = watch(priceInputId)
+
+                            const isKnowQuantityId = `items.${index}.isKnowQuantity` as const
+                            const isKnowQuantity = watch(isKnowQuantityId)
+                            const quantityInputId = `items.${index}.quantity` as const
+                            const quantityValue = watch(quantityInputId)
+
+                            const isKnowTotalId = `items.${index}.isKnowTotal` as const
+                            const isKnowTotal = watch(isKnowTotalId)
+                            const totalInputId = `items.${index}.total` as const
+                            const totalValue = watch(totalInputId)
+
+
+
+
+                            const isKnowPriceSwitchDisable = (!isKnowPrice && (quantityValue > 0 || totalValue > 0)) || priceValue > 0
+                            const isKnowQuantitySwitchDisable = (!isKnowQuantity && (priceValue > 0 || totalValue > 0)) || quantityValue > 0
+                            const isKnowTotalSwitchDisable = (!isKnowTotal && (priceValue > 0 || quantityValue > 0)) || totalValue > 0
+
+                            const recalculateValue = () => {
+                                const priceInputValue = getValues(priceInputId)
+                                const quantityInputValue = getValues(quantityInputId)
+                                const totalInputValue = getValues(totalInputId)
+
+                                if (!isKnowPrice) {
+                                    if (quantityInputValue === 0 || totalInputValue === 0) {
+                                        setValue(priceInputId, 0)
+                                        return
+                                    }
+
+                                    const calculatedPrice = Number((totalInputValue / quantityInputValue).toFixed(2))
+
+                                    setValue(priceInputId, calculatedPrice)
+                                    return
+                                }
+
+                                if (!isKnowQuantity) {
+                                    if (priceInputValue === 0 || totalInputValue === 0) {
+                                        setValue(quantityInputId, 0)
+                                        return
+                                    }
+                                    const calculatedQuantity = Number((totalInputValue / priceInputValue).toFixed(2))
+                                    setValue(quantityInputId, calculatedQuantity)
+                                    return
+                                }
+
+                                if (!isKnowTotal) {
+                                    if (priceInputValue === 0 || quantityInputValue === 0) {
+                                        setValue(totalInputId, 0)
+                                        return
+                                    }
+                                    const calculatedQuantity = Number((totalInputValue * priceInputValue).toFixed(2))
+                                    setValue(totalInputId, calculatedQuantity)
+                                    return
+                                }
+                            }
+
 
                             return (
                                 <div className="flex flex-col items-center gap-2">
@@ -320,44 +378,67 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                             render={({ field }) => {
 
                                                 return (
-                                                    <FormItem>
-                                                        <FormLabel className="flex items-center justify-between">
-                                                            <span>Price</span>
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`items.${index}.isKnowPrice`}
-                                                                render={({ field }) => (
-                                                                    <Switch
-                                                                        checked={field.value}
-                                                                        onCheckedChange={field.onChange}
-                                                                        className="mr-1"
-                                                                    />
-                                                                )}
-                                                            />
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <Input
-                                                                {...field}
-                                                                onChange={(e) => {
-                                                                    const newPrice = Number(e.target.value);
-                                                                    field.onChange(newPrice); // ✅ correct update
 
-                                                                    // ✅ get latest values from form
-                                                                    const total = form.getValues(`items.${index}.total`);
-                                                                    const isKnowQuantity = form.getValues(`items.${index}.isKnowQuantity`);
-
-                                                                    // ✅ recalculate based on new value
-                                                                    if (!isKnowQuantity && newPrice > 0) {
-                                                                        const newQuantity = total / newPrice;
-                                                                        form.setValue(`items.${index}.quantity`, newQuantity);
-                                                                    }
-                                                                }}
-                                                                placeholder="e.g. 15"
+                                                    <>
+                                                        <div className="relative">
+                                                            <InputField
+                                                                label="Price"
                                                                 type="number"
-                                                                disabled={pending || !isKnowPrice} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
+                                                                placeholder="e.g. 30"
+                                                                value={field.value}
+                                                                onChange={(e) => {
+                                                                    const newPrice = Number(e.target.valueAsNumber);
+                                                                    field.onChange(newPrice);
+                                                                    recalculateValue()
+                                                                }}
+                                                                disabled={pending || !isKnowPrice}
+                                                            />
+                                                            {!isKnowPriceSwitchDisable && <div className="absolute right-0 -top-1">
+                                                                <FormField
+                                                                    control={form.control}
+                                                                    name={`items.${index}.isKnowPrice`}
+                                                                    render={({ field }) => (
+                                                                        <Switch
+                                                                            checked={field.value}
+                                                                            onCheckedChange={field.onChange}
+                                                                            className="mr-1"
+                                                                            disabled={pending}
+                                                                        />
+                                                                    )}
+                                                                />
+                                                            </div>}
+                                                        </div>
+                                                        {/* <FormItem>
+                                                            <FormLabel className="flex items-center justify-between">
+                                                                <span>Price</span>
+                                                                <FormField
+                                                                    control={form.control}
+                                                                    name={`items.${index}.isKnowPrice`}
+                                                                    render={({ field }) => (
+                                                                        <Switch
+                                                                            checked={field.value}
+                                                                            onCheckedChange={field.onChange}
+                                                                            className="mr-1"
+                                                                        />
+                                                                    )}
+                                                                />
+                                                            </FormLabel>
+                                                            <FormControl>
+                                                                <Input
+                                                                    {...field}
+                                                                    onChange={(e) => {
+                                                                        const newPrice = Number(e.target.value);
+                                                                        field.onChange(newPrice);
+                                                                        recalculateValue()
+                                                                    }}
+                                                                    placeholder="e.g. 15"
+                                                                    type="number"
+                                                                    disabled={pending || !isKnowPrice} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem> */}
+                                                    </>
+
                                                 )
                                             }}
                                         />
@@ -371,22 +452,27 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                                     <FormItem>
                                                         <FormLabel className="flex items-center justify-between">
                                                             <span>Quantity</span>
-                                                            <FormField
+                                                            {!isKnowQuantitySwitchDisable&&<FormField
                                                                 control={form.control}
                                                                 name={`items.${index}.isKnowQuantity`}
                                                                 render={({ field }) => (
                                                                     <Switch
                                                                         checked={field.value}
                                                                         onCheckedChange={field.onChange}
-                                                                        className="mr-1"
+                                                                        disabled={pending}
                                                                     />
                                                                 )}
-                                                            />
+                                                            />}
                                                         </FormLabel>
                                                         <FormControl>
                                                             <Input
                                                                 {...field}
                                                                 value={field.value}
+                                                                onChange={(e) => {
+                                                                    const newQuantity = e.target.valueAsNumber
+                                                                    field.onChange(newQuantity)
+                                                                    recalculateValue()
+                                                                }}
                                                                 placeholder="e.g. 15"
                                                                 type="number"
                                                                 disabled={pending || !isKnowQuantity} />
@@ -397,6 +483,8 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                             }}
                                         />
                                     </div>
+
+
                                     <FormField
                                         control={form.control}
                                         name={`items.${index}.total`}
@@ -413,7 +501,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                                                 <Switch
                                                                     checked={field.value}
                                                                     onCheckedChange={field.onChange}
-                                                                    className="mr-1"
+                                                                    disabled={pending || isKnowTotalSwitchDisable}
                                                                 />
                                                             )}
                                                         />
@@ -424,16 +512,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                                             onChange={(e) => {
                                                                 const newTotal = Number(e.target.value);
                                                                 field.onChange(newTotal); // ✅ correct update
-
-                                                                // ✅ get latest values from form
-                                                                const price = form.getValues(`items.${index}.price`);
-                                                                const isKnowQuantity = form.getValues(`items.${index}.isKnowQuantity`);
-
-                                                                // ✅ recalculate based on new value
-                                                                if (!isKnowQuantity && newTotal > 0) {
-                                                                    const newQuantity = newTotal / price;
-                                                                    form.setValue(`items.${index}.quantity`, newQuantity);
-                                                                }
+                                                                recalculateValue()
                                                             }}
                                                             placeholder="e.g. 15"
                                                             type="number"
