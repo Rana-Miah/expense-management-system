@@ -1,11 +1,10 @@
 import { InputField, SelectInput } from '@/components/input';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { FormField } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import { ItemUnitSelectValue } from '@/drizzle/type';
+import { ItemUnitSelectValue, } from '@/drizzle/type';
 import { ShopkeeperPurchaseItemFormValue } from '@/features/schemas/shopkeeper/purchase-item';
 import { useState } from 'react'
-import { UseFormReturn } from 'react-hook-form';
+import { FieldValues, Path, UseFormReturn } from 'react-hook-form';
 
 
 type Props = {
@@ -15,7 +14,16 @@ type Props = {
     pending: boolean;
 }
 
-export const Try = ({ index, form, itemUnits, pending }: Props) => {
+export function fieldPath<T extends FieldValues>(
+    base: string,
+    index: number,
+    field: string
+): Path<T> {
+    return `${base}.${index}.${field}` as Path<T>;
+}
+
+
+export const DynamicItemCard = ({ index, form, itemUnits, pending }: Props) => {
     const { getValues, setValue, watch } = form
 
     const [isDisablePriceSwitch, setIsDisablePriceSwitch] = useState(false)
@@ -40,13 +48,7 @@ export const Try = ({ index, form, itemUnits, pending }: Props) => {
 
 
     const bothHasPositive = (firstNum: number, secondNum: number) => firstNum > 0 && secondNum > 0
-
-    // const bothHasPositiveWithZero = (firstNum: number, secondNum: number) => firstNum >= 0 && secondNum >= 0
-    // const oneOfHasPositive = (firstNum: number, secondNum: number) => firstNum > 0 || secondNum > 0
-    // const oneOfHasPositiveWithZero = (firstNum: number, secondNum: number) => firstNum >= 0 || secondNum >= 0
     const hasPositive = (num: number) => num > 0
-    // const hasPositiveWithZero = (num: number) => num >= 0
-    // const bothIsZero = (firstNum: number, secondNum: number) => firstNum === 0 && secondNum === 0
     const oneOfIsZero = (firstNum: number, secondNum: number) => firstNum === 0 || secondNum === 0
 
 
@@ -96,7 +98,6 @@ export const Try = ({ index, form, itemUnits, pending }: Props) => {
 
 
         //! quantity
-
         if ((!isKnowQuantity && isPriceAndTotalKnowSwitchOn)
             || (isKnowQuantity &&
                 isPriceAndTotalKnowSwitchOn &&
@@ -117,10 +118,8 @@ export const Try = ({ index, form, itemUnits, pending }: Props) => {
             return
         }
 
+
         //! total
-
-
-
         if ((!isKnowTotal && isQuantityAndPriceKnowSwitchOn)
             || (isKnowTotal &&
                 isQuantityAndPriceKnowSwitchOn &&
@@ -140,26 +139,6 @@ export const Try = ({ index, form, itemUnits, pending }: Props) => {
             setValue(totalInputId, calculatedTotal)
             return
         }
-
-
-
-
-        // if (!isKnowQuantity || (isKnowQuantity && bothHasPositive(priceInputValue, totalInputValue))) {
-        //     setValue(isKnowQuantityId, false)
-
-        //     if (oneOfIsZero(priceInputValue, totalInputValue)) {
-        //         setValue(quantityInputId, 0)
-        //         setValue(isKnowQuantityId, true)
-        //         setIsDisableQuantitySwitch(false)
-        //     }
-        //     setIsDisableQuantitySwitch(true)
-        //     const calculatedPrice = Number((totalInputValue / priceInputValue).toFixed(2))
-
-        //     setValue(quantityInputId, calculatedPrice)
-        //     return
-        // }
-
-
     }
 
 
@@ -242,42 +221,36 @@ export const Try = ({ index, form, itemUnits, pending }: Props) => {
                 <FormField
                     control={form.control}
                     name={`items.${index}.quantity`}
-                    render={({ field }) => {
-
-                        return (
-                            <FormItem>
-                                <FormLabel className="flex items-center justify-between">
-                                    <span>Quantity</span>
-                                    <FormField
-                                        control={form.control}
-                                        name={`items.${index}.isKnowQuantity`}
-                                        render={({ field }) => (
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                disabled={pending || isDisableQuantitySwitch}
-                                            />
-                                        )}
-                                    />
-                                </FormLabel>
-                                <FormControl>
-                                    <Input
-                                        {...field}
-                                        value={field.value}
-                                        onChange={(e) => {
-                                            const newQuantity = e.target.valueAsNumber
-                                            field.onChange(isFinite(newQuantity) ? newQuantity : 0)
-                                            setIsDisableQuantitySwitch(newQuantity > 0)
-                                            recalculateValue()
-                                        }}
-                                        placeholder="e.g. 15"
-                                        type="number"
-                                        disabled={pending || !isKnowQuantity} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
+                    render={({ field }) => (
+                        <div className="relative">
+                            <InputField
+                                label="Quantity"
+                                type="number"
+                                placeholder="e.g. 30"
+                                value={field.value}
+                                onChange={(e) => {
+                                    const newQuantity = e.target.valueAsNumber
+                                    field.onChange(isFinite(newQuantity) ? newQuantity : 0)
+                                    setIsDisableQuantitySwitch(newQuantity > 0)
+                                    recalculateValue()
+                                }}
+                                disabled={pending || !isKnowQuantity}
+                            />
+                            <div className="absolute right-0 -top-1">
+                                <FormField
+                                    control={form.control}
+                                    name={`items.${index}.isKnowQuantity`}
+                                    render={({ field }) => (
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                            disabled={pending || isDisableQuantitySwitch}
+                                        />
+                                    )}
+                                />
+                            </div>
+                        </div>
+                    )}
                 />
             </div>
 
@@ -285,41 +258,36 @@ export const Try = ({ index, form, itemUnits, pending }: Props) => {
             <FormField
                 control={form.control}
                 name={`items.${index}.total`}
-                render={({ field }) => {
-
-                    return (
-                        <FormItem className="w-full">
-                            <FormLabel className="flex items-center justify-between">
-                                <span>Total</span>
-                                <FormField
-                                    control={form.control}
-                                    name={`items.${index}.isKnowTotal`}
-                                    render={({ field }) => (
-                                        <Switch
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            disabled={pending || isDisableTotalSwitch}
-                                        />
-                                    )}
-                                />
-                            </FormLabel>
-                            <FormControl>
-                                <Input
-                                    {...field}
-                                    onChange={(e) => {
-                                        const newTotal = Number(e.target.value);
-                                        field.onChange(isFinite(newTotal) ? newTotal : 0); // ✅ correct update
-                                        setIsDisableTotalSwitch(newTotal > 0); // ✅ correct update
-                                        recalculateValue()
-                                    }}
-                                    placeholder="e.g. 15"
-                                    type="number"
-                                    disabled={pending || !isKnowTotal} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )
-                }}
+                render={({ field }) => (
+                    <div className="relative w-full">
+                        <InputField
+                            label="Quantity"
+                            type="number"
+                            placeholder="e.g. 30"
+                            value={field.value}
+                            onChange={(e) => {
+                                const newTotal = Number(e.target.value);
+                                field.onChange(isFinite(newTotal) ? newTotal : 0); // ✅ correct update
+                                setIsDisableTotalSwitch(newTotal > 0); // ✅ correct update
+                                recalculateValue()
+                            }}
+                            disabled={pending || !isKnowTotal}
+                        />
+                        <div className="absolute right-0 -top-1">
+                            <FormField
+                                control={form.control}
+                                name={`items.${index}.isKnowTotal`}
+                                render={({ field }) => (
+                                    <Switch
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        disabled={pending || isDisableTotalSwitch}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+                )}
             />
         </div>
     )

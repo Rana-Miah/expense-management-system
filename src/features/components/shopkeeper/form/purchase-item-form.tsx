@@ -5,11 +5,7 @@ import { useFieldArray, useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import {
     Form,
-    // FormControl,
     FormField,
-    // FormItem,
-    // FormLabel,
-    // FormMessage,
 } from "@/components/ui/form"
 import { useState, useTransition } from "react"
 import { cn } from "@/lib/utils"
@@ -17,12 +13,11 @@ import { shopkeeperPurchaseItemFormSchema, ShopkeeperPurchaseItemFormValue } fro
 import { InputField, SelectInput, SwitchInput, TextAreaField } from "@/components/input"
 import { DynamicFormSheet } from "@/components/dynamic-fields"
 import { AssignTrxNameSelectValue, ItemUnitSelectValue, ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
-// import { createShopkeeperPurchaseItemAction } from "@/features/actions/shopkeeper-purchase-item/create-action"
+import { createShopkeeperPurchaseItemAction } from "@/features/actions/shopkeeper-purchase-item/create-action"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
-// import { Input } from "@/components/ui/input"
-// import { Switch } from "@/components/ui/switch"
-// import { isPending } from "@reduxjs/toolkit"
-import { Try } from "./try"
+import { DynamicItemCard } from "./dynamic-item-card"
+import { generateToasterDescription } from "@/lib/helpers"
+import { toast } from "sonner"
 
 
 export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
@@ -38,9 +33,6 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
     shopkeeper: ShopkeeperSelectValue;
     itemUnits: ItemUnitSelectValue[]
 }) => {
-    // const [isDisablePriceSwitch, setIsDisablePriceSwitch] = useState(false)
-    // const [isDisableQuantitySwitch, setIsDisableQuantitySwitch] = useState(false)
-    // const [isDisableTotalSwitch, setIsDisableTotalSwitch] = useState(false)
 
     const [pending, startTransition] = useTransition()
     const [isIncludeItems, setIsIncludeItems] = useState<boolean>(false)
@@ -64,7 +56,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
         },
     })
 
-    const { control, handleSubmit } = form
+    const { control, handleSubmit, resetField, reset } = form
 
     const fieldArray = useFieldArray({
         control,
@@ -77,8 +69,18 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
     const onSubmitHandler = handleSubmit(values => {
         startTransition(
             async () => {
-                // const res = await createShopkeeperPurchaseItemAction(values)
-                console.log({ values, })
+
+                const res = await createShopkeeperPurchaseItemAction(values)
+                const description = generateToasterDescription()
+                if (!res.success) {
+                    toast.error(res.message, { description })
+                    if (res.isError) {
+                        console.log({ errorResponse: res })
+                    }
+                    return
+                }
+                toast.success(res.message, { description })
+                // reset()
             }
         )
     })
@@ -160,9 +162,9 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                         const value = e.target.valueAsNumber
                                         field.onChange(value)
                                         setPaidAmountValue(value)
-                                        if (value === 0 || isNaN(value)) {
-                                            // resetField('sourceBankId')
-                                            // resetField('trxNameId')
+                                        if (value === 0 || !isFinite(value)) {
+                                            resetField('sourceBankId')
+                                            resetField('trxNameId')
                                         }
                                     }}
                                     disabled={false}
@@ -171,69 +173,63 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                         />
                     </div>
 
-                    {
-                        paidAmountValue > 0 && (
-                            <>
-                                <FormField
-                                    control={control}
-                                    name="sourceBankId"
-                                    render={({ field }) => (
-                                        <SelectInput
-                                            defaultValue={field.value}
-                                            onValueChange={(value) => {
-                                                field.onChange(value)
-                                                setSelectedBankId(value)
-                                                // resetField('trxNameId')
-                                            }}
-                                            label="Source Bank"
-                                            placeholder="Select a bank to pay"
-                                            items={
-                                                banks.map(({ id, name, isActive, balance }) => {
-                                                    const variant = (shopkeeper.totalDue > balance) ? 'destructive' : 'success'
-                                                    return {
-                                                        label: name,
-                                                        value: id,
-                                                        disabled: !isActive,
-                                                        badgeLabel: balance.toString(),
-                                                        badgeProp: {
-                                                            variant
-                                                        }
-                                                    }
-                                                })
-                                            }
-                                        />
-                                    )}
-                                />
 
-                                {
-                                    !!selectedBank && (
-                                        <FormField
-                                            control={control}
-                                            name="trxNameId"
-                                            render={({ field }) => (
-                                                <SelectInput
-                                                    label="Transaction Name"
-                                                    placeholder="Select a transaction name"
-                                                    onValueChange={field.onChange}
-                                                    defaultValue={field.value}
-                                                    items={
-                                                        selectedBank.assignedTransactionsName.map(assignedTrx => {
-                                                            const { transactionName: { name, isActive, id } } = assignedTrx
-                                                            return {
-                                                                label: name,
-                                                                value: id,
-                                                                disabled: !isActive
-                                                            }
-                                                        })
-                                                    }
-                                                />
-                                            )}
-                                        />
-                                    )
+                    <FormField
+                        control={control}
+                        name="sourceBankId"
+                        render={({ field }) => (
+                            <SelectInput
+                                defaultValue={field.value}
+                                onValueChange={(value) => {
+                                    field.onChange(value)
+                                    setSelectedBankId(value)
+                                    resetField('trxNameId')
+                                }}
+                                disabled={paidAmountValue <= 0}
+                                label={`Source Bank ${paidAmountValue <= 0 ? "(optional)" : ""}`}
+                                placeholder="Select a bank to pay"
+                                items={
+                                    banks.map(({ id, name, isActive, balance }) => {
+                                        const variant = (shopkeeper.totalDue > balance) ? 'destructive' : 'success'
+                                        return {
+                                            label: name,
+                                            value: id,
+                                            disabled: !isActive,
+                                            badgeLabel: balance.toString(),
+                                            badgeProp: {
+                                                variant
+                                            }
+                                        }
+                                    })
                                 }
-                            </>
-                        )
-                    }
+                            />
+                        )}
+                    />
+
+                    <FormField
+                        control={control}
+                        name="trxNameId"
+                        render={({ field }) => (
+                            <SelectInput
+                                label={`Transaction Name ${!selectedBank ? "(optional)" : ""}`}
+                                placeholder="Select a transaction name"
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                disabled={!selectedBank}
+                                items={
+                                    selectedBank ? selectedBank.assignedTransactionsName.map(assignedTrx => {
+                                        const { transactionName: { name, isActive, id } } = assignedTrx
+                                        return {
+                                            label: name,
+                                            value: id,
+                                            disabled: !isActive
+                                        }
+                                    }) : []
+                                }
+                            />
+                        )}
+                    />
+
 
                     <FormField
                         control={control}
@@ -276,21 +272,15 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                         fieldArrayValue={fieldArray}
                         onOpenChange={setIsOpenSheet}
                         open={isOpenSheet}
-                        renderItem={(index) => {
-
-                            return (
-                                <Try
-                                    index={index}
-                                    form={form}
-                                    itemUnits={itemUnits}
-                                    pending={pending}
-                                />
-                            )
-                        }}
+                        renderItem={(index) => (
+                            <DynamicItemCard
+                                index={index}
+                                form={form}
+                                itemUnits={itemUnits}
+                                pending={pending}
+                            />
+                        )}
                     />
-
-
-
 
                     <div className="flex items-center justify-center w-full">
                         {pending ? (
