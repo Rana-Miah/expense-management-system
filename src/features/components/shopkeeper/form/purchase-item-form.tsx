@@ -275,61 +275,96 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                             const isKnowPriceId = `items.${index}.isKnowPrice` as const
                             const isKnowPrice = watch(isKnowPriceId)
                             const priceInputId = `items.${index}.price` as const
-                            const priceValue = watch(priceInputId)
+                            const priceInputValue = watch(priceInputId)
 
                             const isKnowQuantityId = `items.${index}.isKnowQuantity` as const
                             const isKnowQuantity = watch(isKnowQuantityId)
                             const quantityInputId = `items.${index}.quantity` as const
-                            const quantityValue = watch(quantityInputId)
+                            const quantityInputValue = watch(quantityInputId)
 
                             const isKnowTotalId = `items.${index}.isKnowTotal` as const
                             const isKnowTotal = watch(isKnowTotalId)
                             const totalInputId = `items.${index}.total` as const
-                            const totalValue = watch(totalInputId)
+                            const totalInputValue = watch(totalInputId)
+
+
+                            const bothHasPositive = (firstNum: number, secondNum: number) => firstNum > 0 && secondNum > 0
+                            const bothHasPositiveWithZero = (firstNum: number, secondNum: number) => firstNum >= 0 && secondNum >= 0
+                            const oneOfHasPositive = (firstNum: number, secondNum: number) => firstNum > 0 || secondNum > 0
+                            const oneOfHasPositiveWithZero = (firstNum: number, secondNum: number) => firstNum >= 0 || secondNum >= 0
+                            const hasPositive = (num: number) => num > 0
+                            const hasPositiveWithZero = (num: number) => num >= 0
 
 
 
-
-                            const isKnowPriceSwitchDisable = (!isKnowPrice && (quantityValue > 0 || totalValue > 0)) || priceValue > 0
-                            const isKnowQuantitySwitchDisable = (!isKnowQuantity && (priceValue > 0 || totalValue > 0)) || quantityValue > 0
-                            const isKnowTotalSwitchDisable = (!isKnowTotal && (priceValue > 0 || quantityValue > 0)) || totalValue > 0
+                            const isKnowPriceSwitchDisable = (!isKnowPrice && oneOfHasPositive(quantityInputValue, totalInputValue)) || priceInputValue > 0
+                            const isKnowQuantitySwitchDisable = (!isKnowQuantity && oneOfHasPositive(priceInputValue, totalInputValue)) || quantityInputValue > 0
+                            const isKnowTotalSwitchDisable = (!isKnowTotal && (priceInputValue > 0 || quantityInputValue > 0)) || totalInputValue > 0
 
                             const recalculateValue = () => {
-                                const priceInputValue = getValues(priceInputId)
-                                const quantityInputValue = getValues(quantityInputId)
-                                const totalInputValue = getValues(totalInputId)
 
-                                if (!isKnowPrice) {
-                                    if (quantityInputValue === 0 || totalInputValue === 0) {
-                                        setValue(priceInputId, 0)
-                                        return
-                                    }
+                                if (!isFinite(priceInputValue)) setValue(priceInputId, 0)
+                                if (!isFinite(quantityInputValue)) setValue(quantityInputId, 0)
+                                if (!isFinite(totalInputValue)) setValue(totalInputId, 0)
 
-                                    const calculatedPrice = Number((totalInputValue / quantityInputValue).toFixed(2))
 
-                                    setValue(priceInputId, calculatedPrice)
+                                //find out price value
+                                if (bothHasPositive(quantityInputValue, totalInputValue)) {
+                                    console.log({
+                                        inside: 'if block quantity and total > 0'
+                                    })
                                     return
                                 }
 
-                                if (!isKnowQuantity) {
-                                    if (priceInputValue === 0 || totalInputValue === 0) {
-                                        setValue(quantityInputId, 0)
-                                        return
-                                    }
-                                    const calculatedQuantity = Number((totalInputValue / priceInputValue).toFixed(2))
-                                    setValue(quantityInputId, calculatedQuantity)
+
+                                //find out quantity value
+                                if (bothHasPositive(priceInputValue, totalInputValue)) {
+                                    console.log({
+                                        inside: 'if block price and total > 0'
+                                    })
                                     return
                                 }
 
-                                if (!isKnowTotal) {
-                                    if (priceInputValue === 0 || quantityInputValue === 0) {
-                                        setValue(totalInputId, 0)
-                                        return
-                                    }
-                                    const calculatedQuantity = Number((totalInputValue * priceInputValue).toFixed(2))
-                                    setValue(totalInputId, calculatedQuantity)
+                                //find out total value
+                                if (bothHasPositive(priceInputValue, quantityInputValue)) {
+                                    console.log({
+                                        inside: 'if block quantity and total > 0'
+                                    })
                                     return
                                 }
+
+
+
+                                // if (!isKnowPrice) {
+                                //     if (quantityInputValue === 0 || totalInputValue === 0) {
+                                //         setValue(priceInputId, 0)
+                                //         return
+                                //     }
+                                //     const calculatedPrice = Number((totalInputValue / quantityInputValue).toFixed(2))
+
+                                //     setValue(priceInputId, calculatedPrice)
+                                //     return
+                                // }
+
+                                // if (!isKnowQuantity) {
+                                //     if (priceInputValue === 0 || totalInputValue === 0) {
+                                //         setValue(quantityInputId, 0)
+                                //         return
+                                //     }
+                                //     const calculatedQuantity = Number((totalInputValue / priceInputValue).toFixed(2))
+                                //     setValue(quantityInputId, calculatedQuantity)
+                                //     return
+                                // }
+
+                                // if (!isKnowTotal) {
+                                //     if (priceInputValue === 0 || quantityInputValue === 0) {
+                                //         setValue(totalInputId, 0)
+                                //         return
+                                //     }
+                                //     const calculatedQuantity = Number((totalInputValue * priceInputValue).toFixed(2))
+                                //     setValue(totalInputId, calculatedQuantity)
+                                //     return
+                                // }
                             }
 
 
@@ -452,7 +487,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                                     <FormItem>
                                                         <FormLabel className="flex items-center justify-between">
                                                             <span>Quantity</span>
-                                                            {!isKnowQuantitySwitchDisable&&<FormField
+                                                            {!isKnowQuantitySwitchDisable && <FormField
                                                                 control={form.control}
                                                                 name={`items.${index}.isKnowQuantity`}
                                                                 render={({ field }) => (
