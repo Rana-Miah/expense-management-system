@@ -10,12 +10,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Trash, PlusCircle } from "lucide-react"
 import { FieldArrayPath, FieldValues, UseFieldArrayReturn } from "react-hook-form"
-import { Dispatch, SetStateAction, useState } from "react"
+import { Dispatch, SetStateAction } from "react"
 import { AlertModal } from "./alert-modal"
-import { useAppDispatch, useModal } from "@/hooks/redux"
-import { MODAL_TYPE } from "@/constant"
-import { onClose, onOpen } from "@/lib/redux/slice/modal-slice"
+import { useAlertModal, useAlertModalClose, useAlertModalOpen } from "@/hooks/redux"
 import { CardWrapper } from "./card-wrapper"
+import { generateToasterDescription } from "@/lib/helpers"
+import { toast } from "sonner"
 
 type DynamicFormSheetProps<
     TFieldValues extends FieldValues,
@@ -42,26 +42,30 @@ export function DynamicFormSheet<
     description = "Manage your items here.",
     renderItem,
 }: DynamicFormSheetProps<TFieldValues, TFieldArrayName>) {
-    const [removeIndex, setRemoveIndex] = useState<number | null>(null)
+    const { isAlertOpen, payload } = useAlertModal<number>()
+    const onOpen = useAlertModalOpen<number>()
+    const onClose = useAlertModalClose()
+    const { fields, remove, } = fieldArrayValue
 
-    const { fields, remove } = fieldArrayValue
 
-    const { isOpen, type } = useModal()
-    const isOpenAlert = isOpen && type === MODAL_TYPE.ALERT_MODAL
-    const dispatch = useAppDispatch()
 
     return (
         <>
             <AlertModal
-                open={isOpenAlert}
+                open={isAlertOpen}
                 title="Are you sure?"
-                description={`Purchase item #${removeIndex! + 1} will deleted`}
-                onCancel={() => {
-                    dispatch(onClose())
-                }}
+                description={`Purchase item #${payload ? payload + 1 : ""} will deleted`}
+                onCancel={onClose}
                 onConfirm={() => {
-                    remove(removeIndex!)
-                    dispatch(onClose())
+                    const description = generateToasterDescription()
+
+                    if (payload === null) {
+                        toast.error('Missing alert payload for delete item!', { description })
+                        return
+                    }
+                    remove(payload)
+                    onClose()
+                    toast.success(`Item #${payload + 1} deleted`, { description })
                     if (fields.length === 1) {
                         onOpenChange(false)
                     }
@@ -86,14 +90,14 @@ export function DynamicFormSheet<
                                             type='button'
                                             variant='destructive'
                                             onClick={() => {
-                                                setRemoveIndex(index)
-                                                dispatch(onOpen(MODAL_TYPE.ALERT_MODAL))
+                                                // console.log(_.id)
+                                                onOpen(index)
                                             }}
                                         >
                                             <Trash />
                                         </Button>
                                     }
-                                    key={index}
+                                    key={_.id}
                                 >
                                     {renderItem(index)}
                                 </CardWrapper>

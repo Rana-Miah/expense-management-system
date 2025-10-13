@@ -6,10 +6,11 @@ import { redirect } from "next/navigation"
 
 const TransactionPage = async ({ params }: { params: Promise<{ bankId: string; transactionId: string }> }) => {
     const param = await params
-    const bank = findBankById(param.bankId)
-    if (!bank) redirect('/')
+    const bank = {}//findBankById(param.bankId)
+    // if (!bank) redirect('/')
 
-    const trxNames = findTrxNamesByClerkUserId(bank.clerkUserId)
+
+    const trxNames = []//findTrxNamesByClerkUserId(bank.clerkUserId)
     return (
         <div className="flex items-center pt-4">
             <CardWrapper
