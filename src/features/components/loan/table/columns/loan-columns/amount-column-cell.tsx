@@ -1,17 +1,16 @@
-
+'use client'
 import React from 'react'
 import { LoanTableCellContext } from '.'
 import { cn } from '@/lib/utils'
 import { amountFormatter } from '@/lib/helpers'
 import { BanknoteArrowDown, BanknoteArrowUp } from 'lucide-react'
 
-export const AmountColumnCell = ({ row: { original: { amount, due, loanType } } }: LoanTableCellContext) => {
+export const LoanAmountColumnCell = ({ row: { original: { amount,  loanType } } }: LoanTableCellContext) => {
 
   const isDebit = loanType === 'Debit'
   const isCredit = loanType === 'Credit'
 
   return (
-    <div>
       <div className={cn('flex items-center gap-1.5', isDebit ? 'text-success' :'text-destructive')}>
         {isDebit && <BanknoteArrowUp />}
         {isCredit && <BanknoteArrowDown />}
@@ -19,6 +18,15 @@ export const AmountColumnCell = ({ row: { original: { amount, due, loanType } } 
           {amountFormatter(amount)}
         </span>
       </div>
+  )
+}
+
+export const LoanDueAmountColumnCell = ({ row: { original: {  due, loanType } } }: LoanTableCellContext) => {
+
+  const isDebit = loanType === 'Debit'
+  const isCredit = loanType === 'Credit'
+
+  return (
       <div className={cn('flex items-center gap-1.5', isCredit ? 'text-success': 'text-destructive')}>
         {isCredit && <BanknoteArrowUp />}
         {isDebit && <BanknoteArrowDown />}
@@ -26,6 +34,5 @@ export const AmountColumnCell = ({ row: { original: { amount, due, loanType } } 
           {amountFormatter(due)}
         </span>
       </div>
-    </div>
   )
 }

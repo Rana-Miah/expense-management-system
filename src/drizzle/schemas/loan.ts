@@ -1,5 +1,5 @@
 import { pgTable, uuid, text, } from "drizzle-orm/pg-core";
-import { numericAmount, createdAt, updatedAt, trxTypeWithBoth as loanType, loanStatus, relationBetween, times } from "../schema-helpers";
+import { numericAmount, createdAt, updatedAt, trxType as loanType, loanStatus, relationBetween, times } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { loanFinancierTable } from "./loan-financier";
 import { loanPaymentTable } from "./loan-payment";

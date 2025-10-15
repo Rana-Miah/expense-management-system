@@ -1,4 +1,4 @@
-
+'use client'
 import React from 'react'
 import { LoanTableCellContext } from '.'
 import { Badge } from '@/components/ui/badge'

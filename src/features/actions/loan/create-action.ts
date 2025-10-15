@@ -1,8 +1,8 @@
 'use server'
 
 import { db } from "@/drizzle/db"
-import { bankAccountTable, loanTable, trxTable } from "@/drizzle/schema"
-import { LoanInsertValue, TrxInsertValue } from "@/drizzle/type"
+import { bankAccountTable, loanTable, trxTable, loanFinancierTable } from "@/drizzle/schema"
+import { LoanFinancierSelectValue, LoanInsertValue, TrxInsertValue } from "@/drizzle/type"
 import { loanCreateFormSchema } from "@/features/schemas/loan/loan-schema"
 import { currentUserId } from "@/lib/current-user-id"
 import { dateFormatter, failureResponse, messageUtils, notActiveMessage, successResponse, tryCatch } from "@/lib/helpers"
@@ -72,6 +72,21 @@ export const createLoanAction = async (value: unknown) => {
                     return updatedBank
                 }
 
+                const updateLoanFinancier = async (financierId: string, clerkUserId: string, value: Partial<{
+                    totalProvided: number;
+                    totalReceipt: number;
+                    providedDue: number;
+                    receiptDue: number;
+                }>) => {
+                    const [updatedBank] = await tx.update(loanFinancierTable).set(value).where(
+                        and(
+                            eq(loanFinancierTable.id, financierId),
+                            eq(loanFinancierTable.clerkUserId, clerkUserId),
+                        )
+                    ).returning()
+                    return updatedBank
+                }
+
                 const generateDescription = () => detailsOfLoan.length > 1 ? `Note: this transaction for loan. loan was taken on ${dateFormatter(loanDate)}, loan amount is ${amount}, ${detailsOfLoan}` : ""
 
 
@@ -106,11 +121,28 @@ export const createLoanAction = async (value: unknown) => {
                         receiveBankId: existReceiveBank.id,
                     }))
                     if (newLoanError || !newLoan) {
-
-                        console.log(newLoanError)
                         tx.rollback()
                         return failureResponse(messageUtils.failedCreateMessage('loan'), newLoanError)
                     }
+
+
+                    const [updatedLoanFinancier, updateLoanFinancierError] = await tryCatch(updateLoanFinancier(existFinancier.id, userId, {
+                        providedDue: existFinancier.providedDue + amount,
+                        totalProvided: existFinancier.totalProvided + amount,
+                    }))
+
+                    if (updateLoanFinancierError) {
+                        tx.rollback()
+                        return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
+                    }
+
+                    if (existFinancier.providedDue === updatedLoanFinancier.providedDue
+                        || existFinancier.totalProvided === updatedLoanFinancier.totalProvided
+                    ) {
+                        tx.rollback()
+                        return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
+                    }
+
 
                     const [updatedBank, updateBankError] = await tryCatch(updateBank(existReceiveBank.id, userId, { balance: existReceiveBank.balance + amount }))
                     if (updateBankError) {
@@ -146,7 +178,7 @@ export const createLoanAction = async (value: unknown) => {
                 }
 
                 //credit loan
-                if (existFinancier.isBan) return failureResponse(`Financier "${existFinancier.name}" is blocked! Your are not allow to give him loan!`)
+                if (existFinancier.isBlock) return failureResponse(`Financier "${existFinancier.name}" is blocked! Your are not allow to give him loan!`)
 
                 if (!isFinancierRecipient) return failureResponse('Financier not able to receive loan!')
 
@@ -175,7 +207,7 @@ export const createLoanAction = async (value: unknown) => {
                     clerkUserId: userId,
                     loanStatus: 'Settled',
                     financierId: existFinancier.id,
-                    receiveBankId: existSourceBank.id,
+                    sourceBankId: existSourceBank.id,
                 }))
                 if (newLoanError || !newLoan) {
                     tx.rollback()
@@ -194,6 +226,24 @@ export const createLoanAction = async (value: unknown) => {
                     return failureResponse('Bank balance not updated!', newLoanError)
                 }
 
+
+                const [updatedLoanFinancier, updateLoanFinancierError] = await tryCatch(updateLoanFinancier(existFinancier.id, userId, {
+                        receiptDue: existFinancier.receiptDue + amount,
+                        totalReceipt: existFinancier.totalReceipt + amount,
+                    }))
+
+                    if (updateLoanFinancierError) {
+                        tx.rollback()
+                        return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
+                    }
+
+                    if (existFinancier.receiptDue === updatedLoanFinancier.receiptDue
+                        || existFinancier.totalReceipt === updatedLoanFinancier.totalReceipt
+                    ) {
+                        tx.rollback()
+                        return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
+                    }
+
                 const [newTrx, newTrxError] = await tryCatch(createTransaction({
                     amount,
                     clerkUserId: userId,
@@ -211,8 +261,6 @@ export const createLoanAction = async (value: unknown) => {
                 }
 
                 return successResponse(messageUtils.createMessage('loan'), newLoan)
-
-
             }
         )
     )

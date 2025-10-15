@@ -5,7 +5,30 @@ import { loanPaymentsColumns } from './columns'
 import { ModalTriggerButton } from '@/components/modal-trigger-button'
 import { MODAL_TYPE } from '@/constant'
 
-export const LoanPaymentsTable = ({ loanPayments }: { loanPayments: LoanPayment[] }) => {
+export const LoanPaymentsTable = ({ loanPayments }: { loanPayments: {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    amount: number;
+    loanType: "Debit" | "Credit" | "Both";
+    title: string;
+    loanDate: Date;
+    due: number;
+    detailsOfLoan: string;
+    loanStatus: "Repaid" | "Settled" | "Closed";
+    financier: {
+        id: string;
+        name: string;
+    };
+    receiveBank: {
+        id: string;
+        name: string;
+    } | null;
+    sourceBank: {
+        id: string;
+        name: string;
+    } | null;
+}[] }) => {
     const length = loanPayments.length
 
     return (

@@ -4,7 +4,7 @@ import { FinancierNameColumnCell } from "./financier-name-column-cell";
 import { FinancierTypeColumnCell } from "./financier-type-column-cell";
 import { FinancierPhoneColumnCell } from "./financier-phone-column-cell";
 import { FinancierUpdateDateColumnCell } from "./financier-update-date-column-cell";
-import { FinancierDueAmountColumnCell } from "./financier-due-amount-column-cell";
+import { FinancierProvidedDueAmountColumnCell, FinancierReceiptDueAmountColumnCell, FinancierTotalProvidedAmountColumnCell, FinancierTotalReceiptAmountColumnCell } from "./financier-due-amount-column-cell";
 import { FinancierActionsColumnCell } from "./actions-column-cell";
 import { LoanFinancierSelectValue } from "@/drizzle/type";
 
@@ -20,10 +20,29 @@ const FinancierNameColumn: FinancierColumnDef = {
 }
 
 // Financier's type column
-const FinancierDueAmountColumn: FinancierColumnDef = {
-    id: 'due-amounts',
-    header: "Due Amount",
-    cell: FinancierDueAmountColumnCell
+const FinancierReceiptDueAmountColumn: FinancierColumnDef = {
+    accessorKey: 'receiptDue',
+    header: "Receipt Due",
+    cell: FinancierReceiptDueAmountColumnCell
+}
+// Financier's type column
+const FinancierProvidedDueAmountColumn: FinancierColumnDef = {
+    accessorKey: 'providedDue',
+    header: "Provided Due",
+    cell: FinancierProvidedDueAmountColumnCell
+}
+
+// Financier's type column
+const FinancierTotalReceiptAmountColumn: FinancierColumnDef = {
+    accessorKey: 'receiptDue',
+    header: "Receipt Due",
+    cell: FinancierTotalReceiptAmountColumnCell
+}
+// Financier's type column
+const FinancierTotalProvidedAmountColumn: FinancierColumnDef = {
+    accessorKey: 'providedDue',
+    header: "Provided Due",
+    cell: FinancierTotalProvidedAmountColumnCell
 }
 
 // Financier's type column
@@ -55,7 +74,10 @@ const FinancierActionColumn: FinancierColumnDef = {
 
 export const financierColumns: FinancierColumnDef[] = [
     FinancierNameColumn,
-    FinancierDueAmountColumn,
+    FinancierTotalReceiptAmountColumn,
+    FinancierReceiptDueAmountColumn,
+    FinancierTotalProvidedAmountColumn,
+    FinancierProvidedDueAmountColumn,
     FinancierPhoneColumn,
     FinancierTypeColumn,
     FinancierUpdateColumn,

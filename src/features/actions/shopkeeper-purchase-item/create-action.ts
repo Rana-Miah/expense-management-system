@@ -59,7 +59,8 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
 
 
     if (items && isIncludedItems && items.length < 1) return failureResponse(messageUtils.itemsRequiredMessage())
-
+    if (isPaidAvailable && !sourceBankId) return failureResponse(messageUtils.missingFieldValue('source bank'))
+    if (isPaidAvailable && sourceBankId && !trxNameId) return failureResponse(messageUtils.missingFieldValue('transaction name'))
 
     //! everything will run under db tx
 
@@ -144,43 +145,26 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
 
                     //! get exist bank
                     const [existBank, getExistBankError] = await tryCatch(getBankByIdAndClerkUserId(sourceBankId, userId))
-                    if (getExistBankError) {
-                        return failureResponse(messageUtils.failedGetMessage('exist bank'), getExistBankError)
-                    }
-                    if (!existBank) {
-                        return failureResponse(messageUtils.notFoundMessage('bank'))
-                    }
-                    if (!existBank.isActive) {
-                        return failureResponse(messageUtils.notActiveMessage(`${existBank.name} bank`))
-                    }
-                    if (existBank.isDeleted) {
-                        return failureResponse(messageUtils.deletedRowMessage(`bank ${existBank.name}`))
-                    }
-                    if (existBank.balance < paidAmount) {
-                        return failureResponse(messageUtils.insufficientBalance())
-                    }
+
+                    if (getExistBankError) return failureResponse(messageUtils.failedGetMessage('exist bank'), getExistBankError)
+
+                    if (!existBank) return failureResponse(messageUtils.notFoundMessage('bank'))
+
+                    if (!existBank.isActive) return failureResponse(messageUtils.notActiveMessage(`${existBank.name} bank`))
+
+                    if (existBank.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`bank ${existBank.name}`))
+
+                    if (existBank.balance < paidAmount) return failureResponse(messageUtils.insufficientBalance())
 
                     existSourceBankId = existBank.id
 
 
                     //! get exist transaction name
                     const [existTrxName, getExistTrxNameError] = await tryCatch(getTrxNameByIdAndClerkUserId(trxNameId, userId))
-                    if (getExistTrxNameError) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.failedGetMessage('exist transaction name'), getExistBankError)
-                    }
-                    if (!existTrxName) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.notFoundMessage('transaction name'))
-                    }
-                    if (!existTrxName.isActive) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.notActiveMessage(`transaction name ${existBank.name}`))
-                    }
-                    if (existTrxName.isDeleted) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.deletedRowMessage(`transaction name ${existBank.name}`))
-                    }
+                    if (getExistTrxNameError) return failureResponse(messageUtils.failedGetMessage('exist transaction name'), getExistBankError)
+                    if (!existTrxName) return failureResponse(messageUtils.notFoundMessage('transaction name'))
+                    if (!existTrxName.isActive) return failureResponse(messageUtils.notActiveMessage(`transaction name ${existBank.name}`))
+                    if (existTrxName.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`transaction name ${existBank.name}`))
 
 
 
@@ -189,10 +173,7 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                         balance: existBank.balance - paidAmount
                     }))
 
-                    if (updateBankError || !updatedBank) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.failedUpdateMessage('deduct bank balance'), updateBankError)
-                    }
+                    if (updateBankError || !updatedBank) return failureResponse(messageUtils.failedUpdateMessage('deduct bank balance'), updateBankError)
 
 
                     //! Transaction create

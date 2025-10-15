@@ -2,19 +2,43 @@
 
 import { CardWrapper } from "../card-wrapper"
 import { Modal } from "../modal"
-import { useAppDispatch, useModal } from "@/hooks/redux"
+import { useModal, useModalClose } from "@/hooks/redux"
 import { MODAL_TYPE } from "@/constant"
-import { onClose } from "@/lib/redux/slice/modal-slice"
 import { LoanPaymentFormModal } from "@/features/components/loan/form/loan-payment-form-modal"
 
-export const LoanPaymentModal = () => {
+export const LoanPaymentModal = ({
+    loans, banks
+}: {
+    loans: {
+        id: string;
+        loanType: "Debit" | "Credit" | "Both";
+        title: string;
+        due: number;
+        financier: {
+            id: string;
+            name: string;
+            financierType: "Both" | "Provider" | "Recipient";
+        };
+    }[];
+    banks: {
+        id: string;
+        name: string;
+        balance: number;
+        assignedTransactionsName: {
+            id: string;
+            transactionName: {
+                id: string;
+                name: string;
+                isActive: boolean;
+            };
+        }[];
+    }[]
+}) => {
 
     const { isOpen, type } = useModal()
-    const dispatch = useAppDispatch()
+    const onCloseHandler = useModalClose()
     const open = isOpen && type === MODAL_TYPE.LOAN_PAYMENT
 
-
-    const onCloseHandler = () => dispatch(onClose())
     return (
         <Modal
             title="Loan Payment Form Modal"
@@ -26,7 +50,10 @@ export const LoanPaymentModal = () => {
                 title="Loan Form"
                 description="Keep your loan clear"
             >
-                <LoanPaymentFormModal/>
+                <LoanPaymentFormModal
+                    loans={loans}
+                    banks={banks}
+                />
             </CardWrapper>
         </Modal>
     )

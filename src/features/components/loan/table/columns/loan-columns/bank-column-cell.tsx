@@ -1,10 +1,9 @@
-
+'use client'
 import React from 'react'
 import { LoanTableCellContext } from '.'
 import { findBankById } from '@/constant/dummy-db/bank-account'
 
-export const ReceiveBankColumnCell = ({row:{original:{receiveBankId}}}:LoanTableCellContext) => {
-    const receiveBank = findBankById(receiveBankId??"")
+export const ReceiveBankColumnCell = ({row:{original:{receiveBank}}}:LoanTableCellContext) => {
   return (
     <div>{
         receiveBank?.name??null
@@ -13,8 +12,7 @@ export const ReceiveBankColumnCell = ({row:{original:{receiveBankId}}}:LoanTable
 }
 
 
-export const SourceBankColumnCell = ({row:{original:{sourceBankId}}}:LoanTableCellContext) => {
-    const sourceBank = findBankById(sourceBankId??"")
+export const SourceBankColumnCell = ({row:{original:{sourceBank}}}:LoanTableCellContext) => {
   return (
     <div>{
         sourceBank?.name??null
