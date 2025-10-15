@@ -7,7 +7,7 @@ import { LoanPaymentsReceiveBankColumnCell, LoanPaymentsSourceBankColumnCell } f
 import { LoanPaymentActionsColumnCell } from "./actions-column-cell";
 import { LoanPaymentType } from "./loan-payment-type-column-cell";
 
-export type LoanPayment ={
+export type LoanPayment = {
     id: string;
     createdAt: Date;
     updatedAt: Date;
@@ -48,7 +48,7 @@ const loanTitleWithFinancierName: LoanPaymentsColumn = {
 
 
 const loanAmount: LoanPaymentsColumn = {
-    accessorKey: 'loanId-amount',
+    accessorKey: 'loan-amount',
     header: 'Loan Amount',
     cell: LoanAmountCell
 }

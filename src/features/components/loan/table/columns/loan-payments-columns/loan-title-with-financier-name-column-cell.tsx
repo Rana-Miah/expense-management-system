@@ -1,15 +1,9 @@
 'use client'
-import { getLoanById } from "@/constant/dummy-db/loan"
 import { LoanPaymentsTableCellContext } from "."
-import { getFinancierById } from "@/constant/dummy-db/loan-financier"
 import { CardDescription, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-export const LoanTitleWithFinancierName = ({ row: { original: { loanId, financierId } } }: LoanPaymentsTableCellContext) => {
-    //TODO: remove loanId & financierId and extruct loan & financier
-
-    const loan = getLoanById(loanId)
-    const financier = getFinancierById(financierId)
+export const LoanTitleWithFinancierName = ({ row: { original: { loan, financier } } }: LoanPaymentsTableCellContext) => {
 
     const isDebit = loan?.loanType === 'Debit'
     const isCredit = loan?.loanType === 'Credit'

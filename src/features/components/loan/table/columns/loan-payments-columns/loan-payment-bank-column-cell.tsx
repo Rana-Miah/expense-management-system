@@ -1,20 +1,17 @@
 'use client'
 
-import { findBankById } from "@/constant/dummy-db/bank-account"
 import { LoanPaymentsTableCellContext } from "."
 
-export const LoanPaymentsSourceBankColumnCell = ({ row: { original: { sourceBankId } } }: LoanPaymentsTableCellContext) => {
-    const sourceBank = findBankById(sourceBankId ?? "")
+export const LoanPaymentsSourceBankColumnCell = ({ row: { original: { sourceBank } } }: LoanPaymentsTableCellContext) => {
 
     return (
         <div>{sourceBank?.name}</div>
     )
 }
 
-export const LoanPaymentsReceiveBankColumnCell = ({ row: { original: { receiveBankId } } }: LoanPaymentsTableCellContext) => {
-    const sourceBank = findBankById(receiveBankId ?? "")
+export const LoanPaymentsReceiveBankColumnCell = ({ row: { original: { receiveBank } } }: LoanPaymentsTableCellContext) => {
 
     return (
-        <div>{sourceBank?.name}</div>
+        <div>{receiveBank?.name}</div>
     )
 }
