@@ -1,4 +1,3 @@
-import { LoanPayment } from "@/constant/dummy-db/loan-payment";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { LoanTitleWithFinancierName } from "./loan-title-with-financier-name-column-cell";
 import { LoanAmountCell } from "./loan-amount-column-cell";
@@ -7,6 +6,36 @@ import { PaymentDateColumnCell } from "./payment-date-column-cell";
 import { LoanPaymentsReceiveBankColumnCell, LoanPaymentsSourceBankColumnCell } from "./loan-payment-bank-column-cell";
 import { LoanPaymentActionsColumnCell } from "./actions-column-cell";
 import { LoanPaymentType } from "./loan-payment-type-column-cell";
+
+export type LoanPayment ={
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    amount: number;
+    paymentDate: Date;
+    paymentType: "Receipt" | "Paid";
+    loan: {
+        id: string;
+        amount: number;
+        loanType: "Debit" | "Credit";
+        title: string;
+        due: number;
+        loanStatus: "Repaid" | "Settled" | "Closed";
+    };
+    financier: {
+        id: string;
+        name: string;
+    };
+    receiveBank: {
+        id: string;
+        name: string;
+    } | null;
+    sourceBank: {
+        id: string;
+        name: string;
+    } | null;
+}
+
 
 type LoanPaymentsColumn = ColumnDef<LoanPayment>
 export type LoanPaymentsTableCellContext = CellContext<LoanPayment, unknown>

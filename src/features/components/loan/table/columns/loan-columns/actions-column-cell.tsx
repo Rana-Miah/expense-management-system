@@ -43,6 +43,7 @@ export const LoanActionsColumnCell = ({ row: { original: { id, due, financier, l
             label: isDebit ? "Pay Loan" : "Receive Payment",
             href:`/loans/${id}/payment`,
             Icon: isDebit ? BanknoteArrowDown :BanknoteArrowUp,
+            conditionalRender:due>0
           }
         ]}
       />

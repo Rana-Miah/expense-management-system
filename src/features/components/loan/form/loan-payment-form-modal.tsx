@@ -62,13 +62,14 @@ export const LoanPaymentFormModal = (
     defaultValues: {
       financierId: selectedLoan?.financier.id,
       loanId: "",
+      trxNameId: "",
       receiveBankId: "",
       sourceBankId: "",
       amount: 0,
       paymentDate: new Date(),
     }
   })
-  const { control, handleSubmit, reset } = form
+  const { control, handleSubmit, reset, resetField } = form
 
   const onSubmitHandler = handleSubmit((value) => {
     console.log({ value })
@@ -85,6 +86,8 @@ export const LoanPaymentFormModal = (
     label: name,
     value: id
   }))
+
+  console.log({ selectedLoan })
 
   return (
     <Form
@@ -124,6 +127,8 @@ export const LoanPaymentFormModal = (
               onValueChange={(v) => {
                 field.onChange(v)
                 setSelectedLoanId(v)
+                resetField('financierId')
+
               }}
               Icon={<Receipt size={16} />
               }
@@ -133,28 +138,35 @@ export const LoanPaymentFormModal = (
 
 
         {/* Financier */}
-        < FormField
-          control={control}
-          name="financierId"
-          render={({ field }) => (
-            <SelectInput
-              {...field}
-              label='Financier'
-              defaultValue={field.value}
-              placeholder={selectedLoan?.financier?.name ?? "Depended input not selected!"}
-              // disabled
-              Icon={<User size={16} />}
-              items={[{
-                label: selectedLoan?.financier?.name ?? "not-found",
-                value: selectedLoan?.financier?.id ?? "not-found",
-                badgeLabel: selectedLoan?.financier?.financierType || "",
-                badgeProp: {
-                  className: 'rounded-full'
-                }
-              }]}
+        {
+          selectedLoan && (
+            < FormField
+              control={control}
+              name="financierId"
+              render={({ field }) => (
+                <SelectInput
+                  {...field}
+                  label='Financier'
+                  value={field.value}
+                  onValueChange={(financier => {
+                    field.onChange(financier)
+                    resetField('paymentType')
+                  })}
+                  placeholder={"Depended input not selected!"}
+                  Icon={<User size={16} />}
+                  items={[{
+                    label: selectedLoan.financier.name,
+                    value: selectedLoan.financier.id,
+                    badgeLabel: selectedLoan.financier.financierType,
+                    badgeProp: {
+                      className: 'rounded-full'
+                    }
+                  }]}
+                />
+              )}
             />
-          )}
-        />
+          )
+        }
 
         {/* Payment Type */}
         <FormField
@@ -167,6 +179,9 @@ export const LoanPaymentFormModal = (
                 <RadioGroup defaultValue={field.value} onValueChange={(value) => {
                   setSelectedPaymentType(value as typeof paymentType[number])
                   field.onChange(value)
+                  resetField('sourceBankId')
+                  resetField('receiveBankId')
+                  resetField('trxNameId')
                 }} className="flex items-center gap-3">
                   {
                     paymentType.map(type => {
@@ -218,9 +233,10 @@ export const LoanPaymentFormModal = (
                       onValueChange={(value) => {
                         field.onChange(value)
                         setSelectedBankId(value)
+                        resetField('trxNameId')
                       }}
                       defaultValue={field.value}
-                      disabled={amount > 0}
+                      disabled={amount > 0 || !selectedPaymentType}
                       items={modifiedSelectInputValue}
                       Icon={<Landmark size={16} />}
                     />
@@ -252,6 +268,34 @@ export const LoanPaymentFormModal = (
             </>
           )
         }
+
+        {/* amount */}
+
+        < FormField
+          control={control}
+          name="trxNameId"
+          render={({ field }) => (
+            <SelectInput
+              {...field}
+
+              label='Transaction Name'
+              placeholder='Select a transaction name'
+              defaultValue={field.value}
+              onValueChange={(value) => {
+                field.onChange(value)
+                resetField('trxNameId')
+              }}
+              disabled={amount > 0 || !selectedPaymentType}
+              items={selectedBank ? selectedBank.assignedTransactionsName.map(({ id, transactionName }) => {
+                return {
+                  label: transactionName.name,
+                  value: transactionName.id
+                }
+              }) : []}
+              Icon={<Landmark size={16} />}
+            />
+          )}
+        />
 
         {/* amount */}
         {
