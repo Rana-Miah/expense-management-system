@@ -19,7 +19,7 @@ export const loanFinancierTable = pgTable('loan_financier', {
     isBlock: booleans('is_block', false),
     reasonOfBlock: text('reason_of_block'),
     blockFor: text('block_for', { enum: financierTypeWithBoth }),
-    isBothFinancierBan: booleans('is_both_financier_block', false),
+    isBothFinancierBlock: booleans('is_both_financier_block', false),
     createdAt,
     updatedAt
 })

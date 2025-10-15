@@ -1,6 +1,7 @@
 'use client'
 import { amountFormatter, dateFormatter } from "@/lib/helpers";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
+import { PurchaseItemsColumnCell } from "./purchase-items-column-cell";
 
 type CommonBetweenShopkeeperAndSourceBank = {
     id: string,
@@ -13,7 +14,7 @@ type PurchaseItemUnit = {
     unit: string;
 };
 
-type PurchaseItem = {
+export type PurchaseItem = {
     id: string;
     name: string;
     createdAt: Date;
@@ -77,7 +78,7 @@ const purchaseDate: ShopkeeperPurchaseColumnDef = {
 const purchaseItems: ShopkeeperPurchaseColumnDef = {
     accessorKey:'purchaseItems',
     header:"Purchase Items",
-    cell:({row})=>row.original.purchaseItems.length
+    cell:PurchaseItemsColumnCell
 }
 
 export const shopkeeperPurchaseColumns: ShopkeeperPurchaseColumnDef[] = [

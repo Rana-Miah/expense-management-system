@@ -1,4 +1,4 @@
-
+'use client'
 import React from 'react'
 import { LoanTableCellContext } from '.'
 import { DescriptionFormatter } from '@/components/description-formatter'

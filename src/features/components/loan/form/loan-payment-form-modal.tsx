@@ -1,5 +1,4 @@
 'use client'
-import { dummyLoans, getLoanById, Loan } from '@/constant/dummy-db/loan'
 import { loanPaymentCreateFormSchema, LoanPaymentCreateFormValue } from '@/features/schemas/loan/loan-payment'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
@@ -10,40 +9,67 @@ import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from '
 import { Label } from '@/components/ui/label'
 
 import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { format } from 'date-fns'
 import { CalendarIcon, DollarSign, Landmark, Receipt, User } from 'lucide-react'
-import { Calendar } from '@/components/ui/calendar'
 import { paymentType } from '@/drizzle/schema-helpers'
-import { getFinancierById } from '@/constant/dummy-db/loan-financier'
 import { cn } from '@/lib/utils'
-import { dummyBanks } from '@/constant/dummy-db/bank-account'
 import { InputField, SelectInput, SelectInputItem } from '@/components/input'
+import { DateTimePicker } from '@/components/ui/extension/date-picker'
+import { disableCalendarDay } from '@/lib/disable-calendar-day'
 
-export const LoanPaymentFormModal = () => {
+export const LoanPaymentFormModal = (
+  {
+    loans, banks
+  }: {
+    loans: {
+      id: string;
+      loanType: "Debit" | "Credit" | "Both";
+      title: string;
+      due: number;
+      financier: {
+        id: string;
+        name: string;
+        financierType: "Both" | "Provider" | "Recipient";
+      };
+    }[];
+    banks: {
+      id: string;
+      name: string;
+      balance: number;
+      assignedTransactionsName: {
+        id: string;
+        transactionName: {
+          id: string;
+          name: string;
+          isActive: boolean;
+        };
+      }[];
+    }[]
+  }
+) => {
 
-  const [selectedBank, setSelectedBank] = useState<string>()
+  const [selectedBankId, setSelectedBankId] = useState<string>("")
   const [selectedPaymentType, setSelectedPaymentType] = useState<typeof paymentType[number]>()
   const [amount, setAmount] = useState<number>(0)
 
-  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null)
+  const [selectedLoanId, setSelectedLoanId] = useState<string>("")
 
   //TODO: financier should included with loan
-  const loan = getLoanById(selectedLoanId ?? "")
-  const financierUnderLoan = getFinancierById(loan?.financierId ?? "")
+  const selectedLoan = loans.find(loan => loan.id === selectedLoanId)
+  const selectedBank = banks.find(bank => bank.id === selectedBankId)
 
   const form = useForm<LoanPaymentCreateFormValue>({
     resolver: zodResolver(loanPaymentCreateFormSchema),
     defaultValues: {
-      financierId: loan?.financierId,
+      financierId: selectedLoan?.financier.id,
       loanId: "",
+      trxNameId: "",
       receiveBankId: "",
       sourceBankId: "",
       amount: 0,
       paymentDate: new Date(),
     }
   })
-  const { control, handleSubmit, reset } = form
+  const { control, handleSubmit, reset, resetField } = form
 
   const onSubmitHandler = handleSubmit((value) => {
     console.log({ value })
@@ -53,13 +79,15 @@ export const LoanPaymentFormModal = () => {
 
 
 
-  const isDebit = loan?.loanType == 'Debit'
-  const isCredit = loan?.loanType == 'Credit'
+  const isDebit = selectedLoan?.loanType == 'Debit'
+  const isCredit = selectedLoan?.loanType == 'Credit'
 
-  const modifiedSelectInputValue: SelectInputItem[] = dummyBanks.map(({ name, id }) => ({
+  const modifiedSelectInputValue: SelectInputItem[] = banks.map(({ name, id }) => ({
     label: name,
     value: id
   }))
+
+  console.log({ selectedLoan })
 
   return (
     <Form
@@ -79,7 +107,7 @@ export const LoanPaymentFormModal = () => {
               {...field}
               label='All Loans'
               placeholder='Select a loan to pay'
-              items={dummyLoans.map(({ id, title, loanType }) => {
+              items={loans.map(({ id, title, loanType }) => {
                 const isDebit = loanType === 'Debit'
                 const isCredit = loanType === 'Credit'
                 return {
@@ -99,6 +127,8 @@ export const LoanPaymentFormModal = () => {
               onValueChange={(v) => {
                 field.onChange(v)
                 setSelectedLoanId(v)
+                resetField('financierId')
+
               }}
               Icon={<Receipt size={16} />
               }
@@ -108,28 +138,35 @@ export const LoanPaymentFormModal = () => {
 
 
         {/* Financier */}
-        < FormField
-          control={control}
-          name="financierId"
-          render={({ field }) => (
-            <SelectInput
-              {...field}
-              label='Financier'
-              defaultValue={field.value}
-              placeholder={financierUnderLoan?.name ?? "Depended input not selected!"}
-              // disabled
-              Icon={<User size={16} />}
-              items={[{
-                label: financierUnderLoan?.name ?? "not-found",
-                value: loan?.financierId ?? "not-found",
-                badgeLabel: financierUnderLoan?.financierType||"",
-                badgeProp: {
-                  className: 'rounded-full'
-                }
-              }]}
+        {
+          selectedLoan && (
+            < FormField
+              control={control}
+              name="financierId"
+              render={({ field }) => (
+                <SelectInput
+                  {...field}
+                  label='Financier'
+                  value={field.value}
+                  onValueChange={(financier => {
+                    field.onChange(financier)
+                    resetField('paymentType')
+                  })}
+                  placeholder={"Depended input not selected!"}
+                  Icon={<User size={16} />}
+                  items={[{
+                    label: selectedLoan.financier.name,
+                    value: selectedLoan.financier.id,
+                    badgeLabel: selectedLoan.financier.financierType,
+                    badgeProp: {
+                      className: 'rounded-full'
+                    }
+                  }]}
+                />
+              )}
             />
-          )}
-        />
+          )
+        }
 
         {/* Payment Type */}
         <FormField
@@ -142,6 +179,9 @@ export const LoanPaymentFormModal = () => {
                 <RadioGroup defaultValue={field.value} onValueChange={(value) => {
                   setSelectedPaymentType(value as typeof paymentType[number])
                   field.onChange(value)
+                  resetField('sourceBankId')
+                  resetField('receiveBankId')
+                  resetField('trxNameId')
                 }} className="flex items-center gap-3">
                   {
                     paymentType.map(type => {
@@ -192,10 +232,11 @@ export const LoanPaymentFormModal = () => {
                       placeholder='Select a source bank'
                       onValueChange={(value) => {
                         field.onChange(value)
-                        setSelectedBank(value)
+                        setSelectedBankId(value)
+                        resetField('trxNameId')
                       }}
                       defaultValue={field.value}
-                      disabled={amount > 0}
+                      disabled={amount > 0 || !selectedPaymentType}
                       items={modifiedSelectInputValue}
                       Icon={<Landmark size={16} />}
                     />
@@ -214,7 +255,7 @@ export const LoanPaymentFormModal = () => {
                       placeholder='Select a receive bank'
                       onValueChange={(value) => {
                         field.onChange(value)
-                        setSelectedBank(value)
+                        setSelectedBankId(value)
                       }}
                       defaultValue={field.value}
                       disabled={amount > 0}
@@ -229,8 +270,36 @@ export const LoanPaymentFormModal = () => {
         }
 
         {/* amount */}
+
+        < FormField
+          control={control}
+          name="trxNameId"
+          render={({ field }) => (
+            <SelectInput
+              {...field}
+
+              label='Transaction Name'
+              placeholder='Select a transaction name'
+              defaultValue={field.value}
+              onValueChange={(value) => {
+                field.onChange(value)
+                resetField('trxNameId')
+              }}
+              disabled={amount > 0 || !selectedPaymentType}
+              items={selectedBank ? selectedBank.assignedTransactionsName.map(({ id, transactionName }) => {
+                return {
+                  label: transactionName.name,
+                  value: transactionName.id
+                }
+              }) : []}
+              Icon={<Landmark size={16} />}
+            />
+          )}
+        />
+
+        {/* amount */}
         {
-          selectedBank && (
+          selectedBankId && (
             <>
               <FormField
                 control={control}
@@ -261,38 +330,12 @@ export const LoanPaymentFormModal = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Purchase date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    captionLayout="dropdown"
-                    className="w-full"
-                  />
-                </PopoverContent>
-              </Popover>
+              <DateTimePicker
+                isCalenderInsideModal
+                disableCalendarDay={disableCalendarDay(new Date())}
+                value={field.value}
+                onChange={field.onChange}
+              />
               <FormMessage />
             </FormItem>
           )}

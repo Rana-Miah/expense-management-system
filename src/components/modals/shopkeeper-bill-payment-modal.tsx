@@ -6,9 +6,9 @@ import { useAppDispatch, useModal } from "@/hooks/redux"
 import { MODAL_TYPE } from "@/constant"
 import { onClose } from "@/lib/redux/slice/modal-slice"
 import { ShopkeeperBillPaymentForm } from "@/features/components/shopkeeper/form"
-import { Bank } from "@/constant/dummy-db/bank-account"
+import { BankSelectValue } from "@/drizzle/type"
 
-export const ShopkeeperBillPaymentModal = ({ banks, shopkeeperId }: { banks: Bank[], shopkeeperId: string }) => {
+export const ShopkeeperBillPaymentModal = ({ banks, shopkeeperId }: { banks: BankSelectValue[], shopkeeperId: string }) => {
 
     const { isOpen, type } = useModal()
     const dispatch = useAppDispatch()

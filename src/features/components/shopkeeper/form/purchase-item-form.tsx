@@ -56,7 +56,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
         },
     })
 
-    const { control, handleSubmit, resetField, reset } = form
+    const { control, handleSubmit, resetField, reset, getValues } = form
 
     const fieldArray = useFieldArray({
         control,
@@ -80,7 +80,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                     return
                 }
                 toast.success(res.message, { description })
-                // reset()
+                reset()
             }
         )
     })
@@ -177,45 +177,52 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                     <FormField
                         control={control}
                         name="sourceBankId"
-                        render={({ field }) => (
-                            <SelectInput
-                                defaultValue={field.value}
-                                onValueChange={(value) => {
-                                    field.onChange(value)
-                                    setSelectedBankId(value)
-                                    resetField('trxNameId')
-                                }}
-                                disabled={paidAmountValue <= 0}
-                                label={`Source Bank ${paidAmountValue <= 0 ? "(optional)" : ""}`}
-                                placeholder="Select a bank to pay"
-                                items={
-                                    banks.map(({ id, name, isActive, balance }) => {
-                                        const variant = (shopkeeper.totalDue > balance) ? 'destructive' : 'success'
-                                        return {
-                                            label: name,
-                                            value: id,
-                                            disabled: !isActive,
-                                            badgeLabel: balance.toString(),
-                                            badgeProp: {
-                                                variant
+                        render={({ field }) => {
+                            const currentPaidValue = getValues('paidAmount')
+                            return (
+                                <SelectInput
+                                    defaultValue={field.value}
+                                    onValueChange={(value) => {
+                                        field.onChange(value)
+                                        setSelectedBankId(value)
+                                        resetField('trxNameId')
+                                        console.log(currentPaidValue)
+                                    }}
+                                    disabled={paidAmountValue <= 0 || currentPaidValue <= 0}
+                                    label={`Source Bank ${paidAmountValue <= 0 ? "(optional)" : ""}`}
+                                    placeholder="Select a bank to pay"
+                                    items={
+                                        banks.map(({ id, name, isActive, balance }) => {
+                                            const variant = (shopkeeper.totalDue > balance) ? 'destructive' : 'success'
+                                            return {
+                                                label: name,
+                                                value: id,
+                                                disabled: !isActive,
+                                                badgeLabel: balance.toString(),
+                                                badgeProp: {
+                                                    variant
+                                                }
                                             }
-                                        }
-                                    })
-                                }
-                            />
-                        )}
+                                        })
+                                    }
+                                />
+                            )
+                        }}
                     />
 
                     <FormField
                         control={control}
                         name="trxNameId"
-                        render={({ field }) => (
+                        render={({ field }) => {
+                            const currentPaidValue = getValues('paidAmount')
+                            const isDisableTrxNameSelectInput = !selectedBank || currentPaidValue <= 0
+                            return(
                             <SelectInput
                                 label={`Transaction Name ${!selectedBank ? "(optional)" : ""}`}
                                 placeholder="Select a transaction name"
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
-                                disabled={!selectedBank}
+                                disabled={isDisableTrxNameSelectInput}
                                 items={
                                     selectedBank ? selectedBank.assignedTransactionsName.map(assignedTrx => {
                                         const { transactionName: { name, isActive, id } } = assignedTrx
@@ -227,7 +234,8 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
                                     }) : []
                                 }
                             />
-                        )}
+                        )
+                        }}
                     />
 
 

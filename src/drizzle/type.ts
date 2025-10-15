@@ -66,8 +66,8 @@ export type Financier = {
     id: string;
     name: string;
     financierType: "Provider" | "Recipient" | "Both";
-    isBan: boolean;
-    isBothFinancierBan: boolean;
+    isBlock: boolean;
+    isBothFinancierBlock: boolean;
 }
 
 type Demo<Key extends keyof LoanFinancierSelectValue = keyof LoanFinancierSelectValue> = Pick<LoanFinancierSelectValue, Key>

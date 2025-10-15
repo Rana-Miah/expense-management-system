@@ -12,8 +12,8 @@ const LoansPage = async () => {
   const financiers = await getLoanFinanciersByClerkUserId(userId, {
     columns: {
       id: true,
-      isBan: true,
-      isBothFinancierBan: true,
+      isBlock: true,
+      isBothFinancierBlock: true,
       financierType: true,
       name: true,
       phone: true,

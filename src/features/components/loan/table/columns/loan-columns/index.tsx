@@ -3,7 +3,7 @@ import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { FinancierColumnCell } from "./financier-column-cell";
 import { ReceiveBankColumnCell, SourceBankColumnCell } from "./bank-column-cell";
 import { LoanTypeColumnCell } from "./loan-type-column-cell";
-import { AmountColumnCell } from "./amount-column-cell";
+import { LoanDueAmountColumnCell, LoanAmountColumnCell } from "./amount-column-cell";
 import { LoanDateColumnCell } from "./loan-date-column-cell";
 import { LoanUpdateDateColumnCell } from "./update-date-column-cell";
 import { LoanTitleColumnCell } from "./loan-title-column-cell";
@@ -11,11 +11,26 @@ import { LoanDetailsColumnCell } from "./loan-details-column-cell";
 import { LoanActionsColumnCell } from "./actions-column-cell";
 import { LoanSelectValue } from "@/drizzle/type";
 
-export type LoanTableCellContext = CellContext<LoanSelectValue, unknown>
-type financierColumn = ColumnDef<LoanSelectValue>
+type Loan = (LoanSelectValue&{
+    financier: {
+        name: string;
+        id: string;
+    };
+    receiveBank: {
+        name: string;
+        id: string;
+    } | null;
+    sourceBank: {
+        name: string;
+        id: string;
+    } | null;
+})
 
-const financierId: financierColumn = {
-    accessorKey: "financierId",
+export type LoanTableCellContext = CellContext<Loan, unknown>
+type financierColumn = ColumnDef<Loan>
+
+const financier: financierColumn = {
+    accessorKey: "financier",
     header: "Financier",
     cell: FinancierColumnCell
 }
@@ -41,8 +56,13 @@ const title: financierColumn = {
 }
 const amount: financierColumn = {
     accessorKey: "amount",
-    header: "Amount",
-    cell: AmountColumnCell
+    header: "Loan Amount",
+    cell: LoanAmountColumnCell
+}
+const dueAmount: financierColumn = {
+    accessorKey: "due",
+    header: "Due Amount",
+    cell: LoanDueAmountColumnCell
 }
 const loanDate: financierColumn = {
     accessorKey: "loanDate",
@@ -73,10 +93,11 @@ const moreAction: financierColumn = {
 export const loanColumns: financierColumn[] = [
     title,
     amount,
+    dueAmount,
     loanDate,
     loanType,
     loanStatus,
-    financierId,
+    financier,
     receiveBankId,
     sourceBankId,
     detailsOfLoan,

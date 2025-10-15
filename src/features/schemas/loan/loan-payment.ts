@@ -2,12 +2,12 @@ import { paymentType } from "@/drizzle/schema-helpers";
 import z from "zod";
 
 
-//TODO: change all reference id to uuid
 export const loanPaymentCreateFormSchema = z.object({
-    financierId: z.string().nonempty(),
-    loanId: z.string().nonempty(),
-    receiveBankId: z.string().optional(),
-    sourceBankId: z.string().optional(),
+    financierId: z.uuid().nonempty(),
+    loanId: z.uuid().nonempty(),
+    receiveBankId: z.uuid().optional(),
+    sourceBankId: z.uuid().optional(),
+    trxNameId: z.uuid(),
     amount: z.coerce.number<number>().nonnegative(),
     paymentDate: z.coerce.date<Date>().nonoptional().refine(date => {
         const currentDate = new Date()

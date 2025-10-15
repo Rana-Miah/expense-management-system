@@ -128,12 +128,12 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                 }}
                 defaultValue={field.value}
 
-                items={financiers.map(({ id, name, isBan, isBothFinancierBan }) => ({
+                items={financiers.map(({ id, name, isBlock, isBothFinancierBlock }) => ({
                   value: id,
                   label: name,
-                  disabled: isBothFinancierBan,
-                  badgeLabel: isBothFinancierBan ? "Banned" : isBan ? "Provider" : "",
-                  badgeProp: { variant: isBothFinancierBan ? "destructive" : isBan ? "warning" : "default" }
+                  disabled: isBothFinancierBlock,
+                  badgeLabel: isBothFinancierBlock ? "Banned" : isBlock ? "Provider" : "",
+                  badgeProp: { variant: isBothFinancierBlock ? "destructive" : isBlock ? "warning" : "default" }
                 }))}
               />
             )}

@@ -7,7 +7,22 @@ import { LoanFinancierSelectValue, LoanSelectValue } from "@/drizzle/type"
 import { MODAL_TYPE } from '@/constant'
 import { ModalTriggerButton } from "@/components/modal-trigger-button"
 
-export const LoanTable = ({ loans,  }: { loans: LoanSelectValue[];}) => {
+export const LoanTable = ({ loans }: {
+    loans: (LoanSelectValue & {
+        financier: {
+            name: string;
+            id: string;
+        };
+        receiveBank: {
+            name: string;
+            id: string;
+        } | null;
+        sourceBank: {
+            name: string;
+            id: string;
+        } | null
+    })[];
+}) => {
 
     return (
         <CardWrapper

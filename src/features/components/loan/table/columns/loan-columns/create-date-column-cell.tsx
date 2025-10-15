@@ -1,4 +1,4 @@
-
+'use client'
 import React from 'react'
 import { LoanTableCellContext } from '.'
 import { TableDateCellWithWeekName } from '@/components/table-date-cell'

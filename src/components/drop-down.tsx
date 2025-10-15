@@ -22,6 +22,7 @@ export type DropdownItem = {
 type BaseDropDownProps = {
     items: DropdownItem[];
     menuLabel?: string | ReactNode
+    menuContent?: ReactNode
 } & React.ComponentProps<typeof DropdownMenuPrimitive.Content>
 
 
@@ -43,6 +44,7 @@ export function ReusableDropdown({
     trigger,
     onTrigger,
     menuLabel,
+    menuContent,
     ...contextProps
 }: ReusableDropdownProps) {
 
@@ -63,6 +65,9 @@ export function ReusableDropdown({
             </DropdownMenuTrigger >
             <DropdownMenuContent {...contextProps}>
                 <DropdownMenuLabel>{menuLabel ?? "Actions"}</DropdownMenuLabel>
+                {
+                    menuContent && menuContent
+                }
                 {items.map(({ label, Icon, separator, conditionalRender = true, href, ...itemProp }, idx) => (
                     <div key={idx}>
                         {separator && <DropdownMenuSeparator />}
