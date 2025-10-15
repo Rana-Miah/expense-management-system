@@ -43,6 +43,13 @@
       "when": 1760125504945,
       "tag": "0005_lowly_master_mold",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1760566871945,
+      "tag": "0006_nervous_juggernaut",
+      "breakpoints": true
     }
   ]
 }

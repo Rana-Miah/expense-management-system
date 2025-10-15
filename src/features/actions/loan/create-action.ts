@@ -2,10 +2,10 @@
 
 import { db } from "@/drizzle/db"
 import { bankAccountTable, loanTable, trxTable, loanFinancierTable } from "@/drizzle/schema"
-import { LoanFinancierSelectValue, LoanInsertValue, TrxInsertValue } from "@/drizzle/type"
+import { LoanInsertValue, TrxInsertValue } from "@/drizzle/type"
 import { loanCreateFormSchema } from "@/features/schemas/loan/loan-schema"
 import { currentUserId } from "@/lib/current-user-id"
-import { dateFormatter, failureResponse, messageUtils, notActiveMessage, successResponse, tryCatch } from "@/lib/helpers"
+import { dateFormatter, failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
 import { getBankByIdAndClerkUserId } from "@/services/bank"
 import { getLoanFinancierByIdAndClerkUserId } from "@/services/loan-financier"
 import { getTrxNameByIdAndClerkUserId } from "@/services/trx-name"
@@ -30,7 +30,7 @@ export const createLoanAction = async (value: unknown) => {
     if (!existFinancier) return failureResponse(messageUtils.notFoundMessage('financier'))
 
     //checking financier isBoth blocked or not
-    if (existFinancier.isBothFinancierBan) return failureResponse('Financier is blocked! not allow for loan!')
+    if (existFinancier.isBothFinancierBlock) return failureResponse('Financier is blocked! not allow for loan!')
 
     //checking financier exist or not
     const [existTrxName, existTrxNameError] = await tryCatch(getTrxNameByIdAndClerkUserId(trxNameId, userId))
@@ -44,8 +44,6 @@ export const createLoanAction = async (value: unknown) => {
     const isFinancierProvider = existFinancier.financierType === 'Provider' || isBothFinancier
     const isFinancierRecipient = existFinancier.financierType === 'Recipient' || isBothFinancier
 
-    const isDebitLoan = loanType === 'Debit'
-    const isCreditLoan = loanType === 'Credit'
 
     const [dbTxResult, dbTxError] = await tryCatch(
         db.transaction(
@@ -228,21 +226,21 @@ export const createLoanAction = async (value: unknown) => {
 
 
                 const [updatedLoanFinancier, updateLoanFinancierError] = await tryCatch(updateLoanFinancier(existFinancier.id, userId, {
-                        receiptDue: existFinancier.receiptDue + amount,
-                        totalReceipt: existFinancier.totalReceipt + amount,
-                    }))
+                    receiptDue: existFinancier.receiptDue + amount,
+                    totalReceipt: existFinancier.totalReceipt + amount,
+                }))
 
-                    if (updateLoanFinancierError) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
-                    }
+                if (updateLoanFinancierError) {
+                    tx.rollback()
+                    return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
+                }
 
-                    if (existFinancier.receiptDue === updatedLoanFinancier.receiptDue
-                        || existFinancier.totalReceipt === updatedLoanFinancier.totalReceipt
-                    ) {
-                        tx.rollback()
-                        return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
-                    }
+                if (existFinancier.receiptDue === updatedLoanFinancier.receiptDue
+                    || existFinancier.totalReceipt === updatedLoanFinancier.totalReceipt
+                ) {
+                    tx.rollback()
+                    return failureResponse(messageUtils.failedUpdateMessage('loan financier'))
+                }
 
                 const [newTrx, newTrxError] = await tryCatch(createTransaction({
                     amount,

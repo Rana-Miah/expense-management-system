@@ -1,42 +1,68 @@
 import { CardWrapper } from "@/components"
+import { db } from "@/drizzle/db"
 import { LoanPaymentForm } from "@/features/components/loan/form"
 import { currentUserId } from "@/lib/current-user-id"
-import { getBankByClerkUserId, getBanksByClerkUserId } from "@/services/bank"
-import { getLoanByIdAndClerkUserId, getLoansByClerkUserId } from "@/services/loan"
 import { redirect } from "next/navigation"
 
 const LoanPaymentPage = async ({ params }: { params: Promise<{ loanId: string }> }) => {
     const userId = await currentUserId()
     const param = await params
-    const currentLoan = await getLoanByIdAndClerkUserId(param.loanId, userId, {
+    const currentLoan = await db.query.loanTable.findFirst({
+        where: (loan, { and, eq }) => (and(
+            eq(loan.clerkUserId, userId),
+            eq(loan.id, param.loanId)
+        )),
         with: {
             financier: {
                 columns: {
                     id: true,
                     isDeleted: true,
                     name: true,
-                    financierType:true
+                    financierType: true
                 }
+            }
+        },
+        columns: {
+            id: true,
+            loanType: true,
+            due: true,
+            title: true,
+        }
+    })
+
+    const banks = await db.query.bankAccountTable.findMany({
+        where: (bank, { and, eq }) => {
+            const base = and(
+                eq(bank.clerkUserId, userId),
+                eq(bank.isDeleted, false),
+            )
+            return base
+        },
+        columns: {
+            id: true,
+            name: true,
+            isActive: true,
+            balance: true
+        },
+        with: {
+            assignedTransactionsName: {
+                with: {
+                    transactionName: {
+                        columns: {
+                            id: true,
+                            name: true,
+                            isActive: true,
+                        }
+                    }
+                },
+                columns: { id: true }
             }
         }
     })
 
-    const banks = await getBanksByClerkUserId(userId, {
-        where(fields, operators) {
-            return operators.eq(fields.isDeleted,false)
-        },
-        columns:{
-            id:true,
-            name:true,
-            isActive:true,
-            balance:true
-        }       
-    })
-
-    if (!currentLoan) redirect('/loans')
+    if (!currentLoan || currentLoan.due <= 0) redirect('/loans')
 
 
-    console.dir({ currentLoan }, { depth: null })
 
     const { loanType } = currentLoan
     const isDebit = loanType === 'Debit'

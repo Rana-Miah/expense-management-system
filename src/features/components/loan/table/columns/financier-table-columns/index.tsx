@@ -34,14 +34,14 @@ const FinancierProvidedDueAmountColumn: FinancierColumnDef = {
 
 // Financier's type column
 const FinancierTotalReceiptAmountColumn: FinancierColumnDef = {
-    accessorKey: 'receiptDue',
-    header: "Receipt Due",
+    accessorKey: 'totalReceipt',
+    header: "Receipt",
     cell: FinancierTotalReceiptAmountColumnCell
 }
 // Financier's type column
 const FinancierTotalProvidedAmountColumn: FinancierColumnDef = {
-    accessorKey: 'providedDue',
-    header: "Provided Due",
+    accessorKey: 'totalProvided',
+    header: "Provided",
     cell: FinancierTotalProvidedAmountColumnCell
 }
 

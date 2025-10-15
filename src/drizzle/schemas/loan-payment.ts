@@ -15,6 +15,7 @@ export const loanPaymentTable = pgTable('loan_payment', {
     paymentDate: times('payment_date'),
     amount: numericAmount('amount', 7, 2),
     paymentType: text('payment_type', { enum: paymentType }).notNull(),
+    paymentNote: text('payment_note').notNull(),
     createdAt,
     updatedAt
 })

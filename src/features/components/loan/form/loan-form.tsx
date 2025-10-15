@@ -39,7 +39,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
 
   const condition = !!selectedBank && selectedBank.assignedTransactionsName.length < 1
   useRedirect(condition, `/accounts/${selectedBank?.id}/assign-trx-name`, () => {
-    if(condition)toast.warning('Please assign transaction name!')
+    if (condition) toast.warning('Please assign transaction name!')
   })
 
   const isBoth = selectedFinancier?.financierType === 'Both'
@@ -66,7 +66,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
     startTransition(
       async () => {
         const res = await createLoanAction(value)
-        console.log({res})
+        console.log({ res })
         if (!res.success) {
           const description = generateToasterDescription()
           toast.error(res.message, { description })
@@ -77,8 +77,8 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
         }
 
         toast.success(res.message)
-        // onCloseModal()
-        // reset()
+        onCloseModal()
+        reset()
 
       }
     )
@@ -96,7 +96,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
     <Form {...form}>
       <form onSubmit={onSubmitHandler} className={cn("space-y-4 max-w-full")}>
 
-        <div className='max-h-[300px] overflow-y-auto space-y-4 max-w-full'>
+        <div className='max-h-[300px] overflow-y-auto space-y-4 max-w-full px-1'>
 
           {/* Loan title */}
           <FormField
@@ -319,14 +319,14 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
 
         {/* button */}
         {
-          pending?(
+          pending ? (
             <TextShimmerWave className='W-full'>Creating Loan...</TextShimmerWave>
-          ):(<Button
-          type="submit"
-          className="w-full"
-        >
-          Create a loan
-        </Button>)
+          ) : (<Button
+            type="submit"
+            className="w-full"
+          >
+            Create a loan
+          </Button>)
         }
       </form>
     </Form >

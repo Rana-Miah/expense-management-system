@@ -19,6 +19,7 @@ export const loanPaymentCreateFormSchema = z.object({
 
     }, 'Date must be today or before today.'),
     paymentType: z.enum(paymentType),
+    paymentNote: z.string(),
 })
 
-export type LoanPaymentCreateFormValue =z.infer<typeof loanPaymentCreateFormSchema>
+export type LoanPaymentCreateFormValue = z.infer<typeof loanPaymentCreateFormSchema>

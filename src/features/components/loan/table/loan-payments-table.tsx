@@ -2,7 +2,7 @@ import { CardWrapper, DataTable } from '@/components'
 import { pluralize } from '@/lib/helpers'
 import { LoanPayment, loanPaymentsColumns } from './columns'
 
-export const LoanPaymentsTable = ({ loanPayments }: { loanPayments: LoanPayment[]}) => {
+export const LoanPaymentsTable = ({ loanPayments }: { loanPayments: LoanPayment[] }) => {
     const length = loanPayments.length
 
     return (
