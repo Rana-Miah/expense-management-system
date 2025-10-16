@@ -9,9 +9,8 @@ export const shopkeeperCreateFormSchema = z.object({
 export const shopkeeperUpdateFormSchema = z.object({
     name: z.string().optional(),
     phone: z.string().optional(),
-    totalDue: z.coerce.number<number>().optional(),
-    isBlock: z.coerce.boolean<boolean>().optional(),
-    reasonOfBlock: z.string().nullable(),
+    isBlock: z.coerce.boolean<boolean>(),
+    reasonOfBlock: z.string().optional(),
 })
 
 export type ShopkeeperCreateFormValue = z.infer<typeof shopkeeperCreateFormSchema>
