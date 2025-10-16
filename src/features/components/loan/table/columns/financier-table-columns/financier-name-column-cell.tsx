@@ -1,4 +1,4 @@
-import React from 'react'
+'use client'
 import { FinancierTableCellContext } from '.'
 import { CardTitle } from '@/components/ui/card'
 import { TableDateCellWithWeekName } from '@/components/table-date-cell'

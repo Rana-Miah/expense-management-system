@@ -1,4 +1,4 @@
-import React from 'react'
+'use client'
 import { FinancierTableCellContext } from '.'
 import { Badge } from '@/components/ui/badge'
 

@@ -9,7 +9,6 @@ export const shopkeeperCreateFormSchema = z.object({
 export const shopkeeperUpdateFormSchema = z.object({
     name: z.string().optional(),
     phone: z.string().optional(),
-    totalDue: z.coerce.number<number>().optional(),
     isBlock: z.coerce.boolean<boolean>().optional(),
     reasonOfBlock: z.string().nullable(),
 })

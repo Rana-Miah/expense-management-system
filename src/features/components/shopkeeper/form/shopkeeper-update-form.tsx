@@ -22,7 +22,6 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
         name,
         phone,
         reasonOfBlock,
-        totalDue,
     } = shopkeeper
     const [pending, startTransition] = useTransition()
 
@@ -34,7 +33,6 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
             name,
             phone,
             reasonOfBlock,
-            totalDue,
         }
     })
     const { control, handleSubmit, getValues } = form
@@ -45,16 +43,16 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
     const onSubmitHandler = handleSubmit((value) => {
         startTransition(
             async () => {
-                const { data, error, success, message } = await shopkeeperUpdateAction(shopkeeper.id, value)
+                const res = await shopkeeperUpdateAction(shopkeeper.id, value)
 
                 const description = generateToasterDescription()
-                if (!success) {
-                    toast.error(message, { description })
+                if (!res.success) {
+                    toast.error(res.message, { description })
                     return
                 }
 
                 router.push(`/shopkeepers`)
-                toast.success(message, {
+                toast.success(res.message, {
                     description,
                 })
             }
@@ -62,6 +60,10 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
     })
 
     return (
-        <></>
+        <Form {...form}>
+            <form>
+                
+            </form>
+        </Form>
     )
 }
