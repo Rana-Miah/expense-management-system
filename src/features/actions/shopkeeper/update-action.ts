@@ -33,7 +33,7 @@ export const shopkeeperUpdateAction = async (shopkeeperId: string, payload: unkn
         if (existShopkeeperWithPhone) return failureResponse(messageUtils.existMessage(`Shopkeeper with phone:${phone}`))
     }
 
-    const [updatedShopkeeper, updateShopkeeperError] = await tryCatch(updateShopkeeper(existShopkeeper.id, validation.data))
+    const [updatedShopkeeper, updateShopkeeperError] = await tryCatch(updateShopkeeper(existShopkeeper.id,userId, validation.data))
 
     if (updateShopkeeperError) return failureResponse(messageUtils.failedUpdateMessage('shopkeeper'), updateShopkeeperError)
 

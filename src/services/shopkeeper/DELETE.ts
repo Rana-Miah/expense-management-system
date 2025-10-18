@@ -2,11 +2,14 @@
 
 import { db } from "@/drizzle/db"
 import { shopkeeperTable } from "@/drizzle/schema"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 
-export const deleteShopkeeper = async (id: string) => {
+export const deleteShopkeeper = async (id: string, clerkUserId: string) => {
     const [deletedShopkeeper] = await db.delete(shopkeeperTable).where(
-        eq(shopkeeperTable.id, id)
+        and(
+            eq(shopkeeperTable.id, id),
+            eq(shopkeeperTable.clerkUserId, clerkUserId),
+        )
     ).returning()
     return deletedShopkeeper
 }

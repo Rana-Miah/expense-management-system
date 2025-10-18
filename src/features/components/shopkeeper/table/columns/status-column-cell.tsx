@@ -4,17 +4,18 @@ import { Badge } from "@/components/ui/badge"
 import { BadgeCheck, BadgeX } from "lucide-react"
 import { ShopkeeperColumnCellContext } from "."
 
-export const ShopkeeperStatusColumnCell = ({ row: { original: { isBan } } }: ShopkeeperColumnCellContext) => {
+export const ShopkeeperStatusColumnCell = ({ row: { original: { isBlock,name } } }: ShopkeeperColumnCellContext) => {
+   
     return (
                 <Badge
                     className="flex items-center gap-1.5 rounded-full"
-                    variant={isBan ? 'destructive' : 'success'}
+                    variant={isBlock ? 'destructive' : 'success'}
                 >
                     {
-                        isBan ? <BadgeX /> : <BadgeCheck />
+                        isBlock ? <BadgeX /> : <BadgeCheck />
                     }
                     <span>{
-                        isBan ? "Ban" : "Not Ban"
+                        isBlock ? "Blocked" : "Unblocked"
                     }</span>
                 </Badge>
             )

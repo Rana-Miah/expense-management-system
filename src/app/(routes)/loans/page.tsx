@@ -80,6 +80,29 @@ const LoansPage = async ({ searchParams }: WithSearchParams) => {
       },
       sourceBank: {
         columns: { id: true, name: true }
+      },
+      loanPayments: {
+        with: {
+          receiveBank:{
+            columns:{
+              id:true,
+              name:true,
+            }
+          },
+          sourceBank:{
+            columns:{
+              id:true,
+              name:true,
+            }
+          }
+        },
+        columns:{
+          id:true,
+          amount:true,
+          paymentType:true,
+          paymentNote:true,
+          paymentDate:true,
+        }
       }
     },
     offset: loanPagination.offset,

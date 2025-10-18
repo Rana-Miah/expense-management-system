@@ -9,8 +9,9 @@ import { useAppDispatch } from "@/hooks/redux"
 import { onOpen } from "@/lib/redux/slice/modal-slice"
 import { MODAL_TYPE } from "@/constant"
 import { ShopkeeperSelectValue } from "@/drizzle/type"
+import { PaginationMeta } from "@/interface"
 
-export const ShopkeeperTable = ({ shopkeepers, meta }: { shopkeepers: ShopkeeperSelectValue[], meta: { page: number; limit: number; total: number } }) => {
+export const ShopkeeperTable = ({ shopkeepers, meta }: { shopkeepers: ShopkeeperSelectValue[], meta: PaginationMeta }) => {
 
     const dispatch = useAppDispatch()
     const onOpenHandler = () => dispatch(onOpen(MODAL_TYPE.SHOPKEEPER))
