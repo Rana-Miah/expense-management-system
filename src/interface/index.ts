@@ -1,6 +1,4 @@
 import { db } from "@/drizzle/db"
-import { and, eq, not, or, SQLWrapper } from "drizzle-orm";
-import { UpdateMessage } from "next/dist/build/swc/types";
 
 export * from './response'
 
@@ -32,10 +30,16 @@ export type OptionalOnly<T> = {
   [K in keyof T as {} extends Pick<T, K> ? K : never]: T[K];
 }
 
-export type Pagination = {
-  page: number
-  limit: number;
-  total: number;
+export type PaginationMeta = {
+  totalItems: number
+  currentPage: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+  nextPage: number
+  prevPage: number
+  offset: number
+  limit: number
 }
 
 

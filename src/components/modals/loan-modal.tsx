@@ -6,7 +6,7 @@ import { LoanForm } from '@/features/components/loan/form'
 import { useModalClose, useModal, } from '@/hooks/redux'
 import { MODAL_TYPE } from '@/constant'
 import { CardWrapper } from '../card-wrapper'
-import { BankSelectValue, BankWithAssignedTrxName } from '@/drizzle/type'
+import { BankWithAssignedTrxName } from '@/drizzle/type'
 
 type Financier = {
     id: string;

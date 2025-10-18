@@ -1,13 +1,20 @@
 import { LoanModal } from '@/components/modals/loan-modal'
 import { db } from '@/drizzle/db'
+import { loanTable } from '@/drizzle/schema'
 import { LoanTable } from '@/features/components/loan/table'
+import { WithSearchParams } from '@/interface/components-common-props'
 import { currentUserId } from '@/lib/current-user-id'
-import { getLoansByClerkUserId } from '@/services/loan'
+import { getPaginationMeta } from '@/lib/helpers/pagination'
 import { getLoanFinanciersByClerkUserId } from '@/services/loan-financier'
+import { and, eq, gt } from 'drizzle-orm'
 import React from 'react'
 
-const LoansPage = async () => {
+const LoansPage = async ({ searchParams }: WithSearchParams) => {
   const userId = await currentUserId()
+  const searchParam = await searchParams
+  const page = Number(searchParam?.page ?? 1)
+  const limit = Number(searchParam?.limit ?? 5)
+
 
   const financiers = await getLoanFinanciersByClerkUserId(userId, {
     columns: {
@@ -47,8 +54,23 @@ const LoansPage = async () => {
     }
   })
 
+
+  const loansCount = await db.$count(loanTable, and(
+    eq(loanTable.clerkUserId, userId),
+    gt(loanTable.due, 0),
+  ))
+
+  const loanPagination = getPaginationMeta({
+    currentPage: page,
+    limit,
+    totalItems: loansCount
+  })
+
   const loans = await db.query.loanTable.findMany({
-    where: (table, { eq }) => (eq(table.clerkUserId, userId)),
+    where: (table, { eq, and, gt }) => (and(
+      eq(table.clerkUserId, userId),
+      gt(loanTable.due, 0),
+    )),
     with: {
       financier: {
         columns: { name: true, id: true }
@@ -56,10 +78,12 @@ const LoansPage = async () => {
       receiveBank: {
         columns: { id: true, name: true }
       },
-      sourceBank:{
-        columns:{ id: true, name: true }
+      sourceBank: {
+        columns: { id: true, name: true }
       }
-    }
+    },
+    offset: loanPagination.offset,
+    limit: loanPagination.limit,
   })
 
 
@@ -71,6 +95,7 @@ const LoansPage = async () => {
       />
       <LoanTable
         loans={loans}
+        pagination={loanPagination}
       />
     </div>
   )

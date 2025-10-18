@@ -1,7 +1,7 @@
 'use server'
 
 import { trxNameUpdateFormSchema } from "@/features/schemas/transaction-name"
-import { capitalize, failureResponse, messageUtils, successResponse } from "@/lib/helpers"
+import { failureResponse, makeEachWordCapitalize, messageUtils, successResponse } from "@/lib/helpers"
 import { getTrxNameByIdAndClerkUserId, updateTrxName } from "@/services/trx-name"
 import { revalidatePath } from "next/cache"
 import { tryCatch } from '@/lib/helpers'
@@ -30,7 +30,7 @@ export const updateTransactionNameAction = async (payload: unknown) => {
     if (!existTrxName) return failureResponse(messageUtils.existMessage(`Transaction Name`))
 
     const [updatedTrxName, updatedTrxNameError] = await tryCatch(updateTrxName(existTrxName.id, userId, {
-        name: capitalize(name || existTrxName.name),
+        name: makeEachWordCapitalize(name || existTrxName.name),
         isActive
     }))
 

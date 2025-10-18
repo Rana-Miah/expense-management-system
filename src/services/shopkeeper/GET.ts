@@ -41,7 +41,7 @@ export const getShopkeepersByClerkUserId = async (clerkUserId: string, options?:
 
     const { limit, page, ...rest } = options ?? {}
 
-    const pageLimit = typeof limit == 'number' ? limit : 2
+    const pageLimit = typeof limit === 'number' ? limit : 2
 
     let offset: number = 0
 

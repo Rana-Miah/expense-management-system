@@ -1,7 +1,7 @@
 'use client'
 import { loanCreateFormSchema, LoanCreateFormValue } from '@/features/schemas/loan/loan-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React, { useState, useTransition } from 'react'
+import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
@@ -21,21 +21,55 @@ import { useRedirect } from '@/hooks/use-redirect'
 import { TextShimmerWave } from '@/components/ui/text-shimmer-wave'
 
 export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks: BankWithAssignedTrxName[] }) => {
-
-
+  //REACT HOOKS
   const [pending, startTransition] = useTransition()
-  const [selectedLoanFinancierId, setSelectedLoanFinancierId] = useState<string>()
-  const [selectedBankId, setSelectedBankId] = useState<string>()
-  const [selectedLoanType, setSelectedLoanType] = useState<typeof loanType[number]>()
-  const [amount, setAmount] = useState<number>(0)
+
+  // REACT REDUX HOOKS
   const onCloseModal = useModalClose()
+
+  // REACT FORM HOOKS
+  const form = useForm<LoanCreateFormValue>({
+    resolver: zodResolver(loanCreateFormSchema),
+    defaultValues: {
+      title: "",
+      financierId: "",
+      sourceBankId: "",
+      receiveBankId: "",
+      loanType: '',
+      detailsOfLoan: "",
+      trxNameId: "",
+      loanDate: new Date(),
+      amount: 0,
+    }
+  })
+  const { control, handleSubmit, resetField, reset, watch } = form
+
+
+  // CUSTOM HOOKS
   useRedirect(banks.length < 1, '/', () => {
     if (banks.length < 1) toast.warning('Please first create a bank!')
   })
 
+  // VARIABLES
 
-  const selectedFinancier = financiers.find(financier => financier.id === selectedLoanFinancierId)
-  const selectedBank = banks.find(bank => bank.id === selectedBankId)
+  const watchBank = () => {
+    const selectedSourceValue = watch('sourceBankId')
+    const selectedReceiveValue = watch('receiveBankId')
+    if (!selectedSourceValue && !selectedReceiveValue) return ""
+
+    if (selectedReceiveValue) return selectedReceiveValue
+    if (selectedSourceValue) return selectedSourceValue
+    return ""
+  }
+
+  const selectedFinancierValue = watch('financierId')
+  const selectedTypeValue = watch('loanType')
+  const selectedBankValue = watchBank()
+
+
+
+  const selectedFinancier = financiers.find(financier => financier.id === selectedFinancierValue)
+  const selectedBank = banks.find(bank => bank.id === selectedBankValue)
 
   const condition = !!selectedBank && selectedBank.assignedTransactionsName.length < 1
   useRedirect(condition, `/accounts/${selectedBank?.id}/assign-trx-name`, () => {
@@ -46,21 +80,9 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
   const isProvider = selectedFinancier?.financierType === 'Provider' || isBoth
   const isRecipient = selectedFinancier?.financierType === 'Recipient' || isBoth
 
-  const isDebit = selectedLoanType === 'Debit'
-  const isCredit = selectedLoanType === 'Credit'
+  const isDebit = selectedTypeValue === 'Debit'
+  const isCredit = selectedTypeValue === 'Credit'
 
-  const form = useForm<LoanCreateFormValue>({
-    resolver: zodResolver(loanCreateFormSchema),
-    defaultValues: {
-      title: "",
-      financierId: "",
-      sourceBankId: "",
-      receiveBankId: "",
-      loanDate: new Date(),
-      amount: 0,
-    }
-  })
-  const { control, handleSubmit, resetField, reset } = form
 
   const onSubmitHandler = handleSubmit((value) => {
     startTransition(
@@ -123,7 +145,6 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                 placeholder='Select a loan financier'
                 onValueChange={(value) => {
                   field.onChange(value)
-                  setSelectedLoanFinancierId(value)
                   resetField('loanType')
                 }}
                 defaultValue={field.value}
@@ -147,12 +168,14 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
               <FormItem>
                 <FormLabel>Loan Type</FormLabel>
                 <FormControl className="w-full">
-                  <RadioGroup defaultValue={field.value} onValueChange={(value) => {
-                    setSelectedLoanType(value as typeof loanType[number])
-                    field.onChange(value)
-                    resetField('sourceBankId')
-                    resetField('receiveBankId')
-                  }} className="flex items-center gap-3">
+                  <RadioGroup
+                    defaultChecked={false}
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value)
+                      resetField('sourceBankId')
+                      resetField('receiveBankId')
+                    }} className="flex items-center gap-3">
                     {
                       loanType.map(type => {
                         const isDebit = type === 'Debit'
@@ -164,7 +187,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                         return (
                           <div
                             key={type}
-                            className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedLoanType === type
+                            className={cn("border-2 border-accent w-20 h-10 rounded-sm", selectedTypeValue === type
                               ? type === 'Debit'
                                 ? "border-success"
                                 : 'border-destructive'
@@ -172,8 +195,13 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                             )}
                             hidden={hideCredit || hideDebit}
                           >
-                            <RadioGroupItem value={type} id={type} hidden disabled={hideCredit || hideDebit} />
-                            <Label htmlFor={type}
+                            <RadioGroupItem value={type} id={type}
+                              hidden
+                              disabled={hideCredit || hideDebit}
+                            />
+                            <Label
+                              htmlFor={type}
+                              className='w-full h-full flex items-center justify-center'
                               hidden={hideCredit || hideDebit}
                             >{type}</Label>
                           </div>
@@ -200,7 +228,6 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                   placeholder='Select a source bank'
                   onValueChange={(value) => {
                     field.onChange(value)
-                    setSelectedBankId(value)
                     resetField('receiveBankId')
                   }}
                   defaultValue={field.value}
@@ -227,7 +254,6 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                   placeholder='Select a receive bank'
                   onValueChange={(value) => {
                     field.onChange(value)
-                    setSelectedBankId(value)
                     resetField('sourceBankId')
                   }}
                   defaultValue={field.value}
@@ -274,7 +300,6 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                 label="Payment Amount"
                 placeholder='e.g. 150'
                 onChange={(e) => {
-                  setAmount(e.target.valueAsNumber)
                   field.onChange(e)
                 }}
                 value={field.value}

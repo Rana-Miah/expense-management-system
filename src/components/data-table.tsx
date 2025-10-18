@@ -20,7 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Pagination } from "@/interface"
+import { PaginationMeta } from "@/interface"
 
 
 type BaseDataTableProps<TData, TValue> = {
@@ -30,7 +30,7 @@ type BaseDataTableProps<TData, TValue> = {
 
 
 type WithPagination<TData, TValue> = BaseDataTableProps<TData, TValue> & {
-    pagination?: Pagination
+    pagination?: PaginationMeta
     enableSmartPagination?: boolean
 
 }

@@ -1,7 +1,7 @@
 'use server'
 
 import { trxNameCreateFormSchema } from "@/features/schemas/transaction-name"
-import { capitalize, failureResponse, messageUtils, successResponse } from "@/lib/helpers"
+import { failureResponse, makeEachWordCapitalize, messageUtils, successResponse } from "@/lib/helpers"
 import { createTrxName, getTrxNameByNameAndClerkUserId } from "@/services/trx-name"
 import { revalidatePath } from "next/cache"
 import { tryCatch } from '@/lib/helpers'
@@ -21,7 +21,7 @@ export const createTransactionNameAction = async (payload: unknown) => {
     if (!validation.success) return failureResponse(messageUtils.invalidFieldsMessage(), validation.error)
 
     const { name, } = validation.data
-    const capitalizedName = capitalize(name)
+    const capitalizedName = makeEachWordCapitalize(name)
 
     const [existTrxName, getExistTrxNameError] = await tryCatch(getTrxNameByNameAndClerkUserId(capitalizedName, userId))
 

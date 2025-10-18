@@ -1,53 +1,56 @@
 'use client'
 import { Button } from './ui/button'
-import { Pagination } from '@/interface'
+import { PaginationMeta } from '@/interface'
 import { useQueryString } from "@/hooks/use-query-string"
-import { useSearchParams } from 'next/navigation'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectValue, SelectGroup } from './ui/select'
 import { MoreHorizontal } from 'lucide-react'
 
 type DataTablePaginationProp = {
-    pagination: Pagination,
+    pagination: PaginationMeta,
     enableSmartPagination?: boolean
 }
 
 export const DataTablePagination = ({ pagination, enableSmartPagination }: DataTablePaginationProp) => {
     const { setPagination } = useQueryString()
-    const searchParam = useSearchParams()
-    const pageNumber = searchParam.get('page')
-    const pageLimit = searchParam.get('limit')
-
-    const currentPageNumber = pageNumber ? Number(pageNumber) : 1
+    const { currentPage, totalPages, limit, hasNextPage, hasPrevPage, nextPage, prevPage } = pagination
 
 
-    const numberOfPage = Math.ceil(pagination.total / pagination.limit)
 
     // Always show first two and last two pages
-    const totalPages = Array.from({ length: numberOfPage > 0 ? numberOfPage : 1 }, (_, i) => ++i)
-    const firstTwo = [...totalPages]
-    const midRest = firstTwo.splice(1)
-    const lastTwo = midRest.splice(-1)
+    const totalNumberOfPages = Array.from({ length: totalPages > 0 ? totalPages : 1 }, (_, i) => ++i)
+    const firstTwo = totalNumberOfPages.slice(0, 1)
+    const lastTwo = totalNumberOfPages.slice(-1)
 
     // Sliding window around current page (5 pages window)
-    const start = Math.max(currentPageNumber - 2, 3) // start after first two
-    const end = Math.min(currentPageNumber + 2, numberOfPage - 2) // end before last two
+    const start = Math.max(currentPage - 2, 2) // start after first two
+    const end = Math.min(currentPage + 2, totalPages - 1) // end before last two
 
     const middlePages = Array.from({ length: end - start + 1 }, (_, i) => start + i)
 
     const showLeftDots = start > 3
-    const showRightDots = end < numberOfPage - 2
+    const showRightDots = end < totalPages - 2
+
+
+
+    console.dir({
+        ...pagination,
+    }, {
+        depth: null
+    })
+
+
 
     return (
         <>
             {
-                numberOfPage > 1 && (
+                totalPages > 1 && (
                     <div className='space-y-4 mt-4'>
                         <div>
                             {
                                 enableSmartPagination && (
                                     <>
                                         {
-                                            totalPages.length > 8 ? (
+                                            totalNumberOfPages.length > 8 ? (
                                                 <div className="flex flex-wrap items-center justify-center gap-1.5 w-full">
                                                     {
                                                         firstTwo.map(fpn => (
@@ -55,7 +58,7 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                                                 key={fpn}
                                                                 onClick={() => setPagination('page', fpn.toString())}
                                                                 size={'sm'}
-                                                                variant={currentPageNumber === fpn ? 'default' : 'secondary'}
+                                                                variant={currentPage === fpn ? 'default' : 'secondary'}
                                                             >
                                                                 {fpn}
                                                             </Button>
@@ -72,7 +75,7 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                                             key={page}
                                                             onClick={() => setPagination('page', page.toString())}
                                                             size="sm"
-                                                            variant={currentPageNumber === page ? "default" : "secondary"}
+                                                            variant={currentPage === page ? "default" : "secondary"}
                                                         >
                                                             {page}
                                                         </Button>
@@ -89,7 +92,7 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                                                 key={lpn}
                                                                 onClick={() => setPagination('page', lpn.toString())}
                                                                 size={'sm'}
-                                                                variant={currentPageNumber === lpn ? 'default' : 'secondary'}
+                                                                variant={currentPage === lpn ? 'default' : 'secondary'}
                                                             >
                                                                 {lpn}
                                                             </Button>
@@ -99,12 +102,12 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                             ) : (
                                                 <div className="flex flex-wrap items-center justify-center gap-1.5 w-full">
                                                     {
-                                                        totalPages.map(tp => (
+                                                        totalNumberOfPages.map(tp => (
                                                             <Button
                                                                 key={tp}
                                                                 onClick={() => setPagination('page', tp.toString())}
                                                                 size={'sm'}
-                                                                variant={currentPageNumber === tp ? 'default' : 'secondary'}
+                                                                variant={currentPage === tp ? 'default' : 'secondary'}
                                                             >
                                                                 {tp}
                                                             </Button>
@@ -114,8 +117,6 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                             )
                                         }
                                     </>
-
-
                                 )
                             }
                         </div>
@@ -129,7 +130,7 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                     }}
                                 >
                                     <SelectTrigger className="max-w-[120px]">
-                                        <SelectValue placeholder={(pageLimit && pageLimit !== 'Nan') ? pageLimit : "1"} />
+                                        <SelectValue placeholder={limit} />
                                     </SelectTrigger>
                                     <SelectContent className="max-w-[120px]">
                                         <SelectGroup>
@@ -151,14 +152,9 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-
-                                        if (currentPageNumber && currentPageNumber > 0) {
-                                            setPagination('page', (currentPageNumber - 1).toString())
-                                            return
-                                        }
-
+                                        setPagination('page', prevPage.toString())
                                     }}
-                                    disabled={currentPageNumber === 1 || !currentPageNumber}
+                                    disabled={!hasPrevPage || !currentPage}
                                 >
                                     Previous
                                 </Button>
@@ -168,18 +164,9 @@ export const DataTablePagination = ({ pagination, enableSmartPagination }: DataT
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-
-                                        if (currentPageNumber === 0) {
-                                            setPagination('page', "2")
-                                            return
-                                        }
-
-                                        if (currentPageNumber && currentPageNumber < numberOfPage) {
-                                            setPagination('page', (currentPageNumber + 1).toString())
-                                            return
-                                        }
+                                        setPagination('page', nextPage.toString())
                                     }}
-                                    disabled={currentPageNumber === numberOfPage}
+                                    disabled={!hasNextPage}
                                 >
                                     Next
                                 </Button>

@@ -3,11 +3,12 @@
 import { CardWrapper, DataTable } from "@/components"
 import { loanColumns } from "./columns"
 import { pluralize } from "@/lib/helpers"
-import { LoanFinancierSelectValue, LoanSelectValue } from "@/drizzle/type"
+import { LoanSelectValue } from "@/drizzle/type"
 import { MODAL_TYPE } from '@/constant'
 import { ModalTriggerButton } from "@/components/modal-trigger-button"
+import { PaginationMeta } from "@/interface"
 
-export const LoanTable = ({ loans }: {
+export const LoanTable = ({ loans, pagination }: {
     loans: (LoanSelectValue & {
         financier: {
             name: string;
@@ -22,6 +23,7 @@ export const LoanTable = ({ loans }: {
             id: string;
         } | null
     })[];
+    pagination?: PaginationMeta
 }) => {
 
     return (
@@ -38,11 +40,8 @@ export const LoanTable = ({ loans }: {
             <DataTable
                 data={loans}
                 columns={loanColumns}
-                pagination={{
-                    page: 1,
-                    limit: 1,
-                    total: 2
-                }}
+                pagination={pagination}
+                enableSmartPagination
             />
         </CardWrapper>
     )

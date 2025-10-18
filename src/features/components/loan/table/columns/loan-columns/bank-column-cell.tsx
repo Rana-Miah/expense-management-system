@@ -1,21 +1,31 @@
 'use client'
 import React from 'react'
 import { LoanTableCellContext } from '.'
-import { findBankById } from '@/constant/dummy-db/bank-account'
+import { Badge } from '@/components/ui/badge'
 
-export const ReceiveBankColumnCell = ({row:{original:{receiveBank}}}:LoanTableCellContext) => {
+export const ReceiveBankColumnCell = ({ row: { original: { receiveBank } } }: LoanTableCellContext) => {
   return (
-    <div>{
-        receiveBank?.name??null
-    }</div>
+    <>
+      {
+        receiveBank && (
+          <Badge>{receiveBank.name}</Badge>
+        )
+      }
+    </>
   )
 }
 
 
-export const SourceBankColumnCell = ({row:{original:{sourceBank}}}:LoanTableCellContext) => {
+export const SourceBankColumnCell = ({ row: { original: { sourceBank } } }: LoanTableCellContext) => {
   return (
-    <div>{
-        sourceBank?.name??null
-    }</div>
+    <>
+      {
+        sourceBank && (
+          <Badge>{
+            sourceBank.name
+          }</Badge>
+        )
+      }
+    </>
   )
 }

@@ -10,8 +10,9 @@ import { LoanTitleColumnCell } from "./loan-title-column-cell";
 import { LoanDetailsColumnCell } from "./loan-details-column-cell";
 import { LoanActionsColumnCell } from "./actions-column-cell";
 import { LoanSelectValue } from "@/drizzle/type";
+import { LoanStatusColumnCell } from "./loan-status-column-cell";
 
-type Loan = (LoanSelectValue&{
+type Loan = (LoanSelectValue & {
     financier: {
         name: string;
         id: string;
@@ -27,70 +28,70 @@ type Loan = (LoanSelectValue&{
 })
 
 export type LoanTableCellContext = CellContext<Loan, unknown>
-type financierColumn = ColumnDef<Loan>
+type LoanColumn = ColumnDef<Loan>
 
-const financier: financierColumn = {
+const financier: LoanColumn = {
     accessorKey: "financier",
     header: "Financier",
     cell: FinancierColumnCell
 }
-const receiveBankId: financierColumn = {
+const receiveBankId: LoanColumn = {
     accessorKey: "receiveBankId",
     header: "Receive Bank",
     cell: ReceiveBankColumnCell
 }
-const sourceBankId: financierColumn = {
+const sourceBankId: LoanColumn = {
     accessorKey: "sourceBankId",
     header: "Source Bank",
     cell: SourceBankColumnCell
 }
-const loanType: financierColumn = {
+const loanType: LoanColumn = {
     accessorKey: "loanType",
     header: "Loan Type",
     cell: LoanTypeColumnCell
 }
-const title: financierColumn = {
+const title: LoanColumn = {
     accessorKey: "title",
     header: "Title",
     cell: LoanTitleColumnCell
 }
-const amount: financierColumn = {
+const amount: LoanColumn = {
     accessorKey: "amount",
     header: "Loan Amount",
     cell: LoanAmountColumnCell
 }
-const dueAmount: financierColumn = {
+const dueAmount: LoanColumn = {
     accessorKey: "due",
     header: "Due Amount",
     cell: LoanDueAmountColumnCell
 }
-const loanDate: financierColumn = {
+const loanDate: LoanColumn = {
     accessorKey: "loanDate",
     header: "Loan Date",
     cell: LoanDateColumnCell
 }
 
-const detailsOfLoan: financierColumn = {
+const detailsOfLoan: LoanColumn = {
     accessorKey: "detailsOfLoan",
     header: "Loan Details",
     cell: LoanDetailsColumnCell
 }
-const loanStatus: financierColumn = {
+const loanStatus: LoanColumn = {
     accessorKey: "loanStatus",
     header: "Status",
-    // cell: Cell
+    cell: LoanStatusColumnCell
 }
-const updatedAt: financierColumn = {
+const updatedAt: LoanColumn = {
     accessorKey: "updatedAt",
     header: "Last Update",
     cell: LoanUpdateDateColumnCell
 }
-const moreAction: financierColumn = {
+const moreAction: LoanColumn = {
     id: "Actions",
     cell: LoanActionsColumnCell
 }
 
-export const loanColumns: financierColumn[] = [
+export const loanColumns: LoanColumn[] = [
     title,
     amount,
     dueAmount,
