@@ -6,8 +6,8 @@ export const transactionFormSchema = z.object({
     receiveBankId: z.string().optional(),
     sourceBankId: z.string().optional(),
     localBankNumber: z.string().optional(),
-    type: z.enum(trxTypeWithBoth, { error: 'Variant must be "Debit" , "Credit" , "Both"' }),
-    trxVariant: z.enum(trxVariant, { error: 'Variant must be "Internal" or "Local"' }),
+    type: z.enum([...trxTypeWithBoth,""], { error: 'Variant must be "Debit" , "Credit" , "Both"' }),
+    trxVariant: z.enum([...trxVariant,""], { error: 'Variant must be "Internal" or "Local"' }),
     trxDate: z.date().nonoptional().refine(date => {
         const currentDate = new Date()
         const inputDate = new Date(date)

@@ -12,11 +12,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Bank, findBanksByClerkUserId } from "@/constant/dummy-db/bank-account"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
-import { findAssignedTrxNamesByBankId } from "@/constant/dummy-db/asign-trx-name"
 import { Cable, CalendarIcon, Plus, PlusCircle, Trash } from "lucide-react"
-import { TrxName } from "@/constant/dummy-db/trx-name"
 import { transactionFormSchema, TransactionFormValue } from "@/features/schemas/transaction"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -27,7 +24,6 @@ import { Input } from "@/components/ui/input"
 import { Calendar } from "@/components/ui/calendar"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { dummyItemUnits } from "@/constant/dummy-db/item"
 import { AlertModal, CardWrapper } from "@/components"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
@@ -43,19 +39,36 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { CardContent } from "@/components/ui/card"
+import { SelectInput } from "@/components/input"
+
+type AssignedTransactionsName = {
+    id: string;
+    transactionName: {
+        id: string;
+        name: string;
+        isActive: boolean;
+        isDeleted: boolean;
+    };
+}
+
+type Bank = {
+    id: string;
+    name: string;
+    isActive: boolean;
+}
+
+type BankWithAssignedTrxName = (
+    Bank & {
+        isDeleted: boolean
+        balance: number;
+    } & {
+        assignedTransactionsName: AssignedTransactionsName[]
+    }
+)
 
 
+export const TransactionForm = ({ bank, banks, units }: { banks: Bank[]; bank: BankWithAssignedTrxName, units: { id: string, unit: string }[] }) => {
 
-
-export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxName[] }) => {
-
-    //TODO : REMOVE trxNames, it will included in banks
-
-    const [selectedtrxTypeWithBoth, setSeletedtrxTypeWithBoth] = useState<typeof trxTypeWithBoth[number] | null>(null)
-    const [selectedTrxVariant, setSelectedTrxVariant] = useState<typeof trxVariant[number] | null>(null)
-    const [selectedTrxName, setSelectedTrxName] = useState<string | null>(null)
-    const [isIncludeItems, setIsIncludeItems] = useState<boolean>(false)
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [inx, setInx] = useState<number>()
 
@@ -69,7 +82,6 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
     const form = useForm<TransactionFormValue>({
         resolver: zodResolver(transactionFormSchema),
         defaultValues: {
-            sourceBankId: "",
             localBankNumber: "",
             receiveBankId: "",
             trxDescription: "",
@@ -77,31 +89,54 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
             amount: 0,
             isIncludedItems: false,
             trxDate: new Date(),
+            trxVariant: '',
+            type: ''
         },
     })
+
+    const { control, handleSubmit, resetField, watch } = form
 
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: 'items'
     })
 
+     const selectedTrxName = watch('trxNameId')
+    const selectedTrxVariant = watch('trxVariant')
+    const selectedTrxType = watch('type')
+    const isIncludeItems = watch('isIncludedItems')
+
     // 2. Define a submit handler.
     function onSubmit(values: TransactionFormValue) {
 
-        const { type } = values
-        const modifiedObj = {
-            ...values,
-            receiveBankId: type === 'Credit' ? bank.id : "",
-            sourceBankId: type === 'Debit' ? bank.id : "",
-        }
+        const isBothTrxType = selectedTrxType === 'Both'
+        const isDebitTrxType = selectedTrxType === 'Debit'
+        const isCreditTrxType = selectedTrxType === 'Credit'
+        const isInternalTrx = selectedTrxVariant === 'Internal'
+        const isLocalTrx = selectedTrxVariant === 'Local'
+        const isInternalAndDebitTrx = isInternalTrx && isDebitTrxType
+        const isInternalAndCreditOrBothTrx = isInternalTrx && (isCreditTrxType ||isBothTrxType)
 
-        console.log({ values, modifiedObj })
+        const receiveBankId = values.receiveBankId
+        ?values.receiveBankId
+        :isInternalAndDebitTrx
+        ?bank.id:undefined
+
+        const sourceBankId = (isLocalTrx||isInternalAndCreditOrBothTrx)
+        ?bank.id
+        :undefined
+
+        console.log({
+            ...values,
+            receiveBankId,
+            sourceBankId
+        })
     }
 
-    const assignedTrxName = findAssignedTrxNamesByBankId(bank.id)
-    const banks = findBanksByClerkUserId(bank.clerkUserId).filter(item => item.id !== bank.id)
 
-    const isAssigned = (id: string) => !!assignedTrxName.find(item => item.trxNameId === id)
+   
+
+
     return (
         <>
             <AlertModal
@@ -128,30 +163,30 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
                         control={form.control}
                         name="trxNameId"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Transaction Name</FormLabel>
-                                <FormControl className="w-full">
-                                    <Select onValueChange={(value) => {
-                                        field.onChange(value)
-                                        setSelectedTrxName(value)
-                                    }} defaultValue={field.value} >
-                                        <SelectTrigger className="w-full">
-                                            <SelectValue placeholder="Select a Transaction Name" />
-                                        </SelectTrigger>
-                                        <SelectContent className="w-full">
-                                            {
-                                                trxNames.map(item => (
-                                                    <SelectItem key={item.id} value={item.id} className="relative" disabled={isAssigned(item.id)}>
-                                                        {item.name}
-                                                    </SelectItem>
-                                                )
-                                                )
-                                            }
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                            <SelectInput
+                                label="Transaction Name"
+                                placeholder="Select a transaction name"
+                                defaultValue={field.value}
+                                onValueChange={(value) => {
+                                    field.onChange(value)
+                                    resetField('trxVariant')
+                                    resetField('type')
+                                    resetField('sourceBankId')
+                                    resetField('receiveBankId')
+                                    resetField('receiveBankId')
+                                    resetField('localBankNumber')
+                                }}
+                                items={
+                                    bank.assignedTransactionsName.map(({ transactionName: { id: trxNameId, name, isActive, isDeleted } }) => (
+                                        {
+                                            label: name,
+                                            value: trxNameId,
+                                            hidden: isDeleted,
+                                            disabled: !isActive
+                                        }
+                                    ))
+                                }
+                            />
                         )}
                     />
 
@@ -164,10 +199,18 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
                                 <FormItem>
                                     <FormLabel>Transaction Variant</FormLabel>
                                     <FormControl className="w-full">
-                                        <RadioGroup defaultValue={field.value} onValueChange={(value) => {
-                                            setSelectedTrxVariant(value as typeof trxVariant[number])
-                                            field.onChange(value)
-                                        }} className="flex items-center gap-3">
+                                        <RadioGroup
+                                            value={field.value}
+                                            onValueChange={(value) => {
+                                                field.onChange(value)
+                                                resetField('type')
+                                                resetField('sourceBankId')
+                                                resetField('receiveBankId')
+                                                resetField('receiveBankId')
+                                                resetField('localBankNumber')
+                                            }}
+                                            className="flex items-center gap-3"
+                                        >
                                             {
                                                 trxVariant.map(variant => (
                                                     <div className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxVariant === variant && "border-primary")} key={variant}>
@@ -196,14 +239,13 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
                                         <FormLabel>Transaction Type</FormLabel>
                                         <FormControl className="w-full">
                                             <RadioGroup defaultValue={field.value} onValueChange={(value) => {
-                                                setSeletedtrxTypeWithBoth(value as typeof trxTypeWithBoth[number])
                                                 field.onChange(value)
                                             }} className="flex items-center gap-3">
                                                 {
                                                     trxTypeWithBoth.map(trx => (
                                                         <div
                                                             key={trx}
-                                                            className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedtrxTypeWithBoth === trx && "border-primary")}
+                                                            className={cn("border-2 border-secondary px-3 py-2 rounded-sm", selectedTrxType === trx && "border-primary")}
                                                             hidden={trx !== 'Both' && selectedTrxVariant === 'Local'}
                                                         >
                                                             <RadioGroupItem value={trx} id={trx} hidden disabled={trx !== 'Both' && selectedTrxVariant === 'Local'} />
@@ -223,38 +265,33 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
 
                     {/* Transaction Variant & bank */}
                     {
-                        selectedtrxTypeWithBoth === 'Both' && selectedTrxVariant === 'Internal' && (
+                        (selectedTrxType === 'Both' && selectedTrxVariant === 'Internal') && (
                             <FormField
                                 control={form.control}
                                 name="receiveBankId"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Receive Bank</FormLabel>
-                                        <FormControl className="w-full">
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select a Receive Bank" />
-                                                </SelectTrigger>
-                                                <SelectContent className="w-full">
-                                                    {
-                                                        banks.map(receiveBank => (
-                                                            <SelectItem key={receiveBank.id} value={receiveBank.id} className="relative" >
-                                                                {receiveBank.name}
-                                                            </SelectItem>
-                                                        ))
-                                                    }
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                    <SelectInput
+                                        label='Receive Bank'
+                                        placeholder='Select a bank to receive money'
+                                        defaultValue={field.value}
+                                        onValueChange={(value) => {
+                                            field.onChange(value)
+                                        }}
+                                        items={
+                                            banks.map(bank => ({
+                                                label: bank.name,
+                                                value: bank.id,
+                                                disabled: !bank.isActive,
+                                            }))
+                                        }
+                                    />
                                 )}
                             />
                         )
                     }
 
                     {
-                        selectedtrxTypeWithBoth === 'Both' && selectedTrxVariant === 'Local' && (
+                        (selectedTrxType === 'Both' && selectedTrxVariant === 'Local') && (
                             <FormField
                                 control={form.control}
                                 name="localBankNumber"
@@ -368,7 +405,6 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
                                     <Switch
                                         checked={field.value}
                                         onCheckedChange={(value) => {
-                                            setIsIncludeItems(value)
                                             field.onChange(value)
                                             if (value) {
                                                 append({
@@ -453,7 +489,7 @@ export const TransactionForm = ({ bank, trxNames }: { bank: Bank, trxNames: TrxN
                                                                                 </SelectTrigger>
                                                                                 <SelectContent className="w-full">
                                                                                     {
-                                                                                        dummyItemUnits.map(unit => (
+                                                                                        units.map(unit => (
                                                                                             <SelectItem key={unit.id} value={unit.id} >
                                                                                                 {unit.unit}
                                                                                             </SelectItem>
