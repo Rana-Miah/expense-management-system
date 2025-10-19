@@ -1,4 +1,4 @@
-import { boolean, numeric, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { createdAt, relationBetween, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { bankAccountTable } from "./bank-account";

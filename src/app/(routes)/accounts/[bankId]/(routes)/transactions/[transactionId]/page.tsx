@@ -55,22 +55,38 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
             lban: false,
         }
     })
-    const banks = await db.query.bankAccountTable.findMany({
-        where: (table, { and, eq,not }) => {
-            const base = and(
-                eq(table.clerkUserId, userId),
-                eq(table.isDeleted,false),
-                not(eq(table.id,param.bankId))
-            )
+    // const banks = await db.query.bankAccountTable.findMany({
+    //     where: (table, { and, eq, not }) => {
+    //         const base = and(
+    //             eq(table.clerkUserId, userId),
+    //             eq(table.isDeleted, false),
+    //             not(eq(table.id, param.bankId))
+    //         )
 
-            return base
-        },
-        columns: {
-            id:true,
-            name:true,
-            isActive:true
-        }
-    })
+    //         return base
+    //     },
+    //     with: {
+    //         assignedTransactionsName: {
+    //             with: {
+    //                 transactionName: {
+    //                     columns: {
+    //                         createdAt: false,
+    //                         updatedAt: false,
+    //                         clerkUserId: false,
+    //                     }
+    //                 }
+    //             },
+    //             columns: {
+    //                 id: true
+    //             }
+    //         }
+    //     },
+    //     columns: {
+    //         id: true,
+    //         name: true,
+    //         isActive: true
+    //     }
+    // })
     const units = await db.query.itemUnitTable.findMany({
         where: (table, { and, eq }) => {
             const base = and(
@@ -86,6 +102,44 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
         }
     })
 
+
+    const transactionNames = await db.query.trxNameTable.findMany({
+        where: (table, { and, eq }) => {
+            const base = and(
+                eq(table.clerkUserId, userId),
+                eq(table.isDeleted, false),
+            )
+
+            return base
+        },
+        with: {
+            assignedBanks: {
+                with: {
+                    bankAccount: {
+                        columns: {
+                            id: true,
+                            isActive: true,
+                            isDeleted: true,
+                            name: true,
+                        }
+                    }
+                },
+                columns: {
+                    id: true
+                }
+            }
+        },
+        columns: {
+            id: true,
+            name: true,
+            isActive: true
+        }
+    })
+
+
+
+
+
     if (!bank) redirect('/accounts')
     if (bank.isDeleted) redirect(`/restore/deleted-banks/${bank.id}`)
     if (!bank.isActive) redirect(`/accounts/${bank.id}`)
@@ -97,10 +151,10 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
                 title="Transaction Form"
                 description="Create your Transaction"
             >
-                <TransactionForm 
-                banks={banks}
-                bank={bank} 
-                units={units} />
+                <TransactionForm
+                    trxNames={transactionNames}
+                    bank={bank}
+                    units={units} />
             </CardWrapper>
         </div>
     )
