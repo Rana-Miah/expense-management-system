@@ -19,7 +19,7 @@ export const shopkeeperDeleteAction = async (shopkeeperId: string) => {
 
     if (existShopkeeper.totalDue > 0) return failureResponse('Please clear previous due balance!')
 
-    const [deletedShopkeeper,deleteShopkeeperError] = await tryCatch(deleteShopkeeper(existShopkeeper.id))
+    const [deletedShopkeeper,deleteShopkeeperError] = await tryCatch(deleteShopkeeper(existShopkeeper.id,userId))
 
     if(deleteShopkeeperError) return failureResponse(messageUtils.failedDeletedMessage('shopkeeper'),deleteShopkeeperError)
 

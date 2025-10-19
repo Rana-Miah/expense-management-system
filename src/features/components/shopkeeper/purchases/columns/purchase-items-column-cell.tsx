@@ -12,44 +12,49 @@ import { capitalize } from '@/lib/helpers'
 
 type Props = {
     item: PurchaseItem;
-    index:number
+    index: number
 };
 
 export const PurchaseItemsColumnCell = ({ row: { original: { purchaseItems } } }: ShopkeeperPurchaseColumnCellContext) => {
     const itemsLength = purchaseItems.length
 
     return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="outline">
-                    Items
-                    <sup>
-                        {itemsLength}+
-                    </sup>
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 max-h-[300px] overflow-y-auto space-y-2">
+        <>
+            {
+                itemsLength > 0 ? (
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" className='w-full'>
+                                Items ({itemsLength})<sup>+</sup>
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
 
-                <div className="space-y-2">
-                    <h4 className="leading-none font-medium">Total number of purchase items ({itemsLength})</h4>
-                    <p className="text-muted-foreground text-sm">
-                        Purchase items
-                    </p>
-                </div>
+                            <div className="space-y-2">
+                                <h4 className="leading-none font-medium">Total number of purchase items ({itemsLength})</h4>
+                                <p className="text-muted-foreground text-sm">
+                                    Purchase items
+                                </p>
+                            </div>
 
-                {
-                    purchaseItems.map((item,index) => (
-                        <PurchaseItemCard key={item.id} item={item} index={index}/>
-                    ))
-                }
-            </PopoverContent>
-        </Popover>
+                            <div className="w-full max-w-80 max-h-[300px] overflow-y-auto space-y-2 py-2 pr-3">
+                                {
+                                    purchaseItems.map((item, index) => (
+                                        <PurchaseItemCard key={item.id} item={item} index={index} />
+                                    ))
+                                }
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                ) : "No Item Purchased"
+            }
+        </>
     )
 }
 
 
 
-export function PurchaseItemCard({ item,index }: Props) {
+export function PurchaseItemCard({ item, index }: Props) {
     const { name, createdAt, price, quantity, itemUnit } = item;
     const total = price * quantity;
 
@@ -57,7 +62,7 @@ export function PurchaseItemCard({ item,index }: Props) {
         <Card className="w-full rounded-2xl shadow-md border border-border/50 hover:shadow-lg transition-all">
             <CardHeader className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold tracking-tight">
-                    #{index+1} {capitalize(name,1)}
+                    #{index + 1} {capitalize(name, 1)}
                 </CardTitle>
                 <Badge variant="secondary" className="text-xs">
                     {itemUnit.unit}

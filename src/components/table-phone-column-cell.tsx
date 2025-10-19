@@ -1,10 +1,11 @@
 import { Copy } from "lucide-react"
 import { Button } from "./ui/button"
+import { toast } from "sonner"
 
 export const PhoneColumnCell = ({ phone }: { phone: string }) => {
     const onCopyHandler = async () => {
         await navigator.clipboard.writeText(phone)
-        alert('Copied ' + phone)
+        toast.success('Copied',{description:`Phone : ${phone}`})
     }
     return (
         <div className="flex items-center gap-1.5">

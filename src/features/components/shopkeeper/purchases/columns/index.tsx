@@ -2,6 +2,10 @@
 import { amountFormatter, dateFormatter } from "@/lib/helpers";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { PurchaseItemsColumnCell } from "./purchase-items-column-cell";
+import { CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { TableDateCellWithWeekName } from "@/components/table-date-cell";
 
 type CommonBetweenShopkeeperAndSourceBank = {
     id: string,
@@ -37,48 +41,71 @@ type ShopkeeperPurchase = {
 }
 
 type ShopkeeperPurchaseColumnDef = ColumnDef<ShopkeeperPurchase>
-export type ShopkeeperPurchaseColumnCellContext = CellContext<ShopkeeperPurchase,unknown>
+export type ShopkeeperPurchaseColumnCellContext = CellContext<ShopkeeperPurchase, unknown>
 
 const shopkeeperName: ShopkeeperPurchaseColumnDef = {
-    accessorKey:'shopkeeper',
-    header:"Shopkeeper Name",
-    cell:({row})=>row.original.shopkeeper.name
+    accessorKey: 'shopkeeper',
+    header: "Shopkeeper Name",
+    cell: ({ row }) => row.original.shopkeeper.name
 }
 
 const purchaseAmount: ShopkeeperPurchaseColumnDef = {
-    accessorKey:'totalAmount',
-    header:"Total Amount",
-    cell:({row})=>amountFormatter(row.original.totalAmount)
+    accessorKey: 'totalAmount',
+    header: "Total Amount",
+    cell: ({ row }) => (
+        <CardTitle>
+            {amountFormatter(row.original.totalAmount)}
+        </CardTitle>
+    )
 }
 
 const purchasePaid: ShopkeeperPurchaseColumnDef = {
-    accessorKey:'paidAmount',
-    header:"Paid Amount",
-    cell:({row})=>amountFormatter(row.original.paidAmount)
+    accessorKey: 'paidAmount',
+    header: "Paid Amount",
+    cell: ({ row }) => (
+        <CardTitle className={cn(row.original.paidAmount===0&&"text-destructive")}>
+            {amountFormatter(row.original.paidAmount)}
+        </CardTitle>
+    )
 }
 
 const purchaseDue: ShopkeeperPurchaseColumnDef = {
-    accessorKey:'dueAmount',
-    header:"Due Amount",
-    cell:({row})=>amountFormatter(row.original.dueAmount)
+    accessorKey: 'dueAmount',
+    header: "Due Amount",
+    cell: ({ row }) => (
+        <CardTitle  className={cn(row.original.dueAmount>0&&"text-destructive")}>
+            {amountFormatter(row.original.dueAmount)}
+        </CardTitle>
+    )
 }
 
 const sourceBank: ShopkeeperPurchaseColumnDef = {
-    accessorKey:'sourceBank',
-    header:"Source Bank",
-    cell:({row})=>row.original.sourceBank?row.original.sourceBank.name:null
+    accessorKey: 'sourceBank',
+    header: "Source Bank",
+    cell: ({ row }) => {
+        return row.original.sourceBank ? (
+        <Badge variant='outline'>
+            {row.original.sourceBank.name}
+        </Badge>
+    ) : null
+    }
 }
 
 const purchaseDate: ShopkeeperPurchaseColumnDef = {
-    accessorKey:'purchaseDate',
-    header:"Purchase Date",
-    cell:({row})=>dateFormatter(row.original.purchaseDate)
+    accessorKey: 'purchaseDate',
+    header: "Purchase Date",
+    cell: ({ row }) => (
+        <TableDateCellWithWeekName
+        date={row.original.purchaseDate}
+        includeWeekName
+        />
+    )
 }
 
 const purchaseItems: ShopkeeperPurchaseColumnDef = {
-    accessorKey:'purchaseItems',
-    header:"Purchase Items",
-    cell:PurchaseItemsColumnCell
+    accessorKey: 'purchaseItems',
+    header: "Purchase Items",
+    cell: PurchaseItemsColumnCell
 }
 
 export const shopkeeperPurchaseColumns: ShopkeeperPurchaseColumnDef[] = [

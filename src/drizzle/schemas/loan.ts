@@ -41,6 +41,6 @@ export const loanTableRelation = relations(loanTable, ({ one, many }) => ({
     }),
 
     //loan payments relation
-    loanPayment: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'loan') }),
+    loanPayments: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'loan') }),
 }
 ))

@@ -4,15 +4,13 @@ import { InputField, SwitchInput, TextAreaField } from "@/components/input"
 import { Button } from "@/components/ui/button"
 import { Form, FormField, } from "@/components/ui/form"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
-import { Textarea } from "@/components/ui/textarea"
 import { ShopkeeperSelectValue } from "@/drizzle/type"
-import { shopkeeperCreateAction } from "@/features/actions/shopkeeper/create-action"
 import { shopkeeperUpdateAction } from "@/features/actions/shopkeeper/update-action"
 import { ShopkeeperUpdateFormValue, shopkeeperUpdateFormSchema } from "@/features/schemas/shopkeeper"
 import { generateToasterDescription } from "@/lib/helpers/toaster-description"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
-import { useState, useTransition } from "react"
+import {useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -24,9 +22,6 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
         reasonOfBlock,
     } = shopkeeper
     const [pending, startTransition] = useTransition()
-    const [isOnBlockSwitch, setIsOnBlockSwitch] = useState(isBlock)
-    const [reasonOfBlockLength, setReasonOfBlockLength] = useState(reasonOfBlock?reasonOfBlock.length:0)
-
     const router = useRouter()
     const form = useForm<ShopkeeperUpdateFormValue>({
         resolver: zodResolver(shopkeeperUpdateFormSchema),
@@ -37,10 +32,10 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
             reasonOfBlock: reasonOfBlock ?? "",
         }
     })
-    const { control, handleSubmit, getValues } = form
+    const { control, handleSubmit, watch } = form
 
-    const [toggleIsBan, setToggleIsBan] = useState<boolean>(!!getValues('isBlock'))
-    const [reason, setReason] = useState<string>(getValues('reasonOfBlock') ?? "")
+    const isBlockSwitchValue = watch('isBlock')
+    const reasonOfBlockValue = watch('reasonOfBlock')??""
 
     const onSubmitHandler = handleSubmit((value) => {
         startTransition(
@@ -95,11 +90,8 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                     name='isBlock'
                     render={({ field }) => (
                         <SwitchInput
-                            disabled={pending|| reasonOfBlockLength>0}
-                            onCheckedChange={(isBlock) => {
-                                field.onChange(isBlock)
-                                setIsOnBlockSwitch(isBlock)
-                            }}
+                            disabled={pending|| reasonOfBlockValue.length>0}
+                            onCheckedChange={field.onChange}
                             checked={field.value}
                             label={`Are you sure?`}
                             description={`You want to ${field.value ? "unblock" : "block"}`}
@@ -107,7 +99,7 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                     )}
                 />
                 {
-                    isOnBlockSwitch && <FormField
+                    isBlockSwitchValue && <FormField
                         control={control}
                         name='reasonOfBlock'
                         render={({ field }) => (
@@ -116,11 +108,7 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                                 placeholder="e.g. Basay ase takar jonno"
                                 disabled={pending}
                                 value={(field.value)}
-                                onChange={(e)=>{
-                                    field.onChange(e)
-                                    const newValueLength = e.target.value.length
-                                    setReasonOfBlockLength(newValueLength)
-                                }}
+                                onChange={field.onChange}
                             />
                         )}
                     />

@@ -11,8 +11,25 @@ import { LoanDetailsColumnCell } from "./loan-details-column-cell";
 import { LoanActionsColumnCell } from "./actions-column-cell";
 import { LoanSelectValue } from "@/drizzle/type";
 import { LoanStatusColumnCell } from "./loan-status-column-cell";
+import { PurchaseItemsColumnCell } from "./payments-column-cell";
 
-type Loan = (LoanSelectValue & {
+export type LoanPaymentColumn ={
+        id: string;
+        amount: number;
+        paymentDate: Date;
+        paymentType: "Receipt" | "Paid";
+        paymentNote: string;
+        receiveBank: {
+            id: string;
+            name: string;
+        } | null;
+        sourceBank: {
+            id: string;
+            name: string;
+        } | null;
+    }
+
+export type LoanColumnDataType = (LoanSelectValue & {
     financier: {
         name: string;
         id: string;
@@ -25,10 +42,11 @@ type Loan = (LoanSelectValue & {
         name: string;
         id: string;
     } | null;
+    loanPayments:LoanPaymentColumn[]
 })
 
-export type LoanTableCellContext = CellContext<Loan, unknown>
-type LoanColumn = ColumnDef<Loan>
+export type LoanTableCellContext = CellContext<LoanColumnDataType, unknown>
+type LoanColumn = ColumnDef<LoanColumnDataType>
 
 const financier: LoanColumn = {
     accessorKey: "financier",
@@ -81,6 +99,11 @@ const loanStatus: LoanColumn = {
     header: "Status",
     cell: LoanStatusColumnCell
 }
+const loanPayments: LoanColumn = {
+    accessorKey: "loanPayments",
+    header: "Payments",
+    cell: PurchaseItemsColumnCell
+}
 const updatedAt: LoanColumn = {
     accessorKey: "updatedAt",
     header: "Last Update",
@@ -102,6 +125,7 @@ export const loanColumns: LoanColumn[] = [
     receiveBankId,
     sourceBankId,
     detailsOfLoan,
+    loanPayments,
     updatedAt,
     moreAction
 ]
