@@ -21,10 +21,14 @@ export const transactionFormSchema = z.object({
     amount: z.coerce.number<number>().gt(0, 'Amount must grater than or equal 1'),
     isIncludedItems: z.boolean().nonoptional(),
     items: z.array(z.object({
-        itemUnitId: z.string().nonempty(),
-        name: z.string().nonempty(),
-        price: z.coerce.number<number>().gt(0, 'Price must grater than or equal 1'),
-        quantity: z.coerce.number<number>().gt(0, 'Quantity must grater than or equal 1'),
+       itemUnitId: z.uuid().nonempty(),
+           price: z.coerce.number<number>().nonnegative().gt(0, 'Item price must be grater than 0 !'),
+           isKnowPrice: z.coerce.boolean<boolean>(),
+           total: z.coerce.number<number>().nonnegative().gt(0, 'Item total must be grater than 0 !'),
+           isKnowTotal: z.coerce.boolean<boolean>(),
+           quantity: z.coerce.number<number>().nonnegative(),
+           isKnowQuantity: z.coerce.boolean<boolean>(),
+           name: z.string().nonempty().min(3, 'Name must be 3 characters long!')
     })).optional()
 })
 

@@ -54,7 +54,7 @@ export function DynamicFormSheet<
             <AlertModal
                 open={isAlertOpen}
                 title="Are you sure?"
-                description={`Purchase item #${payload ? payload + 1 : ""} will deleted`}
+                description={`Purchase item #${payload!==null ? payload + 1 : ""} will deleted`}
                 onCancel={onClose}
                 onConfirm={() => {
                     const description = generateToasterDescription()

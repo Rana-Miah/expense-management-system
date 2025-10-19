@@ -40,6 +40,8 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { SelectInput } from "@/components/input"
+import { DynamicFormSheet } from "@/components/dynamic-fields"
+import { DynamicItemCard } from "./trx-item-dynamic-card"
 
 type AssignedTransactionsName = {
     id: string;
@@ -94,14 +96,16 @@ export const TransactionForm = ({ bank, banks, units }: { banks: Bank[]; bank: B
         },
     })
 
-    const { control, handleSubmit, resetField, watch } = form
+    const { control, handleSubmit, resetField, watch, } = form
 
-    const { fields, append, remove } = useFieldArray({
+    const fieldArray = useFieldArray({
         control: form.control,
         name: 'items'
     })
 
-     const selectedTrxName = watch('trxNameId')
+    const { fields, append, remove }  = fieldArray
+
+    const selectedTrxName = watch('trxNameId')
     const selectedTrxVariant = watch('trxVariant')
     const selectedTrxType = watch('type')
     const isIncludeItems = watch('isIncludedItems')
@@ -115,16 +119,16 @@ export const TransactionForm = ({ bank, banks, units }: { banks: Bank[]; bank: B
         const isInternalTrx = selectedTrxVariant === 'Internal'
         const isLocalTrx = selectedTrxVariant === 'Local'
         const isInternalAndDebitTrx = isInternalTrx && isDebitTrxType
-        const isInternalAndCreditOrBothTrx = isInternalTrx && (isCreditTrxType ||isBothTrxType)
+        const isInternalAndCreditOrBothTrx = isInternalTrx && (isCreditTrxType || isBothTrxType)
 
         const receiveBankId = values.receiveBankId
-        ?values.receiveBankId
-        :isInternalAndDebitTrx
-        ?bank.id:undefined
+            ? values.receiveBankId
+            : isInternalAndDebitTrx
+                ? bank.id : undefined
 
-        const sourceBankId = (isLocalTrx||isInternalAndCreditOrBothTrx)
-        ?bank.id
-        :undefined
+        const sourceBankId = (isLocalTrx || isInternalAndCreditOrBothTrx)
+            ? bank.id
+            : undefined
 
         console.log({
             ...values,
@@ -133,8 +137,19 @@ export const TransactionForm = ({ bank, banks, units }: { banks: Bank[]; bank: B
         })
     }
 
+    const appendHandler = () => {
+        append({
+            name: "",
+            total: 0,
+            isKnowTotal: true,
+            price: 0,
+            isKnowPrice: true,
+            quantity: 0,
+            isKnowQuantity: true,
+            itemUnitId: ""
+        })
+    }
 
-   
 
 
     return (
@@ -238,7 +253,7 @@ export const TransactionForm = ({ bank, banks, units }: { banks: Bank[]; bank: B
                                     <FormItem>
                                         <FormLabel>Transaction Type</FormLabel>
                                         <FormControl className="w-full">
-                                            <RadioGroup defaultValue={field.value} onValueChange={(value) => {
+                                            <RadioGroup value={field.value} onValueChange={(value) => {
                                                 field.onChange(value)
                                             }} className="flex items-center gap-3">
                                                 {
@@ -407,12 +422,7 @@ export const TransactionForm = ({ bank, banks, units }: { banks: Bank[]; bank: B
                                         onCheckedChange={(value) => {
                                             field.onChange(value)
                                             if (value) {
-                                                append({
-                                                    name: "",
-                                                    price: 0,
-                                                    quantity: 0,
-                                                    itemUnitId: ""
-                                                })
+                                                appendHandler()
                                                 setIsOpenSheet(true)
                                             }
                                         }}
@@ -426,139 +436,20 @@ export const TransactionForm = ({ bank, banks, units }: { banks: Bank[]; bank: B
                     {/* dynamic purchase item fields*/}
                     {
                         isIncludeItems && (
-                            <>
-
-                                <Sheet
-                                    open={isOpenSheet}
-                                    onOpenChange={() => setIsOpenSheet(false)}
-                                >
-                                    <SheetContent className="max-h-screen overflow-y-auto px-4">
-                                        <SheetHeader
-                                            className="px-0"
-                                        >
-                                            <SheetTitle>Are you absolutely sure?</SheetTitle>
-                                            <SheetDescription>
-                                                This action cannot be undone. This will permanently delete your account
-                                                and remove your data from our servers.
-                                            </SheetDescription>
-                                        </SheetHeader>
-                                        {
-                                            fields.map((_, index) => (
-                                                <CardWrapper
-                                                    title={`Item #${index + 1}`}
-                                                    description='Purchase Item'
-                                                    headerElement={
-                                                        <Button
-                                                            type='button'
-                                                            variant='destructive'
-                                                            onClick={() => {
-                                                                setInx(index)
-                                                                dispatch(onOpen(MODAL_TYPE.ALERT_MODAL))
-                                                            }}
-                                                        >
-                                                            <Trash />
-                                                        </Button>
-                                                    }
-                                                    key={index}
-                                                >
-                                                    <div className="flex flex-col items-center gap-2">
-                                                        <div className="space-y-2 w-full">
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`items.${index}.name`}
-                                                                render={({ field }) => (
-                                                                    <FormItem className="w-full">
-                                                                        <Label>Item Name</Label>
-                                                                        <FormControl>
-                                                                            <Input type='text' placeholder="e.g. Tomato" {...field} value={field.value} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`items.${index}.itemUnitId`}
-                                                                render={({ field }) => (
-                                                                    <FormItem >
-                                                                        <Label>Item Unit</Label>
-                                                                        <FormControl>
-                                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                                                <SelectTrigger className="w-full">
-                                                                                    <SelectValue placeholder="Unit" />
-                                                                                </SelectTrigger>
-                                                                                <SelectContent className="w-full">
-                                                                                    {
-                                                                                        units.map(unit => (
-                                                                                            <SelectItem key={unit.id} value={unit.id} >
-                                                                                                {unit.unit}
-                                                                                            </SelectItem>
-                                                                                        ))
-                                                                                    }
-                                                                                </SelectContent>
-                                                                            </Select>
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                        </div>
-
-                                                        <div className="flex items-center justify-center gap-2">
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`items.${index}.price`}
-                                                                render={({ field }) => (
-                                                                    <FormItem>
-                                                                        <Label>Price</Label>
-                                                                        <FormControl>
-                                                                            <Input type='number' placeholder="Price"{...field} value={field.value} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-
-                                                            <FormField
-                                                                control={form.control}
-                                                                name={`items.${index}.quantity`}
-                                                                render={({ field }) => (
-                                                                    <FormItem>
-                                                                        <Label>Quantity</Label>
-                                                                        <FormControl>
-                                                                            <Input type='number' placeholder="Quantity"{...field} value={field.value} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </CardWrapper>
-                                            ))
-                                        }
-                                        <div
-                                            className="sticky bottom-0 left-0 right-0 bg-background rounded-t-md py-5 px-3 w-full z-40"
-                                        >
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                className="w-full flex items-center gap-1.5"
-                                                onClick={() =>
-                                                    append({ itemUnitId: "", name: "", quantity: 0, price: 0 })
-                                                }
-                                            >
-                                                <span>
-                                                    <PlusCircle />
-                                                </span>
-                                                <span>
-                                                    Add Item
-                                                </span>
-                                            </Button>
-                                        </div>
-                                    </SheetContent>
-                                </Sheet>
-                            </>
+                            <DynamicFormSheet
+                                appendHandler={appendHandler}
+                                fieldArrayValue={fieldArray}
+                                onOpenChange={setIsOpenSheet}
+                                open={isOpenSheet}
+                                renderItem={(index) => (
+                                    <DynamicItemCard
+                                        index={index}
+                                        form={form}
+                                        itemUnits={units}
+                                        pending={false}
+                                    />
+                                )}
+                            />
                         )
                     }
 
