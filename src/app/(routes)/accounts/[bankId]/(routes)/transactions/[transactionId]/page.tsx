@@ -103,39 +103,60 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
     })
 
 
-    const transactionNames = await db.query.trxNameTable.findMany({
-        where: (table, { and, eq }) => {
-            const base = and(
-                eq(table.clerkUserId, userId),
-                eq(table.isDeleted, false),
-            )
+    // const transactionNames = await db.query.trxNameTable.findMany({
+    //     where: (table, { and, eq }) => {
+    //         const base = and(
+    //             eq(table.clerkUserId, userId),
+    //             eq(table.isDeleted, false),
+    //         )
 
-            return base
+    //         return base
+    //     },
+    //     with: {
+    //         assignedBanks: {
+    //             with: {
+    //                 bankAccount: {
+    //                     columns: {
+    //                         id: true,
+    //                         isActive: true,
+    //                         isDeleted: true,
+    //                         name: true,
+    //                     }
+    //                 }
+    //             },
+    //             columns: {
+    //                 id: true
+    //             }
+    //         }
+    //     },
+    //     columns: {
+    //         id: true,
+    //         name: true,
+    //         isActive: true
+    //     }
+    // })
+
+    const assignedTrxBanks = await db.query.assignTrxNameTable.findMany({
+        where:(table,{and,eq})=>{
+            return and(
+                eq(table.clerkUserId,userId)
+            )
         },
-        with: {
-            assignedBanks: {
-                with: {
-                    bankAccount: {
-                        columns: {
-                            id: true,
-                            isActive: true,
-                            isDeleted: true,
-                            name: true,
-                        }
-                    }
-                },
-                columns: {
-                    id: true
+        with:{
+            bankAccount:{
+                columns:{
+                    id:true,
+                    name:true,
+                    isDeleted:true,
+                    isActive:true
                 }
             }
         },
-        columns: {
-            id: true,
-            name: true,
-            isActive: true
+        columns:{
+            id:true,
+            assignedAs:true
         }
     })
-
 
 
 
@@ -152,7 +173,7 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
                 description="Create your Transaction"
             >
                 <TransactionForm
-                    trxNames={transactionNames}
+                    assignedTrxBanks={assignedTrxBanks}
                     bank={bank}
                     units={units} />
             </CardWrapper>

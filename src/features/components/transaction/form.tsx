@@ -74,8 +74,19 @@ type TrxName = {
     }[];
 }
 
+type AssignedTrxBank = {
+    id: string;
+    assignedAs: "Debit" | "Credit" | "Both";
+    bankAccount: {
+        id: string;
+        name: string;
+        isActive: boolean;
+        isDeleted: boolean;
+    };
+}
 
-export const TransactionForm = ({ bank, units, trxNames }: { trxNames: TrxName[]; bank: BankWithAssignedTrxName, units: { id: string, unit: string }[] }) => {
+
+export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrxBanks: AssignedTrxBank[]; bank: BankWithAssignedTrxName, units: { id: string, unit: string }[] }) => {
 
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [pending, startTransition] = useTransition()
@@ -163,33 +174,18 @@ export const TransactionForm = ({ bank, units, trxNames }: { trxNames: TrxName[]
         })
     }
 
-
-    const trxNamesUnderBank = isInternalAndIsDebitOrCreditTrxType ? bank.assignedTransactionsName.map(assignedTrxName => (
-        {
-            label: assignedTrxName.transactionName.name,
-            value: assignedTrxName.transactionName.id,
-            disabled: !assignedTrxName.transactionName.isActive,
-            hidden: assignedTrxName.transactionName.isDeleted,
+    const selectedAssignedBanks = assignedTrxBanks.filter(trxBank=>{
+        if(trxBank.assignedAs==="Debit"&&trxBank.bankAccount.id !== bank.id){
+            return true
         }
-    )) : trxNames.map(trxName => (
-        {
-            label: trxName.name,
-            value: trxName.id,
-            disabled: !trxName.isActive,
-        }
-    ))
+        return false
+    })
 
-
-    const selectedTrxName = trxNames.find(trxName => trxName.id === selectedTrxNameId)
-
-    const assignedBanks = (selectedTrxVariant === 'Internal' && selectedTrxType === 'Both' && selectedTrxName) ? selectedTrxName.assignedBanks.map(assignedBank => ({
-        label: assignedBank.bankAccount.name,
-        value: assignedBank.bankAccount.id,
-        disabled: !assignedBank.bankAccount.isActive,
-        hidden: assignedBank.bankAccount.isDeleted,
-    })).filter(assignedBank => assignedBank.value !== bank.id) : []
-
-
+    console.log({
+        assignedTrxBanks,
+        selectedAssignedBanks,
+        selectedTrxType
+    })
 
     return (
 
@@ -287,7 +283,14 @@ export const TransactionForm = ({ bank, units, trxNames }: { trxNames: TrxName[]
                                 field.onChange(value)
                                 resetField('localBankNumber')
                             }}
-                            items={trxNamesUnderBank}
+                            items={bank.assignedTransactionsName.map(assignedTrxName => (
+                                {
+                                    label: assignedTrxName.transactionName.name,
+                                    value: assignedTrxName.transactionName.id,
+                                    disabled: !assignedTrxName.transactionName.isActive,
+                                    hidden: assignedTrxName.transactionName.isDeleted,
+                                }
+                            ))}
                         />
                     )}
                 />
@@ -309,7 +312,12 @@ export const TransactionForm = ({ bank, units, trxNames }: { trxNames: TrxName[]
                                         field.onChange(value)
                                         resetField('localBankNumber')
                                     }}
-                                    items={assignedBanks}
+                                    items={selectedAssignedBanks.map(({bankAccount})=>({
+                                        label:bankAccount.name,
+                                        value:bankAccount.id,
+                                        disabled:!bankAccount.isActive,
+                                        hidden:bankAccount.isDeleted
+                                    }))}
                                 />
                             )}
                         />

@@ -1,5 +1,5 @@
 {
-  "id": "d7287b85-ae44-45ae-9bff-ad35b1be10c1",
+  "id": "f0709519-ab1e-4e65-b6c8-8fde0d79e4fb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -30,6 +30,12 @@
         "transaction_name_id": {
           "name": "transaction_name_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "assigned_as": {
+          "name": "assigned_as",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -133,6 +139,13 @@
           "notNull": true,
           "default": true
         },
+        "is_deleted": {
+          "name": "is_deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -198,6 +211,20 @@
           "type": "numeric(7, 2)",
           "primaryKey": false,
           "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "is_deleted": {
+          "name": "is_deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -431,6 +458,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "is_deleted": {
+          "name": "is_deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -618,27 +652,34 @@
           "primaryKey": false,
           "notNull": true
         },
-        "is_ban": {
-          "name": "is_ban",
+        "is_deleted": {
+          "name": "is_deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "reason_of_ban": {
-          "name": "reason_of_ban",
+        "is_block": {
+          "name": "is_block",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "reason_of_block": {
+          "name": "reason_of_block",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "ban_for": {
-          "name": "ban_for",
+        "block_for": {
+          "name": "block_for",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "is_both_financier_ban": {
-          "name": "is_both_financier_ban",
+        "is_both_financier_block": {
+          "name": "is_both_financier_block",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -729,6 +770,12 @@
         },
         "payment_type": {
           "name": "payment_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_note": {
+          "name": "payment_note",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -875,6 +922,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "due": {
+          "name": "due",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "details_of_loan": {
           "name": "details_of_loan",
           "type": "text",
@@ -937,13 +990,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "id"
-          ]
-        },
-        "loan_clerk_user_id_unique": {
-          "name": "loan_clerk_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
           ]
         }
       },
@@ -1058,15 +1104,22 @@
           "primaryKey": false,
           "notNull": true
         },
-        "is_ban": {
-          "name": "is_ban",
+        "is_deleted": {
+          "name": "is_deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
           "default": false
         },
-        "reason_of_ban": {
-          "name": "reason_of_ban",
+        "is_block": {
+          "name": "is_block",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "reason_of_block": {
+          "name": "reason_of_block",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -1349,7 +1402,7 @@
           "name": "source_bank_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "payment_date": {
           "name": "payment_date",
@@ -1455,6 +1508,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
+        },
+        "is_deleted": {
+          "name": "is_deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "created_at": {
           "name": "created_at",

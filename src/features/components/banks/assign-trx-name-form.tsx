@@ -7,7 +7,11 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import {
     Form,
+    FormControl,
     FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form"
 import { assignTrxNameFormSchema, AssignTrxNameFormValue } from "@/features/schemas/assign-trx-name"
 import { SelectInput } from "@/components/input"
@@ -21,6 +25,10 @@ import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { CardWrapper } from "@/components"
 import { ModalTriggerButton } from "@/components/modal-trigger-button"
 import { MODAL_TYPE } from "@/constant"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { trxTypeWithBoth } from "@/drizzle/schema-helpers"
+import { cn } from "@/lib/utils"
+import { Label } from "@/components/ui/label"
 
 export const AssignTrxNameForm = (
     { bank, trxNames }: {
@@ -41,6 +49,8 @@ export const AssignTrxNameForm = (
         },
     })
 
+    const { control, handleSubmit, watch } = form
+
     // 2. Define a submit handler.
     function onSubmit(values: z.infer<typeof assignTrxNameFormSchema>) {
         startTransition(
@@ -60,6 +70,9 @@ export const AssignTrxNameForm = (
         )
     }
 
+
+    const selectedAssignAs = watch('assignedAs')
+
     return (
         <CardWrapper
             title='Assign Transaction'
@@ -74,7 +87,7 @@ export const AssignTrxNameForm = (
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
-                        control={form.control}
+                        control={control}
                         name="trxNameId"
                         render={({ field }) => (
                             <SelectInput
@@ -87,10 +100,42 @@ export const AssignTrxNameForm = (
                                 items={trxNames.map(({ id, name, isActive, assignedBanks }) => ({
                                     label: name,
                                     value: id,
-                                    disabled: !isActive || !!assignedBanks.find(item => item.bankAccountId === bank.id),
+                                    disabled: !isActive,
                                     Icon: assignedBanks.find(item => item.bankAccountId === bank.id) ? Cable : undefined
                                 }))}
                             />
+                        )}
+                    />
+                    <FormField
+                        control={control}
+                        name="assignedAs"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Transaction Type</FormLabel>
+                                <FormControl className="w-full">
+                                    <RadioGroup
+                                        className="flex items-center gap-3"
+                                        value={field.value}
+                                        disabled={pending}
+                                        onValueChange={field.onChange}
+                                    >
+                                        {
+                                            trxTypeWithBoth.map(trx => (
+                                                <div
+                                                    key={trx}
+                                                    className={cn("flex items-center justify-center border-2 border-secondary w-18 h-8 rounded-sm", selectedAssignAs === trx && "border-primary")}
+
+                                                >
+                                                    <RadioGroupItem value={trx} id={trx} hidden />
+                                                    <Label htmlFor={trx} className="flex items-center justify-center h-full w-full">{trx}</Label>
+                                                </div>
+                                            ))
+                                        }
+
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                         )}
                     />
                     {

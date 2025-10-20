@@ -1,8 +1,9 @@
 'use server'
 
 import { db } from "@/drizzle/db"
+import { trxTypeWithBoth } from "@/drizzle/schema-helpers"
 
-export const getAssignTrxNameByClerkUserId = async (clerkUserId: string) => {
+export const getAssignTrxNamesByClerkUserId = async (clerkUserId: string) => {
     return await db.query.assignTrxNameTable.findMany({
         where: (bankTable, { eq }) => (eq(bankTable.clerkUserId, clerkUserId)),
     })
@@ -19,12 +20,23 @@ export const getAssignTrxNameByIdAndClerkUserId = async (assignedId: string,cler
         })
 }
 
-export const getAssignTrxNameByIdAndBankIdAndClerkUserId = async (trxNameId: string, bankId: string, clerkUserId: string) => {
+export const getAssignTrxNameByTrxNameIdAndBankIdAndClerkUserId = async (trxNameId: string, bankId: string, clerkUserId: string) => {
     return await db.query.assignTrxNameTable.findFirst({
         where: (table, { eq, and }) => (and(
             eq(table.trxNameId, trxNameId),
             eq(table.bankAccountId, bankId),
             eq(table.clerkUserId, clerkUserId)
+        )),
+    })
+}
+
+export const getAssignTrxNameByTrxNameIdAndBankIdAndClerkUserIdAndAssignedAs = async (trxNameId: string, bankId: string, clerkUserId: string,assignedAs:typeof trxTypeWithBoth[number]) => {
+    return await db.query.assignTrxNameTable.findFirst({
+        where: (table, { eq, and }) => (and(
+            eq(table.trxNameId, trxNameId),
+            eq(table.bankAccountId, bankId),
+            eq(table.clerkUserId, clerkUserId),
+            eq(table.assignedAs, assignedAs),
         )),
     })
 }

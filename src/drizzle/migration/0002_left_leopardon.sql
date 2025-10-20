@@ -1,1 +1,0 @@
-ALTER TABLE "loan" DROP CONSTRAINT "loan_clerk_user_id_unique";

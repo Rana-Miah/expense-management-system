@@ -1,1 +1,0 @@
-ALTER TABLE "trx_name" ALTER COLUMN "is_deleted" SET DEFAULT false;
