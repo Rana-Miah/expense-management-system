@@ -38,14 +38,20 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
             sourceTrxNames: {
                 with: {
                     transactionName:true
+                },
+                columns:{
+                    id:true,
                 }
             },
             receiveTrxNames: {
                 with: {
                     transactionName:true
+                },
+                columns:{
+                    id:true,
                 }
             }
-        }
+        },
     })
     const trxNamePromise = db.query.trxNameTable.findMany({
         where: (table, { eq, and }) => (
@@ -73,7 +79,7 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
                 }}
             />
             <AssignTrxNameForm bank={bank} trxNames={trxNames} banks={banks}/>
-            <AssignedTrxName assignedTrxNames={bank.assignedTransactionsName} />
+            <AssignedTrxName sourceTrxNames={bank.sourceTrxNames} receiveTrxNames={bank.receiveTrxNames} />
         </div>
     )
 }
