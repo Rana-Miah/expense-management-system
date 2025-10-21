@@ -1,7 +1,7 @@
 'use client'
 
 import { AlertModal, CardWrapper } from '@/components'
-import { ItemUnitSelectValue } from '@/drizzle/type'
+import { ItemUnit } from '@/drizzle/type'
 import React, { useTransition } from 'react'
 import { UnitCard } from './unit-card'
 import { ModalTriggerButton } from '@/components/modal-trigger-button'
@@ -17,7 +17,7 @@ type AlertModalPayload = {
     name: string
 }
 
-const ItemUnits = ({ itemUnits }: { itemUnits: ItemUnitSelectValue[] }) => {
+const ItemUnits = ({ itemUnits }: { itemUnits: ItemUnit[] }) => {
     const router = useRouter()
     const [pending, startTransition] = useTransition()
     const { isAlertOpen, payload } = useAlertModal<AlertModalPayload>()

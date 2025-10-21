@@ -77,12 +77,18 @@ type TrxName = {
 type AssignedTrxBank = {
     id: string;
     assignedAs: "Debit" | "Credit" | "Both";
-    bankAccount: {
+    transactionName: {
         id: string;
         name: string;
         isActive: boolean;
         isDeleted: boolean;
     };
+    bankAccount: {
+        id: string;
+        name: string;
+        isActive: boolean;
+        isDeleted: boolean;
+    }
 }
 
 
@@ -174,17 +180,10 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
         })
     }
 
-    const selectedAssignedBanks = assignedTrxBanks.filter(trxBank=>{
-        if(trxBank.assignedAs==="Debit"&&trxBank.bankAccount.id !== bank.id){
-            return true
-        }
+    const receiveBanks = assignedTrxBanks.filter(assignedBank => {
+        const isBothAndDebit = assignedBank.assignedAs === 'Both' || assignedBank.assignedAs === 'Debit'
+        if (isBothAndDebit && assignedBank.transactionName.id === selectedTrxNameId) return true
         return false
-    })
-
-    console.log({
-        assignedTrxBanks,
-        selectedAssignedBanks,
-        selectedTrxType
     })
 
     return (
@@ -283,12 +282,12 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
                                 field.onChange(value)
                                 resetField('localBankNumber')
                             }}
-                            items={bank.assignedTransactionsName.map(assignedTrxName => (
+                            items={bank.assignedTransactionsName.map(({ id, transactionName }) => (
                                 {
-                                    label: assignedTrxName.transactionName.name,
-                                    value: assignedTrxName.transactionName.id,
-                                    disabled: !assignedTrxName.transactionName.isActive,
-                                    hidden: assignedTrxName.transactionName.isDeleted,
+                                    label: transactionName.name,
+                                    value: transactionName.id,
+                                    disabled: !transactionName.isActive,
+                                    hidden: transactionName.isDeleted,
                                 }
                             ))}
                         />
@@ -312,12 +311,14 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
                                         field.onChange(value)
                                         resetField('localBankNumber')
                                     }}
-                                    items={selectedAssignedBanks.map(({bankAccount})=>({
-                                        label:bankAccount.name,
-                                        value:bankAccount.id,
-                                        disabled:!bankAccount.isActive,
-                                        hidden:bankAccount.isDeleted
-                                    }))}
+                                    items={receiveBanks.map(receiveBank => (
+                                        {
+                                            label: receiveBank.bankAccount.name,
+                                            value:receiveBank.bankAccount.id,
+                                            hidden:receiveBank.bankAccount.isDeleted,
+                                            disabled:receiveBank.bankAccount.isDeleted,
+                                        }
+                                    ))}
                                 />
                             )}
                         />
@@ -415,7 +416,7 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
                     name="trxDescription"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Transaction Name</FormLabel>
+                            <FormLabel>Transaction Description</FormLabel>
                             <FormControl className="w-full">
                                 <Textarea {...field} />
                             </FormControl>

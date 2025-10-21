@@ -45,8 +45,11 @@ export const invalidFieldsMessage = (message?: string) => message ?? "Invalid fi
 export const unauthorizedMessage = (message?: string) => message ?? "Unauthorized user!"
 export const notFoundMessage = (value: string) => `${capitalize(value)} doesn't exist!`
 export const existMessage = (value: string) => `${capitalize(value)} already exist!`
-export const newAssignMessage = (trxName: string, bankName: string) => `Transaction name "${trxName.toUpperCase()}" assigned to "${bankName.toUpperCase()}" bank!`
-export const assignedMessage = (trxName: string, bankName: string) => `Transaction name "${trxName.toUpperCase()} already assigned with "${bankName}" bank!`
+export const newAssignMessage = (trxName: string, bankName: {
+    sourceBank: string;
+    receiveBank: string
+}) => `Transaction name "${trxName.toUpperCase()}" assigned with "${bankName.sourceBank.toUpperCase()}" as source bank & "${bankName.receiveBank.toUpperCase()}" as receive bank!`
+export const assignedMessage = (trxName: string, bankName: { sourceBank: string; receiveBank: string }) => `Transaction name "${trxName.toUpperCase()} already assigned with source bank "${bankName.sourceBank}" receive bank "${bankName.receiveBank}"!`
 export const notActiveMessage = (value: string) => `${capitalize(value)} is not active!`
 export const missingFieldValue = (field: string) => `${capitalize(field)} is missing!`
 export const itemsRequiredMessage = (message?: string) => message || `Did you forget to add items?`

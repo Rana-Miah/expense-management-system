@@ -1,11 +1,11 @@
 {
-  "id": "f0709519-ab1e-4e65-b6c8-8fde0d79e4fb",
+  "id": "7b6ad99c-9953-48d6-ae2c-87872aebee01",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.assign_transaction_name": {
-      "name": "assign_transaction_name",
+    "public.assign_receive": {
+      "name": "assign_receive",
       "schema": "",
       "columns": {
         "id": {
@@ -21,8 +21,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "bank_account_id": {
-          "name": "bank_account_id",
+        "receive_bank_id": {
+          "name": "receive_bank_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -30,12 +30,6 @@
         "transaction_name_id": {
           "name": "transaction_name_id",
           "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "assigned_as": {
-          "name": "assigned_as",
-          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -55,12 +49,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "assign_transaction_name_bank_account_id_bank_account_id_fk": {
-          "name": "assign_transaction_name_bank_account_id_bank_account_id_fk",
-          "tableFrom": "assign_transaction_name",
+        "assign_receive_receive_bank_id_bank_account_id_fk": {
+          "name": "assign_receive_receive_bank_id_bank_account_id_fk",
+          "tableFrom": "assign_receive",
           "tableTo": "bank_account",
           "columnsFrom": [
-            "bank_account_id"
+            "receive_bank_id"
           ],
           "columnsTo": [
             "id"
@@ -68,9 +62,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "assign_transaction_name_transaction_name_id_trx_name_id_fk": {
-          "name": "assign_transaction_name_transaction_name_id_trx_name_id_fk",
-          "tableFrom": "assign_transaction_name",
+        "assign_receive_transaction_name_id_trx_name_id_fk": {
+          "name": "assign_receive_transaction_name_id_trx_name_id_fk",
+          "tableFrom": "assign_receive",
           "tableTo": "trx_name",
           "columnsFrom": [
             "transaction_name_id"
@@ -84,8 +78,94 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "assign_transaction_name_id_unique": {
-          "name": "assign_transaction_name_id_unique",
+        "assign_receive_id_unique": {
+          "name": "assign_receive_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.assign_source": {
+      "name": "assign_source",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_bank_id": {
+          "name": "source_bank_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "transaction_name_id": {
+          "name": "transaction_name_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "assign_source_source_bank_id_bank_account_id_fk": {
+          "name": "assign_source_source_bank_id_bank_account_id_fk",
+          "tableFrom": "assign_source",
+          "tableTo": "bank_account",
+          "columnsFrom": [
+            "source_bank_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "assign_source_transaction_name_id_trx_name_id_fk": {
+          "name": "assign_source_transaction_name_id_trx_name_id_fk",
+          "tableFrom": "assign_source",
+          "tableTo": "trx_name",
+          "columnsFrom": [
+            "transaction_name_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "assign_source_id_unique": {
+          "name": "assign_source_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "id"

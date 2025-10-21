@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/form"
 import { assignTrxNameFormSchema, AssignTrxNameFormValue } from "@/features/schemas/assign-trx-name"
 import { SelectInput } from "@/components/input"
-import { AssignTrxNameSelectValue, BankSelectValue, TrxNameSelectValue } from "@/drizzle/type"
-import { createAssignTrxNameAction } from "@/features/actions/assign-trx-name/create-assign-trx-name"
+import { Bank, TrxNameSelectValue } from "@/drizzle/type"
+import { createAssignTrxNameAction } from "@/features/actions/assign/create-assign"
 import { useTransition } from "react"
 import { toast } from "sonner"
 import { generateToasterDescription } from "@/lib/helpers"
@@ -26,15 +26,16 @@ import { CardWrapper } from "@/components"
 import { ModalTriggerButton } from "@/components/modal-trigger-button"
 import { MODAL_TYPE } from "@/constant"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { trxTypeWithBoth } from "@/drizzle/schema-helpers"
+import { trxType, trxTypeWithBoth } from "@/drizzle/schema-helpers"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 
 export const AssignTrxNameForm = (
-    { bank, trxNames }: {
-        bank: BankSelectValue, trxNames: (TrxNameSelectValue & {
-            assignedBanks: AssignTrxNameSelectValue[]
-        })[]
+    { bank, trxNames, banks }: {
+        bank: Bank, trxNames: (TrxNameSelectValue & {
+            // assignedBanks: AssignTrxNameSelectValue[]
+        })[];
+        banks: Bank[]
     }
 ) => {
 
@@ -44,18 +45,35 @@ export const AssignTrxNameForm = (
     const form = useForm<AssignTrxNameFormValue>({
         resolver: zodResolver(assignTrxNameFormSchema),
         defaultValues: {
-            bankAccountId: bank.id,
-            trxNameId: ""
+            trxNameId: "",
+            assignedAs: ""
         },
     })
 
-    const { control, handleSubmit, watch } = form
+    const { control, handleSubmit, watch, resetField } = form
+    const selectedAssignAs = watch('assignedAs')
 
     // 2. Define a submit handler.
     function onSubmit(values: z.infer<typeof assignTrxNameFormSchema>) {
         startTransition(
             async () => {
-                const res = await createAssignTrxNameAction(values)
+
+                const isDebit = selectedAssignAs === 'Debit'
+
+                const receiveBankId = values.receiveBankId
+                ?values.receiveBankId
+                :!isDebit
+                ?bank.id:undefined
+                const sourceBankId = values.sourceBankId
+                ?values.sourceBankId
+                :isDebit
+                ?bank.id:undefined
+
+                const res = await createAssignTrxNameAction({
+                    ...values,
+                    sourceBankId,
+                    receiveBankId
+                })
                 const description = generateToasterDescription()
                 if (!res.success) {
                     if (res.isError) {
@@ -71,7 +89,6 @@ export const AssignTrxNameForm = (
     }
 
 
-    const selectedAssignAs = watch('assignedAs')
 
     return (
         <CardWrapper
@@ -88,26 +105,6 @@ export const AssignTrxNameForm = (
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                         control={control}
-                        name="trxNameId"
-                        render={({ field }) => (
-                            <SelectInput
-                                {...field}
-                                label="Transaction Name"
-                                placeholder="Select a Transaction name"
-                                disabled={pending}
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                items={trxNames.map(({ id, name, isActive, assignedBanks }) => ({
-                                    label: name,
-                                    value: id,
-                                    disabled: !isActive,
-                                    Icon: assignedBanks.find(item => item.bankAccountId === bank.id) ? Cable : undefined
-                                }))}
-                            />
-                        )}
-                    />
-                    <FormField
-                        control={control}
                         name="assignedAs"
                         render={({ field }) => (
                             <FormItem>
@@ -117,10 +114,15 @@ export const AssignTrxNameForm = (
                                         className="flex items-center gap-3"
                                         value={field.value}
                                         disabled={pending}
-                                        onValueChange={field.onChange}
+                                        onValueChange={(value) => {
+                                            field.onChange(value)
+                                            resetField('receiveBankId')
+                                            resetField('sourceBankId')
+                                            resetField('trxNameId')
+                                        }}
                                     >
                                         {
-                                            trxTypeWithBoth.map(trx => (
+                                            trxType.map(trx => (
                                                 <div
                                                     key={trx}
                                                     className={cn("flex items-center justify-center border-2 border-secondary w-18 h-8 rounded-sm", selectedAssignAs === trx && "border-primary")}
@@ -138,6 +140,66 @@ export const AssignTrxNameForm = (
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={control}
+                        name="trxNameId"
+                        render={({ field }) => (
+                            <SelectInput
+                                {...field}
+                                label="Transaction Name"
+                                placeholder="Select a Transaction name"
+                                disabled={pending || !selectedAssignAs}
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                items={trxNames.map(({ id, name, isActive }) => ({
+                                    label: name,
+                                    value: id,
+                                    disabled: !isActive,
+                                }))}
+                            />
+                        )}
+                    />
+                    {selectedAssignAs === 'Debit' && (
+                        <FormField
+                            control={control}
+                            name="receiveBankId"
+                            render={({ field }) => (
+                                <SelectInput
+                                    label="Assigned as Receive"
+                                    placeholder="Select a bank as receive"
+                                    disabled={pending || !selectedAssignAs}
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    items={banks.map(({ id, name, isActive }) => ({
+                                        label: name,
+                                        value: id,
+                                        disabled: !isActive,
+                                    }))}
+                                />
+                            )}
+                        />
+                    )}
+                    {selectedAssignAs === 'Credit' && (
+                        <FormField
+                            control={control}
+                            name="sourceBankId"
+                            render={({ field }) => (
+                                <SelectInput
+                                    label="Assigned as Source"
+                                    placeholder="Select a bank as source"
+                                    disabled={pending || !selectedAssignAs}
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    items={banks.map(({ id, name, isActive }) => ({
+                                        label: name,
+                                        value: id,
+                                        disabled: !isActive,
+                                    }))}
+                                />
+                            )}
+                        />
+                    )}
+
                     {
                         pending ? (
                             <TextShimmerWave

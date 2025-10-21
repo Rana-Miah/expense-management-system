@@ -2,7 +2,7 @@
 
 import { db } from "@/drizzle/db"
 import { bankAccountTable, itemTable, trxTable } from "@/drizzle/schema"
-import { TrxInsertValue, TrxItemInsertValue } from "@/drizzle/type"
+import { NewTrx, TrxItemInsertValue } from "@/drizzle/type"
 import { transactionFormSchema } from "@/features/schemas/transaction"
 import { currentUserId } from "@/lib/current-user-id"
 import { generateLban, lbanSplitter, validateLban } from "@/lib/generate-lban"
@@ -50,7 +50,7 @@ export const createTransactionAction = async (value: unknown) => {
         db.transaction(
             async (tx) => {
 
-                const createTransaction = async (value: TrxInsertValue) => {
+                const createTransaction = async (value: NewTrx) => {
                     const [newTrx] = await tx.insert(trxTable).values(value).returning()
                     return newTrx
                 }

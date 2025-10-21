@@ -33,20 +33,17 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
             return base
         },
         with: {
-            assignedTransactionsName: {
+            sourceTrxNames: {
                 with: {
-                    transactionName: {
+                    sourceBank: {
                         columns: {
                             createdAt: false,
                             updatedAt: false,
                             clerkUserId: false,
                         }
-                    }
+                    },
                 },
-                columns: {
-                    id: true
-                }
-            }
+            },
         },
         columns: {
             createdAt: false,
@@ -55,38 +52,6 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
             lban: false,
         }
     })
-    // const banks = await db.query.bankAccountTable.findMany({
-    //     where: (table, { and, eq, not }) => {
-    //         const base = and(
-    //             eq(table.clerkUserId, userId),
-    //             eq(table.isDeleted, false),
-    //             not(eq(table.id, param.bankId))
-    //         )
-
-    //         return base
-    //     },
-    //     with: {
-    //         assignedTransactionsName: {
-    //             with: {
-    //                 transactionName: {
-    //                     columns: {
-    //                         createdAt: false,
-    //                         updatedAt: false,
-    //                         clerkUserId: false,
-    //                     }
-    //                 }
-    //             },
-    //             columns: {
-    //                 id: true
-    //             }
-    //         }
-    //     },
-    //     columns: {
-    //         id: true,
-    //         name: true,
-    //         isActive: true
-    //     }
-    // })
     const units = await db.query.itemUnitTable.findMany({
         where: (table, { and, eq }) => {
             const base = and(
@@ -103,61 +68,6 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
     })
 
 
-    // const transactionNames = await db.query.trxNameTable.findMany({
-    //     where: (table, { and, eq }) => {
-    //         const base = and(
-    //             eq(table.clerkUserId, userId),
-    //             eq(table.isDeleted, false),
-    //         )
-
-    //         return base
-    //     },
-    //     with: {
-    //         assignedBanks: {
-    //             with: {
-    //                 bankAccount: {
-    //                     columns: {
-    //                         id: true,
-    //                         isActive: true,
-    //                         isDeleted: true,
-    //                         name: true,
-    //                     }
-    //                 }
-    //             },
-    //             columns: {
-    //                 id: true
-    //             }
-    //         }
-    //     },
-    //     columns: {
-    //         id: true,
-    //         name: true,
-    //         isActive: true
-    //     }
-    // })
-
-    const assignedTrxBanks = await db.query.assignTrxNameTable.findMany({
-        where:(table,{and,eq})=>{
-            return and(
-                eq(table.clerkUserId,userId)
-            )
-        },
-        with:{
-            bankAccount:{
-                columns:{
-                    id:true,
-                    name:true,
-                    isDeleted:true,
-                    isActive:true
-                }
-            }
-        },
-        columns:{
-            id:true,
-            assignedAs:true
-        }
-    })
-
 
 
 
@@ -172,10 +82,11 @@ const TransactionPage = async ({ params }: TransactionPageProps) => {
                 title="Transaction Form"
                 description="Create your Transaction"
             >
-                <TransactionForm
+                {/* <TransactionForm
                     assignedTrxBanks={assignedTrxBanks}
                     bank={bank}
-                    units={units} />
+                    units={units} /> */}
+                <>todo</>
             </CardWrapper>
         </div>
     )

@@ -1,5 +1,5 @@
 import { CardWrapper } from '@/components'
-import { BankSelectValue } from '@/drizzle/type'
+import { Bank } from '@/drizzle/type'
 import { ShopkeeperBillPaymentForm } from '@/features/components/shopkeeper/form'
 import { currentUserId } from '@/lib/current-user-id'
 import { uuidValidator } from '@/lib/zod'

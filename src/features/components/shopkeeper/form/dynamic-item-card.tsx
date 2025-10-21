@@ -1,7 +1,7 @@
 import { InputField, SelectInput } from '@/components/input';
 import { FormField } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import { ItemUnitSelectValue, } from '@/drizzle/type';
+import { ItemUnit, } from '@/drizzle/type';
 import { ShopkeeperPurchaseItemFormValue } from '@/features/schemas/shopkeeper/purchase-item';
 import { useState } from 'react'
 import { FieldValues, Path, UseFormReturn } from 'react-hook-form';
@@ -10,7 +10,7 @@ import { FieldValues, Path, UseFormReturn } from 'react-hook-form';
 type Props = {
     form: UseFormReturn<ShopkeeperPurchaseItemFormValue>
     index: number;
-    itemUnits: ItemUnitSelectValue[];
+    itemUnits: ItemUnit[];
     pending: boolean;
 }
 

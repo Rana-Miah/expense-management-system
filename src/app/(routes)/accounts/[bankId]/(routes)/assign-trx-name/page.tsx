@@ -1,6 +1,7 @@
 import { CardWrapper } from '@/components'
 import { LayoutNav } from '@/components/layout-nav'
-import { AssignTrxNameSelectValue, BankSelectValue, TrxNameSelectValue } from '@/drizzle/type'
+import { db } from '@/drizzle/db'
+import { Bank, TrxNameSelectValue } from '@/drizzle/type'
 import { AssignTrxNameForm } from '@/features/components/banks/assign-trx-name-form'
 import { AssignedTrxName } from '@/features/components/banks/assigned-trx-name'
 import { currentUserId } from '@/lib/current-user-id'
@@ -15,36 +16,46 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
     const userId = await currentUserId()
     const bankId = uuidValidator(param.bankId, '/accounts')
 
-    const bankPromise = getBankByIdAndClerkUserId(bankId, userId, {
+    const banks = await db.query.bankAccountTable.findMany({
+        where: (table, { eq, and,not }) => (
+            and(
+                eq(table.clerkUserId, userId),
+                eq(table.isDeleted, false),
+                not(eq(table.id, bankId))
+            )
+        )
+    })
+
+    const bankPromise = db.query.bankAccountTable.findFirst({
+        where: (table, { eq, and }) => (
+            and(
+                eq(table.id, bankId),
+                eq(table.clerkUserId, userId),
+                eq(table.isDeleted, false),
+            )
+        ),
         with: {
-            assignedTransactionsName: {
+            sourceTrxNames: {
                 with: {
-                    transactionName: true
+                    transactionName:true
+                }
+            },
+            receiveTrxNames: {
+                with: {
+                    transactionName:true
                 }
             }
         }
-    }) as Promise<(
-        BankSelectValue & {
-            assignedTransactionsName: (AssignTrxNameSelectValue & {
-                transactionName: TrxNameSelectValue
-            })[]
-        }
-    )>
-    const trxNamePromise = getTrxNamesByClerkUserId(userId, {
-        with: {
-            assignedBanks: true
-        }
-    }) as Promise<(TrxNameSelectValue & {
-        assignedBanks: AssignTrxNameSelectValue[]
-    })[]>
-
-    const banks = await getBanksByClerkUserId(userId, {
-        columns: {
-            id: true,
-            isActive: true,
-            name: true
-        }
     })
+    const trxNamePromise = db.query.trxNameTable.findMany({
+        where: (table, { eq, and }) => (
+            and(
+                eq(table.clerkUserId, userId),
+                eq(table.isDeleted, false),
+            )
+        )
+    })
+
     const [bank, trxNames] = await Promise.all([bankPromise, trxNamePromise])
 
     if (!bank) redirect('/accounts')
@@ -52,16 +63,16 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
     return (
         <div className='space-y-3'>
             <LayoutNav
-                links={banks.map(bank=>({
-                    href:`/accounts/${bank.id}/assign-trx-name`,
-                    label:bank.name,
+                links={banks.map(bank => ({
+                    href: `/accounts/${bank.id}/assign-trx-name`,
+                    label: bank.name,
                 }))}
                 header={{
-                    title:'Direct assign navigation',
-                    description:'Easy link to assign new transaction name'
+                    title: 'Direct assign navigation',
+                    description: 'Easy link to assign new transaction name'
                 }}
             />
-            <AssignTrxNameForm bank={bank} trxNames={trxNames} />
+            <AssignTrxNameForm bank={bank} trxNames={trxNames} banks={banks}/>
             <AssignedTrxName assignedTrxNames={bank.assignedTransactionsName} />
         </div>
     )

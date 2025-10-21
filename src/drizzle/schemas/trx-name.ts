@@ -1,7 +1,7 @@
 import { pgTable, uuid, boolean, text } from "drizzle-orm/pg-core";
 import { createdAt, relationBetween, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
-import { assignTrxNameTable } from "./assign-trx-name";
+import { assignSourceTable,assignReceiveTable } from "./assign";
 import { trxTable } from "./trx";
 
 export const trxNameTable = pgTable("trx_name", {
@@ -17,7 +17,8 @@ export const trxNameTable = pgTable("trx_name", {
 
 export const trxNameTableRelation = relations(trxNameTable, ({ many }) => ({
     //assigned bank relation
-    assignedBanks: many(assignTrxNameTable, { relationName: relationBetween('assign-trx-name', 'transaction-name') }),//'relation-between-assign-trx-name-and-transaction-name',
+    sourceBanks: many(assignSourceTable, { relationName:relationBetween('assign_source','transaction_name')}),//'relation-between-assign-trx-name-and-transaction-name',
+    receiveBanks: many(assignReceiveTable, { relationName:relationBetween('assign_receive','transaction_name')}),//'relation-between-assign-trx-name-and-transaction-name',
 
     //transaction relation
     transactions: many(trxTable, { relationName: relationBetween('trx', 'trx-name') })//'relation-between-trx-and-trx-name'
