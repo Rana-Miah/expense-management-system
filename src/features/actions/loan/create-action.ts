@@ -2,7 +2,7 @@
 
 import { db } from "@/drizzle/db"
 import { bankAccountTable, loanTable, trxTable, loanFinancierTable } from "@/drizzle/schema"
-import { LoanInsertValue, TrxInsertValue } from "@/drizzle/type"
+import { LoanInsertValue, NewTrx } from "@/drizzle/type"
 import { loanCreateFormSchema } from "@/features/schemas/loan/loan-schema"
 import { currentUserId } from "@/lib/current-user-id"
 import { dateFormatter, failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
@@ -55,7 +55,7 @@ export const createLoanAction = async (value: unknown) => {
                     return newLoan
                 }
 
-                const createTransaction = async (value: TrxInsertValue) => {
+                const createTransaction = async (value: NewTrx) => {
                     const [newTrx] = await tx.insert(trxTable).values(value).returning()
                     return newTrx
                 }

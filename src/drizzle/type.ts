@@ -1,15 +1,13 @@
-import { Many, One, Relations, Table } from "drizzle-orm";
-import { InferSelectModel } from "drizzle-orm";
-import { assignTrxNameTable, bankAccountTable, bankAccountTableRelation, itemTable, itemUnitTable, loanFinancierTable, loanPaymentTable, loanTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable, trxTable } from "./schema";
+import { assignSourceTable,assignReceiveTable, bankAccountTable, bankAccountTableRelation, itemTable, itemUnitTable, loanFinancierTable, loanPaymentTable, loanTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable, trxTable } from "./schema";
 
-export type BankInsertValue = typeof bankAccountTable.$inferInsert
-export type BankSelectValue = typeof bankAccountTable.$inferSelect
+export type NewBank = typeof bankAccountTable.$inferInsert
+export type Bank = typeof bankAccountTable.$inferSelect
 
-export type ItemUnitInsertValue = typeof itemUnitTable.$inferInsert
-export type ItemUnitSelectValue = typeof itemUnitTable.$inferSelect
+export type NewItemUnit = typeof itemUnitTable.$inferInsert
+export type ItemUnit = typeof itemUnitTable.$inferSelect
 
-export type TrxInsertValue = typeof trxTable.$inferInsert
-export type TrxSelectValue = typeof trxTable.$inferSelect
+export type NewTrx = typeof trxTable.$inferInsert
+export type Trx = typeof trxTable.$inferSelect
 
 export type TrxItemInsertValue = typeof itemTable.$inferInsert
 export type TrxItemSelectValue = typeof itemTable.$inferSelect
@@ -17,8 +15,11 @@ export type TrxItemSelectValue = typeof itemTable.$inferSelect
 export type TrxNameInsertValue = typeof trxNameTable.$inferInsert
 export type TrxNameSelectValue = typeof trxNameTable.$inferSelect
 
-export type AssignTrxNameInsertValue = typeof assignTrxNameTable.$inferInsert
-export type AssignTrxNameSelectValue = typeof assignTrxNameTable.$inferSelect
+export type NewAssignSource = typeof assignSourceTable.$inferInsert
+export type AssignSource = typeof assignSourceTable.$inferSelect
+
+export type NewAssignReceive = typeof assignReceiveTable.$inferInsert
+export type AssignReceive = typeof assignReceiveTable.$inferSelect
 
 export type LoanFinancierInsertValue = typeof loanFinancierTable.$inferInsert
 export type LoanFinancierSelectValue = typeof loanFinancierTable.$inferSelect

@@ -6,13 +6,13 @@ import { Badge } from "./badge";
 import { CardWrapper } from "../card-wrapper";
 import Link from "next/link";
 import { Button } from "./button";
-import { BankSelectValue } from "@/drizzle/type";
+import { Bank } from "@/drizzle/type";
 import { ModalTriggerButton } from "../modal-trigger-button";
 import { MODAL_TYPE } from "@/constant";
 
 
 
-type Card = BankSelectValue & {
+type Card = Bank & {
   content: React.ReactNode;
 };
 

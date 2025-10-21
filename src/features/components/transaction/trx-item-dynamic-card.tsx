@@ -1,7 +1,7 @@
 import { InputField, SelectInput } from '@/components/input';
 import { FormField } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import { ItemUnitSelectValue, } from '@/drizzle/type';
+import { ItemUnit, } from '@/drizzle/type';
 import { TransactionFormValue } from '@/features/schemas/transaction';
 import { useState } from 'react'
 import { FieldValues, Path, UseFormReturn } from 'react-hook-form';

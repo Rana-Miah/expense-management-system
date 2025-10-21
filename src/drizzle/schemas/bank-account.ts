@@ -3,7 +3,7 @@
 import { boolean, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { createdAt, numericAmount, relationBetween, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
-import { assignTrxNameTable } from "./assign-trx-name";
+import { assignSourceTable,assignReceiveTable } from "./assign";
 import { trxTable } from "./trx";
 import { loanPaymentTable } from "./loan-payment";
 import { shopkeeperPaymentTable } from "./shopkeeper-payment";
@@ -23,12 +23,13 @@ export const bankAccountTable = pgTable("bank_account", {
 
 export const bankAccountTableRelation = relations(bankAccountTable, ({ many }) => ({
     // assigned transaction name relation
-    assignedTransactionsName: many(assignTrxNameTable, { relationName: relationBetween('assign-trx-name', 'bank-account') }),//'relation-between-assign-trx-name-and-bank-account' }),
+    sourceTrxNames: many(assignSourceTable, { relationName:relationBetween('assign_source','bank') }),
+    receiveTrxNames: many(assignReceiveTable, { relationName:relationBetween('assign_receive','bank') }),
 
     //transaction relation
-    sourceBankTrx: many(trxTable, { relationName: relationBetween('trx', 'source-bank') }),//'relation-between-trx-and-source-bank'}),
-    receiveBankTrx: many(trxTable, { relationName: relationBetween('trx', 'receive-bank') }),//'relation-between-trx-and-receive-bank'}),
-    localBankTrx: many(trxTable, { relationName: relationBetween('trx', 'local-bank') }),//'relation-between-trx-and-local-bank'}),
+    sourceBankTrx: many(trxTable, { relationName: relationBetween('trx', 'source-bank') }),
+    receiveBankTrx: many(trxTable, { relationName: relationBetween('trx', 'receive-bank') }),
+    localBankTrx: many(trxTable, { relationName: relationBetween('trx', 'local-bank') }),
 
     //loan relation
     loanReceipt: many(loanPaymentTable, { relationName: relationBetween('loan', 'receive-bank') }),

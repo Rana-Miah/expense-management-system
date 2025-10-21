@@ -1,1 +1,0 @@
-ALTER TABLE "loan" ADD COLUMN "due" numeric(7, 2) NOT NULL;

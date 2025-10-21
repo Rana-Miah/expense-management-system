@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1759914000221,
-      "tag": "0000_soft_warpath",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1760009709937,
-      "tag": "0001_acoustic_firestar",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1760010418736,
-      "tag": "0002_left_leopardon",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1760108023298,
-      "tag": "0003_melodic_exodus",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1760108755204,
-      "tag": "0004_powerful_the_leader",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1760125504945,
-      "tag": "0005_lowly_master_mold",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1760566871945,
-      "tag": "0006_nervous_juggernaut",
+      "when": 1761042676222,
+      "tag": "0000_little_arclight",
       "breakpoints": true
     }
   ]

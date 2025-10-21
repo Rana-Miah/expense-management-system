@@ -4,7 +4,7 @@ import { InputField, SelectInput } from '@/components/input'
 import { Button } from '@/components/ui/button'
 import { Form, FormField } from '@/components/ui/form'
 import { TextShimmerWave } from '@/components/ui/text-shimmer-wave'
-import { ItemUnitSelectValue } from '@/drizzle/type'
+import { ItemUnit } from '@/drizzle/type'
 import { updateItemUnitAction } from '@/features/actions/item-unit/update-action'
 import { itemUnitUpdateFormSchema, ItemUnitUpdateFormValue } from '@/features/schemas/item-unit'
 import { useAlertModalOpen } from '@/hooks/redux'
@@ -21,7 +21,7 @@ type AlertModalPayload = {
 }
 
 
-export const UnitCard = ({ itemUnit }: { itemUnit: ItemUnitSelectValue }) => {
+export const UnitCard = ({ itemUnit }: { itemUnit: ItemUnit }) => {
     const [pending, startTransition] = useTransition()
     const form = useForm<ItemUnitUpdateFormValue>({
         resolver: zodResolver(itemUnitUpdateFormSchema),

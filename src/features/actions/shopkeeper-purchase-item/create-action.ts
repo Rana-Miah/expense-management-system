@@ -2,7 +2,7 @@
 
 import { db } from "@/drizzle/db"
 import { bankAccountTable, itemTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxTable } from "@/drizzle/schema"
-import { BankSelectValue, ShopkeeperItemInsertValue, ShopkeeperPaymentInsertValue, ShopkeeperPurchaseInsertValue, ShopkeeperSelectValue, TrxInsertValue, TrxItemInsertValue } from "@/drizzle/type"
+import { Bank, ShopkeeperItemInsertValue, ShopkeeperPaymentInsertValue, ShopkeeperPurchaseInsertValue, ShopkeeperSelectValue, NewTrx, TrxItemInsertValue } from "@/drizzle/type"
 import { shopkeeperPurchaseItemFormSchema } from "@/features/schemas/shopkeeper/purchase-item"
 import { currentUserId } from "@/lib/current-user-id"
 import { failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
@@ -108,12 +108,12 @@ export const createShopkeeperPurchaseItemAction = async (value: unknown) => {
                     return newShopkeeperPayment
                 }
 
-                const createTrx = async (value: TrxInsertValue) => {
+                const createTrx = async (value: NewTrx) => {
                     const [newTrx] = await tx.insert(trxTable).values(value).returning()
                     return newTrx
                 }
 
-                const updateBank = async (bankId: string, clerkUserId: string, value: Pick<BankSelectValue, 'balance'>) => {
+                const updateBank = async (bankId: string, clerkUserId: string, value: Pick<Bank, 'balance'>) => {
                     const [updatedBank] = await tx.update(bankAccountTable).set(value).where(and(
                         eq(bankAccountTable.id, bankId),
                         eq(bankAccountTable.clerkUserId, clerkUserId)

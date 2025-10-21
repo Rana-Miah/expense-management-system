@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 import { shopkeeperPurchaseItemFormSchema, ShopkeeperPurchaseItemFormValue } from "@/features/schemas/shopkeeper/purchase-item"
 import { InputField, SelectInput, SwitchInput, TextAreaField } from "@/components/input"
 import { DynamicFormSheet } from "@/components/dynamic-fields"
-import { AssignTrxNameSelectValue, ItemUnitSelectValue, ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
+import { AssignTrxNameSelectValue, ItemUnit, ShopkeeperSelectValue, TrxNameSelectValue } from "@/drizzle/type"
 import { createShopkeeperPurchaseItemAction } from "@/features/actions/shopkeeper-purchase-item/create-action"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { DynamicItemCard } from "./dynamic-item-card"
@@ -31,7 +31,7 @@ export const PurchaseItemsForm = ({ banks, shopkeeper, itemUnits }: {
         })[]
     }[],
     shopkeeper: ShopkeeperSelectValue;
-    itemUnits: ItemUnitSelectValue[]
+    itemUnits: ItemUnit[]
 }) => {
 
     const [pending, startTransition] = useTransition()
