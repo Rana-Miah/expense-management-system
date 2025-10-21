@@ -84,7 +84,28 @@ export const AssignedTrxName = ({ sourceTrxNames, receiveTrxNames }: {
                 <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col space-y-2 overflow-y-auto max-h-40">
                         {
-                            sourceTrxNames.map(({id,transactionName}) => (
+                            sourceTrxNames.map(({ transactionName }) => (
+                                <div key={transactionName.id} className='flex items-center justify-between px-4 py-2 rounded-md shadow my-2 border border-accent'>
+                                    <span>
+                                        {transactionName.name}
+                                    </span>
+                                    <Button
+                                        variant={'destructive'}
+                                        size='sm'
+                                        onClick={() => {
+                                            onOpenHandler({ id: transactionName.id, title: transactionName.name })
+                                        }}
+                                        disabled={pending}
+                                    >
+                                        <Trash />
+                                    </Button>
+                                </div>
+                            ))
+                        }
+                    </div>
+                    <div className="flex flex-col space-y-2 overflow-y-auto max-h-40">
+                        {
+                            receiveTrxNames.map(({ transactionName }) => (
                                 <div key={transactionName.id} className='flex items-center justify-between px-4 py-2 rounded-md shadow my-2 border border-accent'>
                                     <span>
                                         {transactionName.name}

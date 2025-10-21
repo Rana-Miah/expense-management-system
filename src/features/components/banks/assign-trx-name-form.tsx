@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,17 +17,16 @@ import { SelectInput } from "@/components/input"
 import { Bank, TrxNameSelectValue } from "@/drizzle/type"
 import { createAssignTrxNameAction } from "@/features/actions/assign/create-assign"
 import { useTransition } from "react"
-import { toast } from "sonner"
-import { generateToasterDescription } from "@/lib/helpers"
-import { Cable } from "lucide-react"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { CardWrapper } from "@/components"
 import { ModalTriggerButton } from "@/components/modal-trigger-button"
 import { MODAL_TYPE } from "@/constant"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { trxType, trxTypeWithBoth } from "@/drizzle/schema-helpers"
+import { trxType } from "@/drizzle/schema-helpers"
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { actionExecutor } from "@/lib/helpers/action-executor"
 
 export const AssignTrxNameForm = (
     { bank, trxNames, banks }: {
@@ -46,47 +44,57 @@ export const AssignTrxNameForm = (
         resolver: zodResolver(assignTrxNameFormSchema),
         defaultValues: {
             trxNameId: "",
-            assignedAs: ""
+            assignedAs: "",
+            isBoth: false,
         },
     })
 
     const { control, handleSubmit, watch, resetField } = form
     const selectedAssignAs = watch('assignedAs')
+    const isBoth = watch('isBoth')
+
+    const isDebit = selectedAssignAs === 'Debit'
+    const isCredit = selectedAssignAs === 'Credit'
+    const isBothAndAssignAsDebit = isBoth && isDebit
+    const isBothAndAssignAsCredit = isBoth && isCredit
 
     // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof assignTrxNameFormSchema>) {
+    const onSubmit = handleSubmit((values) => {
         startTransition(
             async () => {
 
-                const isDebit = selectedAssignAs === 'Debit'
+                let receiveBankId: string | undefined
+                let sourceBankId: string | undefined
 
-                const receiveBankId = values.receiveBankId
-                ?values.receiveBankId
-                :!isDebit
-                ?bank.id:undefined
-                const sourceBankId = values.sourceBankId
-                ?values.sourceBankId
-                :isDebit
-                ?bank.id:undefined
-
-                const res = await createAssignTrxNameAction({
-                    ...values,
-                    sourceBankId,
-                    receiveBankId
-                })
-                const description = generateToasterDescription()
-                if (!res.success) {
-                    if (res.isError) {
-                        console.log({ error: res.error, errorMessage: res.errorMessage })
+                if (isDebit) {
+                    receiveBankId = bank.id
+                    if (isBothAndAssignAsDebit) {
+                        receiveBankId = values.receiveBankId
+                        sourceBankId = bank.id
                     }
-                    toast.error(res.message, { description })
-                    return
                 }
-                console.log({ res })
-                toast.success(res.message, { description })
+
+                if (isCredit) {
+                    sourceBankId = bank.id
+                    if (isBothAndAssignAsCredit) {
+                        sourceBankId = values.sourceBankId
+                        receiveBankId = bank.id
+                    }
+                }
+
+                actionExecutor(
+                    createAssignTrxNameAction({
+                        ...values,
+                        sourceBankId,
+                        receiveBankId
+                    }, `/accounts/${bank.id}/assign-trx-name`),
+                    (data) => {
+
+                    }
+                )
             }
         )
-    }
+    })
 
 
 
@@ -102,7 +110,7 @@ export const AssignTrxNameForm = (
             }
         >
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={onSubmit} className="space-y-4">
                     <FormField
                         control={control}
                         name="assignedAs"
@@ -133,6 +141,29 @@ export const AssignTrxNameForm = (
                                                 </div>
                                             ))
                                         }
+                                        <FormField
+                                            control={control}
+                                            name="isBoth"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl className="w-full">
+                                                        <div className={cn("flex items-center justify-center border-2 border-secondary rounded-sm", isBoth && "border-primary")}>
+                                                            <Checkbox id="Both"
+                                                                checked={field.value}
+                                                                onCheckedChange={value => {
+                                                                    field.onChange(value)
+                                                                    resetField('sourceBankId')
+                                                                    resetField('receiveBankId')
+                                                                }}
+                                                                hidden
+                                                            />
+                                                            <Label htmlFor="Both" className="flex items-center justify-center w-18 h-7">Both</Label>
+                                                        </div>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
 
                                     </RadioGroup>
                                 </FormControl>
@@ -159,7 +190,7 @@ export const AssignTrxNameForm = (
                             />
                         )}
                     />
-                    {selectedAssignAs === 'Debit' && (
+                    {isBothAndAssignAsDebit && (
                         <FormField
                             control={control}
                             name="receiveBankId"
@@ -179,7 +210,7 @@ export const AssignTrxNameForm = (
                             )}
                         />
                     )}
-                    {selectedAssignAs === 'Credit' && (
+                    {isBothAndAssignAsCredit && (
                         <FormField
                             control={control}
                             name="sourceBankId"

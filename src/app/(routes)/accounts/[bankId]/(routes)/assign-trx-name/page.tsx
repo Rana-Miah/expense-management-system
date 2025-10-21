@@ -1,13 +1,9 @@
-import { CardWrapper } from '@/components'
 import { LayoutNav } from '@/components/layout-nav'
 import { db } from '@/drizzle/db'
-import { Bank, TrxNameSelectValue } from '@/drizzle/type'
 import { AssignTrxNameForm } from '@/features/components/banks/assign-trx-name-form'
 import { AssignedTrxName } from '@/features/components/banks/assigned-trx-name'
 import { currentUserId } from '@/lib/current-user-id'
 import { uuidValidator } from '@/lib/zod'
-import { getBankByIdAndClerkUserId, getBanksByClerkUserId } from '@/services/bank'
-import { getTrxNamesByClerkUserId } from '@/services/trx-name/GET'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
@@ -17,7 +13,7 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
     const bankId = uuidValidator(param.bankId, '/accounts')
 
     const banks = await db.query.bankAccountTable.findMany({
-        where: (table, { eq, and,not }) => (
+        where: (table, { eq, and, not }) => (
             and(
                 eq(table.clerkUserId, userId),
                 eq(table.isDeleted, false),
@@ -37,18 +33,18 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
         with: {
             sourceTrxNames: {
                 with: {
-                    transactionName:true
+                    transactionName: true
                 },
-                columns:{
-                    id:true,
+                columns: {
+                    id: true,
                 }
             },
             receiveTrxNames: {
                 with: {
-                    transactionName:true
+                    transactionName: true
                 },
-                columns:{
-                    id:true,
+                columns: {
+                    id: true,
                 }
             }
         },
@@ -78,7 +74,7 @@ const AssignTrxNamePage = async ({ params }: { params: Promise<{ bankId: string 
                     description: 'Easy link to assign new transaction name'
                 }}
             />
-            <AssignTrxNameForm bank={bank} trxNames={trxNames} banks={banks}/>
+            <AssignTrxNameForm bank={bank} trxNames={trxNames} banks={banks} />
             <AssignedTrxName sourceTrxNames={bank.sourceTrxNames} receiveTrxNames={bank.receiveTrxNames} />
         </div>
     )
