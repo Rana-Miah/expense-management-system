@@ -1,12 +1,16 @@
 'use server'
 
+import { AssignReceive, AssignSource } from "@/drizzle/type"
+import { ActionFailureWithError, ActionFailureWithoutError, ActionSuccess } from "@/interface"
+import { DeleteAssign } from "@/interface/assign"
 import { currentUserId } from "@/lib/current-user-id"
 import { failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
 import { uuidValidator } from "@/lib/zod"
-import { deleteAssignedTrxName, getAssignTrxNameByIdAndClerkUserId } from "@/services/assign"
+import { deleteReceiveAssignedTrxName, deleteSourceAssignedTrxName, getReceiveAssignByIdAndClerkUserId, getSourceAssignByIdAndClerkUserId } from "@/services/assign"
 import { revalidatePath } from "next/cache"
 
-export const deleteAssignedTrxNameAction = async (id: string) => {
+export const deleteAssignedTrxNameAction = async (id: string, deleteAssign: DeleteAssign, revalidatePathname?: string)
+    : Promise<ActionFailureWithoutError | ActionFailureWithError<unknown> | ActionSuccess<AssignSource | AssignReceive>> => {
 
     const assignedId = uuidValidator(id, '/accounts')
 
@@ -14,19 +18,39 @@ export const deleteAssignedTrxNameAction = async (id: string) => {
 
     if (clerkError) return failureResponse(messageUtils.clerkErrorMessage(), clerkError)
 
-    const [existAssigned, getExistAssignedError] = await tryCatch(getAssignTrxNameByIdAndClerkUserId(assignedId, userId))
 
-    if (getExistAssignedError) return failureResponse(messageUtils.failedGetMessage('exist assigned transaction name'), getExistAssignedError)
 
-    if (!existAssigned) return failureResponse('Transaction not assigned!')
+    if (deleteAssign === 'delete/source') {
+        const [existSourceAssigned, existSourceAssignedError] = await tryCatch(getSourceAssignByIdAndClerkUserId(assignedId, userId))
 
-    const [deletedAssigned,deleteAssignedError] = await tryCatch(deleteAssignedTrxName(userId, existAssigned.id))
+        if (existSourceAssignedError) return failureResponse(messageUtils.failedGetMessage('exist assigned transaction name'), existSourceAssignedError)
 
-    if(deleteAssignedError) return failureResponse(messageUtils.failedDeletedMessage('assigned transaction name'),deleteAssignedError)
+        if (!existSourceAssigned) return failureResponse('Transaction not assigned in source!')
 
-    if (!deletedAssigned) return failureResponse(messageUtils.failedDeletedMessage('assigned transaction name'))
+        const [deleteSourceAssign, deleteAssignedError] = await tryCatch(deleteSourceAssignedTrxName(userId, existSourceAssigned.id))
+        if (deleteAssignedError) return failureResponse(messageUtils.failedDeletedMessage('assigned transaction name'), deleteAssignedError)
 
-    // revalidatePath(`/accounts/${existAssigned.bankAccountId}/assign-trx-name`)
+        if (!deleteSourceAssign) return failureResponse(messageUtils.failedDeletedMessage('assigned transaction name'))
 
-    return successResponse(messageUtils.deleteMessage('Assigned transaction name'), deletedAssigned)
+        revalidatePath(revalidatePathname || `/accounts/${existSourceAssigned.sourceBankId}/assign-trx-name`)
+
+        return successResponse(messageUtils.deleteMessage('Assigned transaction name'), deleteSourceAssign)
+    }
+
+    const [existReceiveAssigned, existReceiveAssignedError] = await tryCatch(getReceiveAssignByIdAndClerkUserId(assignedId, userId))
+
+    if (existReceiveAssignedError) return failureResponse(messageUtils.failedGetMessage('exist assigned transaction name'), existReceiveAssignedError)
+
+    if (!existReceiveAssigned) return failureResponse('Transaction not assigned in receive!')
+
+    const [deletedReceiveAssigned, deleteAssignedError] = await tryCatch(deleteReceiveAssignedTrxName(userId, existReceiveAssigned.id))
+    if (deleteAssignedError) return failureResponse(messageUtils.failedDeletedMessage('assigned transaction name'), deleteAssignedError)
+
+    if (!deletedReceiveAssigned) return failureResponse(messageUtils.failedDeletedMessage('assigned transaction name'))
+
+    revalidatePath(revalidatePathname || `/accounts/${existReceiveAssigned.receiveBankId}/assign-trx-name`)
+
+    return successResponse(messageUtils.deleteMessage('Assigned transaction name'), deletedReceiveAssigned)
+
+
 }
