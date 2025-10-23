@@ -31,71 +31,77 @@ import { DynamicFormSheet } from "@/components/dynamic-fields"
 import { DynamicItemCard } from "./trx-item-dynamic-card"
 import { actionExecutor } from "@/lib/helpers/action-executor"
 import { createTransactionAction } from "@/features/actions/transaction/create-action"
-
-type AssignedTransactionsName = {
-    id: string;
-    transactionName: {
-        id: string;
-        name: string;
-        isActive: boolean;
-        isDeleted: boolean;
-    };
-}
+import { useQueryString } from "@/hooks/use-query-string"
 
 type Bank = {
     id: string;
     name: string;
+    balance: number;
     isActive: boolean;
-    assignedTransactionsName: AssignedTransactionsName[]
-}
-
-type BankWithAssignedTrxName = (
-    Bank & {
-        isDeleted: boolean
-        balance: number;
-    } & {
-        assignedTransactionsName: AssignedTransactionsName[]
-    }
-)
-
-
-type TrxName = {
-    id: string;
-    name: string;
-    isActive: boolean;
-    assignedBanks: {
+    isDeleted: boolean;
+    sourceTrxNames: {
         id: string;
-        bankAccount: {
+        transactionName: {
             id: string;
             name: string;
             isActive: boolean;
             isDeleted: boolean;
         };
     }[];
+    receiveTrxNames: {
+        id: string;
+        transactionName: {
+            id: string;
+            name: string;
+            isActive: boolean;
+            isDeleted: boolean;
+            receiveBanks: {
+                id: string;
+                receiveBank: {
+                    id: string;
+                    name: string;
+                    isActive: boolean;
+                    isDeleted: boolean;
+                };
+            }[];
+        };
+    }[];
 }
 
-type AssignedTrxBank = {
+type SourceTrxName = {
     id: string;
-    assignedAs: "Debit" | "Credit" | "Both";
     transactionName: {
         id: string;
         name: string;
         isActive: boolean;
         isDeleted: boolean;
+        receiveBanks: {
+            id: string;
+            receiveBank: {
+                id: string;
+                name: string;
+                isActive: boolean;
+                isDeleted: boolean;
+            };
+        }[];
     };
-    bankAccount: {
-        id: string;
-        name: string;
-        isActive: boolean;
-        isDeleted: boolean;
-    }
 }
 
+type ReceiveTrxName = {
+    id: string;
+    transactionName: {
+        name: string;
+        id: string;
+        isActive: boolean;
+        isDeleted: boolean;
+    };
+}
 
-export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrxBanks: AssignedTrxBank[]; bank: BankWithAssignedTrxName, units: { id: string, unit: string }[] }) => {
+export const TransactionForm = ({ units, bank,sourceTrxNames,receiveTrxNames }: {receiveTrxNames:ReceiveTrxName[];sourceTrxNames:SourceTrxName[]; bank: Bank; units: { id: string, unit: string }[] }) => {
 
     const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
     const [pending, startTransition] = useTransition()
+    const { setQueryParams } = useQueryString()
 
     // 1. Define your form.
     const form = useForm<TransactionFormValue>({
@@ -128,25 +134,19 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
     const selectedTrxType = watch('type')
     const isIncludeItems = watch('isIncludedItems')
 
-
+    const isBothTrxType = selectedTrxType === 'Both'
     const isDebitTrxType = selectedTrxType === 'Debit'
     const isCreditTrxType = selectedTrxType === 'Credit'
     const isInternalTrx = selectedTrxVariant === 'Internal'
-
-    const isInternalAndIsDebitOrCreditTrxType = isInternalTrx && (isDebitTrxType || isCreditTrxType)
+    const isLocalTrx = selectedTrxVariant === 'Local'
+    const isInternalAndDebitTrx = isInternalTrx && isDebitTrxType
+    const isInternalAndCreditOrBothTrx = isInternalTrx && (isCreditTrxType || isBothTrxType)
+    const isCreditOrIsBoth = isCreditTrxType || isBothTrxType
 
     // 2. Define a submit handler.
     const onSubmit = handleSubmit(values => {
         startTransition(
             async () => {
-                const isBothTrxType = selectedTrxType === 'Both'
-                const isDebitTrxType = selectedTrxType === 'Debit'
-                const isCreditTrxType = selectedTrxType === 'Credit'
-                const isInternalTrx = selectedTrxVariant === 'Internal'
-                const isLocalTrx = selectedTrxVariant === 'Local'
-                const isInternalAndDebitTrx = isInternalTrx && isDebitTrxType
-                const isInternalAndCreditOrBothTrx = isInternalTrx && (isCreditTrxType || isBothTrxType)
-
                 const receiveBankId = values.receiveBankId
                     ? values.receiveBankId
                     : isInternalAndDebitTrx
@@ -180,11 +180,10 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
         })
     }
 
-    const receiveBanks = assignedTrxBanks.filter(assignedBank => {
-        const isBothAndDebit = assignedBank.assignedAs === 'Both' || assignedBank.assignedAs === 'Debit'
-        if (isBothAndDebit && assignedBank.transactionName.id === selectedTrxNameId) return true
-        return false
-    })
+    const receiveBanks = isCreditOrIsBoth ? sourceTrxNames.find(({ transactionName }) => transactionName.id === selectedTrxNameId) : undefined
+
+
+    console.log({receiveBanks,sourceTrxNames,selectedTrxNameId,isCreditOrIsBoth})
 
     return (
 
@@ -277,12 +276,16 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
                             label="Transaction Name"
                             placeholder="Select a transaction name"
                             disabled={pending}
-                            defaultValue={field.value}
+                            value={field.value}
                             onValueChange={(value) => {
                                 field.onChange(value)
                                 resetField('localBankNumber')
+                                resetField('receiveBankId')
                             }}
-                            items={bank.assignedTransactionsName.map(({ id, transactionName }) => (
+                            items={(isCreditOrIsBoth
+                                ? sourceTrxNames
+                                : receiveTrxNames
+                            ).map(({ id, transactionName }) => (
                                 {
                                     label: transactionName.name,
                                     value: transactionName.id,
@@ -306,19 +309,17 @@ export const TransactionForm = ({ bank, units, assignedTrxBanks }: { assignedTrx
                                     label='Receive Bank'
                                     placeholder='Select a bank to receive money'
                                     disabled={pending}
-                                    defaultValue={field.value}
+                                    value={field.value}
                                     onValueChange={(value) => {
                                         field.onChange(value)
                                         resetField('localBankNumber')
                                     }}
-                                    items={receiveBanks.map(receiveBank => (
-                                        {
-                                            label: receiveBank.bankAccount.name,
-                                            value:receiveBank.bankAccount.id,
-                                            hidden:receiveBank.bankAccount.isDeleted,
-                                            disabled:receiveBank.bankAccount.isDeleted,
-                                        }
-                                    ))}
+                                    items={receiveBanks?receiveBanks.transactionName.receiveBanks.map(({receiveBank})=>({
+                                        label:receiveBank.name,
+                                        value:receiveBank.id,
+                                        disabled:!receiveBank.isActive,
+                                        hidden:receiveBank.isDeleted
+                                    })):[]}
                                 />
                             )}
                         />

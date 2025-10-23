@@ -8,6 +8,13 @@
       "when": 1761042676222,
       "tag": "0000_little_arclight",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761217588820,
+      "tag": "0001_thin_vin_gonzales",
+      "breakpoints": true
     }
   ]
 }

@@ -3,7 +3,7 @@
 import { ShopkeeperPaymentSelectValue } from "@/drizzle/type"
 import { CellContext, ColumnDef } from "@tanstack/react-table"
 import {  ShopkeeperNameColumnCell } from "./shopkeeper-name-column-cell"
-import {  SourceBankNameColumnCell } from "./source-bank-name-column-cell"
+import {  SourceBankNameColumnCell } from "./src-bank-name-column-cell"
 import { ShopkeeperPaymentAmountColumnCell } from "./payment-amount-column-cell"
 import { ShopkeeperPaymentDateColumnCell } from "./payment-date-column-cell"
 

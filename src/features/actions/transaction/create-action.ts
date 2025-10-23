@@ -92,6 +92,37 @@ export const createTransactionAction = async (value: unknown) => {
 
                         if ((items && items.length > 0) || isIncludedItems) return failureResponse('You are not allow to include items in both type transaction')
 
+                        const [existAssignedSource, existAssignedSourceError] = await tryCatch(
+                            db.query.assignSourceTable.findFirst({
+                                where(table, { and, eq }) {
+                                    return and(
+                                        eq(table.sourceBankId, existSourceBank.id),
+                                        eq(table.trxNameId, existTrxName.id),
+                                        eq(table.clerkUserId, userId),
+                                    )
+                                }
+                            })
+                        )
+
+                        if (existAssignedSourceError) return failureResponse(`Failed to get assigned source`)
+                        if (!existAssignedSource) return failureResponse(`Transaction Name ${existTrxName.name} is not assign as source with bank ${existSourceBank.name}`)
+
+                        const [existAssignedReceive, existAssignedReceiveError] = await tryCatch(
+                            db.query.assignReceiveTable.findFirst({
+                                where(table, { and, eq }) {
+                                    return and(
+                                        eq(table.receiveBankId, existReceiveBank.id),
+                                        eq(table.trxNameId, existTrxName.id),
+                                        eq(table.clerkUserId, userId),
+                                    )
+                                }
+                            })
+                        )
+
+                        if (existAssignedReceiveError) return failureResponse(`Failed to get assigned receive`)
+                        if (!existAssignedReceive) return failureResponse(`Transaction Name ${existTrxName.name} is not assign as receive with bank ${existReceiveBank.name}`)
+
+
                         const [newTrx, newTrxError] = await tryCatch(createTransaction({
                             amount,
                             clerkUserId: userId,
@@ -147,6 +178,22 @@ export const createTransactionAction = async (value: unknown) => {
 
                         if ((items && items.length > 0) || isIncludedItems) return failureResponse('You are not allow to include items in debit type transaction')
 
+                        const [existAssignedReceive, existAssignedReceiveError] = await tryCatch(
+                            db.query.assignReceiveTable.findFirst({
+                                where(table, { and, eq }) {
+                                    return and(
+                                        eq(table.receiveBankId, existReceiveBank.id),
+                                        eq(table.trxNameId, existTrxName.id),
+                                        eq(table.clerkUserId, userId),
+                                    )
+                                }
+                            })
+                        )
+
+                        if (existAssignedReceiveError) return failureResponse(`Failed to get assigned receive`)
+                        if (!existAssignedReceive) return failureResponse(`Transaction Name ${existTrxName.name} is not assign as receive with bank ${existReceiveBank.name}`)
+
+
                         const [newTrx, newTrxError] = await tryCatch(createTransaction({
                             amount,
                             clerkUserId: userId,
@@ -187,6 +234,22 @@ export const createTransactionAction = async (value: unknown) => {
                         if (!existSourceBank.isActive) return failureResponse(messageUtils.notActiveMessage(`source bank`))
                         if (existSourceBank.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`source bank`))
                         if (existSourceBank.balance < amount) failureResponse(messageUtils.insufficientBalance())
+
+                        const [existAssignedSource, existAssignedSourceError] = await tryCatch(
+                            db.query.assignSourceTable.findFirst({
+                                where(table, { and, eq }) {
+                                    return and(
+                                        eq(table.sourceBankId, existSourceBank.id),
+                                        eq(table.trxNameId, existTrxName.id),
+                                        eq(table.clerkUserId, userId),
+                                    )
+                                }
+                            })
+                        )
+
+                        if (existAssignedSourceError) return failureResponse(`Failed to get assigned source`)
+                        if (!existAssignedSource) return failureResponse(`Transaction Name ${existTrxName.name} is not assign as source with bank ${existSourceBank.name}`)
+
 
                         const [newTrx, newTrxError] = await tryCatch(createTransaction({
                             amount,
@@ -268,6 +331,23 @@ export const createTransactionAction = async (value: unknown) => {
                 if (existSourceBank.balance < amount) failureResponse(messageUtils.insufficientBalance())
 
                 if ((items && items.length > 0) || isIncludedItems) return failureResponse('You are not allow to include items in local transaction')
+
+                const [existAssignedSource, existAssignedSourceError] = await tryCatch(
+                    db.query.assignSourceTable.findFirst({
+                        where(table, { and, eq }) {
+                            return and(
+                                eq(table.sourceBankId, existSourceBank.id),
+                                eq(table.trxNameId, existTrxName.id),
+                                eq(table.clerkUserId, userId),
+                            )
+                        }
+                    })
+                )
+
+                if (existAssignedSourceError) return failureResponse(`Failed to get assigned source`)
+                if (!existAssignedSource) return failureResponse(`Transaction Name ${existTrxName.name} is not assign as source with bank ${existSourceBank.name}`)
+
+
 
                 const [newTrx, newTrxError] = await tryCatch(createTransaction({
                     amount,

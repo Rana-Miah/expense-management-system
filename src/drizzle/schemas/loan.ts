@@ -10,7 +10,7 @@ export const loanTable = pgTable('loan', {
     clerkUserId: text('clerk_user_id').notNull(),
     financierId: uuid('financier_id').notNull(),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),
-    sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
+    sourceBankId: uuid('src_bank_id').references(() => bankAccountTable.id),
     loanType: text('loan_type', { enum: loanType }).notNull(),
     title: text('title').notNull(),
     amount: numericAmount('amount', 7, 2),
@@ -32,12 +32,12 @@ export const loanTableRelation = relations(loanTable, ({ one, many }) => ({
     receiveBank: one(bankAccountTable, {
         fields: [loanTable.receiveBankId],
         references: [bankAccountTable.id],
-        relationName: relationBetween('loan', 'receive-bank')
+        relationName: relationBetween('loan', 'rec-bank')
     }),
     sourceBank: one(bankAccountTable, {
         fields: [loanTable.sourceBankId],
         references: [bankAccountTable.id],
-        relationName: relationBetween('loan', 'source-bank')
+        relationName: relationBetween('loan', 'src-bank')
     }),
 
     //loan payments relation
