@@ -6,15 +6,20 @@ import { Button } from "@/components/ui/button"
 import { TrxNameSelectValue } from "@/drizzle/type"
 import { deleteAssignedTrxNameAction } from "@/features/actions/assign/delete-assigned"
 import { useAlertModal, useAlertModalClose, useAlertModalOpen } from "@/hooks/redux"
+import { DeleteAssign } from "@/interface/assign"
 import { generateToasterDescription } from "@/lib/helpers"
+import { actionExecutor } from "@/lib/helpers/action-executor"
 import { Trash } from "lucide-react"
 import { useTransition } from "react"
 import { toast } from "sonner"
 
 
 
+
 type TitleCardProp = {
-    title: string, id: string
+    id: string,
+    title: string,
+    deleteAssign: DeleteAssign
 }
 
 
@@ -46,21 +51,12 @@ export const AssignedTrxName = ({ sourceTrxNames, receiveTrxNames }: {
                     return
                 }
 
-                const res = await deleteAssignedTrxNameAction(payload.id)
-                const description = generateToasterDescription()
+                console.log({ payload, sourceTrxNames, receiveTrxNames })
 
-                if (!res.success) {
-                    console.log({
-                        errorResponse: res
-                    })
-
-                    toast.error(res.message, { description })
-                    return
-                }
-
-                onCloseHandler()
-                toast.success(res.message, { description })
-
+                actionExecutor(
+                    deleteAssignedTrxNameAction(payload.id, payload.deleteAssign),
+                    onCloseHandler
+                )
             }
         )
     }
@@ -84,7 +80,7 @@ export const AssignedTrxName = ({ sourceTrxNames, receiveTrxNames }: {
                 <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col space-y-2 overflow-y-auto max-h-40">
                         {
-                            sourceTrxNames.map(({ transactionName }) => (
+                            sourceTrxNames.map(({ id, transactionName }) => (
                                 <div key={transactionName.id} className='flex items-center justify-between px-4 py-2 rounded-md shadow my-2 border border-accent'>
                                     <span>
                                         {transactionName.name}
@@ -93,7 +89,7 @@ export const AssignedTrxName = ({ sourceTrxNames, receiveTrxNames }: {
                                         variant={'destructive'}
                                         size='sm'
                                         onClick={() => {
-                                            onOpenHandler({ id: transactionName.id, title: transactionName.name })
+                                            onOpenHandler({ id, title: transactionName.name, deleteAssign: 'delete/source' })
                                         }}
                                         disabled={pending}
                                     >
@@ -105,7 +101,7 @@ export const AssignedTrxName = ({ sourceTrxNames, receiveTrxNames }: {
                     </div>
                     <div className="flex flex-col space-y-2 overflow-y-auto max-h-40">
                         {
-                            receiveTrxNames.map(({ transactionName }) => (
+                            receiveTrxNames.map(({ id, transactionName }) => (
                                 <div key={transactionName.id} className='flex items-center justify-between px-4 py-2 rounded-md shadow my-2 border border-accent'>
                                     <span>
                                         {transactionName.name}
@@ -114,7 +110,7 @@ export const AssignedTrxName = ({ sourceTrxNames, receiveTrxNames }: {
                                         variant={'destructive'}
                                         size='sm'
                                         onClick={() => {
-                                            onOpenHandler({ id: transactionName.id, title: transactionName.name })
+                                            onOpenHandler({ id, title: transactionName.name, deleteAssign: 'delete/receive' })
                                         }}
                                         disabled={pending}
                                     >

@@ -9,8 +9,8 @@ import { itemTable } from "./item";
 export const trxTable = pgTable("trx", {
     id: uuid('id').primaryKey().unique().defaultRandom(),
     clerkUserId: text('clerk_user_id').notNull(),
-    trxNameId: uuid('transaction_name_id').notNull().references(() => trxNameTable.id),
-    sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
+    trxNameId: uuid('trx_name_id').notNull().references(() => trxNameTable.id),
+    sourceBankId: uuid('src_bank_id').references(() => bankAccountTable.id),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),
     localBankId: uuid('local_bank_id').references(() => bankAccountTable.id),
 
@@ -35,12 +35,12 @@ export const trxTableRelation = relations(trxTable, ({ one, many }) => ({
     sourceBank: one(bankAccountTable, {
         fields: [trxTable.sourceBankId],
         references: [bankAccountTable.id],
-        relationName: relationBetween('trx', 'source-bank')//'relation-between-trx-and-source-bank'
+        relationName: relationBetween('trx', 'src-bank')//'relation-between-trx-and-src-bank'
     }),
     receiveBank: one(bankAccountTable, {
         fields: [trxTable.receiveBankId],
         references: [bankAccountTable.id],
-        relationName: relationBetween('trx', 'receive-bank')//'relation-between-trx-and-receive-bank'
+        relationName: relationBetween('trx', 'rec-bank')//'relation-between-trx-and-rec-bank'
     }),
     localBankNumber: one(bankAccountTable, {
         fields: [trxTable.localBankId],

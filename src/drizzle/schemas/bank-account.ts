@@ -23,24 +23,24 @@ export const bankAccountTable = pgTable("bank_account", {
 
 export const bankAccountTableRelation = relations(bankAccountTable, ({ many }) => ({
     // assigned transaction name relation
-    sourceTrxNames: many(assignSourceTable, { relationName:relationBetween('assign_source','bank') }),
-    receiveTrxNames: many(assignReceiveTable, { relationName:relationBetween('assign_receive','bank') }),
+    sourceTrxNames: many(assignSourceTable, { relationName:relationBetween('assign_src','bank') }),
+    receiveTrxNames: many(assignReceiveTable, { relationName:relationBetween('assign_rec','bank') }),
 
     //transaction relation
-    sourceBankTrx: many(trxTable, { relationName: relationBetween('trx', 'source-bank') }),
-    receiveBankTrx: many(trxTable, { relationName: relationBetween('trx', 'receive-bank') }),
+    sourceBankTrx: many(trxTable, { relationName: relationBetween('trx', 'src-bank') }),
+    receiveBankTrx: many(trxTable, { relationName: relationBetween('trx', 'rec-bank') }),
     localBankTrx: many(trxTable, { relationName: relationBetween('trx', 'local-bank') }),
 
     //loan relation
-    loanReceipt: many(loanPaymentTable, { relationName: relationBetween('loan', 'receive-bank') }),
-    loanSource: many(loanPaymentTable, { relationName: relationBetween('loan', 'source-bank') }),
+    loanReceipt: many(loanPaymentTable, { relationName: relationBetween('loan', 'rec-bank') }),
+    loanSource: many(loanPaymentTable, { relationName: relationBetween('loan', 'src-bank') }),
 
     //loan payment relation
-    loanPaymentReceipt: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'receive-bank') }),
-    loanPaymentPaid: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'source-bank') }),
+    loanPaymentReceipt: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'rec-bank') }),
+    loanPaymentPaid: many(loanPaymentTable, { relationName: relationBetween('loan-payment', 'src-bank') }),
 
     // shopkeeper payments relation
-    shopkeeperPayments: many(shopkeeperPaymentTable, { relationName: relationBetween('shopkeeper-payment', 'source-bank') }),
+    shopkeeperPayments: many(shopkeeperPaymentTable, { relationName: relationBetween('shopkeeper-payment', 'src-bank') }),
 
     // monthly monitor relation
     previousMonthlyMonitories: many(monthlyMonitorTable, { relationName: relationBetween('monthly-monitor', 'bank') })

@@ -20,6 +20,28 @@ export const getAssignTrxNameByIdAndClerkUserId = async (assignedId: string, cle
     })
 }
 
+export const getSourceAssignByIdAndClerkUserId = async (assignedId: string, clerkUserId: string) => {
+    return await db.query.assignSourceTable.findFirst({
+        where: (table, { and, eq }) => (
+            and(
+                eq(table.clerkUserId, clerkUserId),
+                eq(table.id, assignedId),
+            )
+        )
+    })
+}
+
+export const getReceiveAssignByIdAndClerkUserId = async (assignedId: string, clerkUserId: string) => {
+    return await db.query.assignReceiveTable.findFirst({
+        where: (table, { and, eq }) => (
+            and(
+                eq(table.clerkUserId, clerkUserId),
+                eq(table.id, assignedId),
+            )
+        )
+    })
+}
+
 export const getAssignTrxNameByTrxNameIdAndBankIdAndClerkUserId = async (trxNameId: string, bankId: string, clerkUserId: string) => {
     return await db.query.assignReceiveTable.findFirst({
         where: (table, { eq, and }) => (and(

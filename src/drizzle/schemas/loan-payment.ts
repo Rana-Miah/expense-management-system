@@ -11,7 +11,7 @@ export const loanPaymentTable = pgTable('loan_payment', {
     financierId: uuid('financier_id').notNull().references(() => loanFinancierTable.id),
     loanId: uuid('loan_id').notNull().references(() => loanTable.id),
     receiveBankId: uuid('receive_bank_id').references(() => bankAccountTable.id),
-    sourceBankId: uuid('source_bank_id').references(() => bankAccountTable.id),
+    sourceBankId: uuid('src_bank_id').references(() => bankAccountTable.id),
     paymentDate: times('payment_date'),
     amount: numericAmount('amount', 7, 2),
     paymentType: text('payment_type', { enum: paymentType }).notNull(),
@@ -39,13 +39,13 @@ export const loanPaymentTableRelation = relations(loanPaymentTable, ({ one }) =>
     receiveBank: one(bankAccountTable, {
         fields: [loanPaymentTable.receiveBankId],
         references: [bankAccountTable.id],
-        relationName: relationBetween('loan-payment', 'receive-bank')
+        relationName: relationBetween('loan-payment', 'rec-bank')
     }),
 
     sourceBank: one(bankAccountTable, {
         fields: [loanPaymentTable.sourceBankId],
         references: [bankAccountTable.id],
-        relationName: relationBetween('loan-payment', 'source-bank')
+        relationName: relationBetween('loan-payment', 'src-bank')
     }),
 }))
 

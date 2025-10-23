@@ -69,15 +69,19 @@ const BankTransactionsPage = async ({ params }: { params: Promise<{ bankId: stri
 
     const { sourceBankTrx, receiveBankTrx, localBankTrx, ...restBank } = bank
 
-    console.log({ bank })
-
     return (
         <>
             <LayoutNav
-                links={banks.map(bank => ({
-                    href: `/accounts/${bank.id}/assign-trx-name`,
+                links={[
+                    ...banks.map(bank => ({
+                    href: `/accounts/${bank.id}/transactions`,
                     label: bank.name,
-                }))}
+                })),
+                {
+                    href:`/accounts/${bank.id}/transactions/new`,
+                    label:'New Transaction'
+                }
+                ]}
                 header={{
                     title: 'Direct assign navigation',
                     description: 'Easy link to assign new transaction name'

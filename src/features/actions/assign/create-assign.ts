@@ -2,7 +2,7 @@
 
 import { db } from "@/drizzle/db"
 import { assignReceiveTable, assignSourceTable } from "@/drizzle/schema"
-import { NewAssignReceive, NewAssignSource } from "@/drizzle/type"
+import { Bank, NewAssignReceive, NewAssignSource } from "@/drizzle/type"
 import { assignTrxNameFormSchema } from "@/features/schemas/assign-trx-name"
 import { ActionFailureWithError, ActionFailureWithoutError, ActionSuccess } from "@/interface"
 import { currentUserId } from "@/lib/current-user-id"
@@ -37,6 +37,44 @@ export const createAssignTrxNameAction = async (value: unknown, revalidatePathna
     if (!existTrxName) return failureResponse(messageUtils.notFoundMessage('transaction name'))
     if (existTrxName.isDeleted) return failureResponse(messageUtils.deletedRowMessage(`transaction name "${existTrxName.name}"`))
     if (!existTrxName.isActive) return failureResponse(messageUtils.notActiveMessage(`transaction name "${existTrxName.name}"`))
+
+
+    const createSourceAssign = async (existSourceBank: Bank) => {
+        const insertSourceAssign = async (value: NewAssignSource) => {
+            const [newSourceAssign] = await db.insert(assignSourceTable).values(value).returning()
+            return newSourceAssign
+        }
+        const [newSourceAssign, newSourceAssignError] = await tryCatch(insertSourceAssign({
+            clerkUserId: userId,
+            sourceBankId: existSourceBank.id,
+            trxNameId: existTrxName.id
+        }))
+
+        if (newSourceAssignError || !newSourceAssign) return failureResponse('Failed to assigned', newSourceAssignError)
+        revalidatePath(revalidatePathname)
+        return successResponse(messageUtils.newAssignMessage(existTrxName.name, {
+            sourceBank: existSourceBank.name,
+        }), { newSourceAssign, newReceiveAssign: null })
+    }
+
+    const createReceiveAssign = async (existReceiveBank: Bank) => {
+        const insertReceiveAssign = async (value: NewAssignReceive) => {
+            const [newReceiveAssign] = await db.insert(assignReceiveTable).values(value).returning()
+            return newReceiveAssign
+        }
+        const [newReceiveAssign, newReceiveAssignError] = await tryCatch(insertReceiveAssign({
+            clerkUserId: userId,
+            receiveBankId: existReceiveBank.id,
+            trxNameId: existTrxName.id
+        }))
+
+        if (newReceiveAssignError || !newReceiveAssign) return failureResponse('Failed to assigned', newReceiveAssignError)
+        revalidatePath(revalidatePathname)
+        return successResponse(messageUtils.newAssignMessage(existTrxName.name, {
+            receiveBank: existReceiveBank.name
+        }), { newReceiveAssign, newSourceAssign: null })
+    }
+
 
     if (sourceBankId && receiveBankId) {
 
@@ -81,51 +119,71 @@ export const createAssignTrxNameAction = async (value: unknown, revalidatePathna
             receiveBank: existReceiveBank.name,
         }))
 
-        const [txResult, txError] = await tryCatch(
-            db.transaction(
-                async (tx) => {
-                    const createSourceAssign = async (value: NewAssignSource) => {
-                        const [newSourceAssign] = await tx.insert(assignSourceTable).values(value).returning()
-                        return newSourceAssign
+        console.log({
+            sourceBankId,
+            existSourceBank,
+            existSourceAssigned,
+            receiveBankId,
+            existReceiveBank,
+            existReceiveAssigned,
+        })
+
+
+        if (!existSourceAssigned && !existReceiveAssigned) {
+            const [txResult, txError] = await tryCatch(
+                db.transaction(
+                    async (tx) => {
+                        const createSourceAssign = async (value: NewAssignSource) => {
+                            const [newSourceAssign] = await tx.insert(assignSourceTable).values(value).returning()
+                            return newSourceAssign
+                        }
+                        const createReceiveAssign = async (value: NewAssignReceive) => {
+                            const [newReceiveAssign] = await tx.insert(assignReceiveTable).values(value).returning()
+                            return newReceiveAssign
+                        }
+
+                        const [newSourceAssign, newSourceAssignError] = await tryCatch(createSourceAssign({
+                            clerkUserId: userId,
+                            sourceBankId: existSourceBank.id,
+                            trxNameId: existTrxName.id
+                        }))
+
+                        if (newSourceAssignError || !newSourceAssign) return failureResponse('Failed to assigned', newSourceAssignError)
+
+                        const [newReceiveAssign, newReceiveAssignError] = await tryCatch(createReceiveAssign({
+                            clerkUserId: userId,
+                            receiveBankId: existReceiveBank.id,
+                            trxNameId: existTrxName.id
+                        }))
+
+                        if (newReceiveAssignError || !newReceiveAssign) {
+                            tx.rollback()
+                            return failureResponse('Failed to assigned', newReceiveAssignError)
+                        }
+
+                        return successResponse(messageUtils.newAssignMessage(existTrxName.name, {
+                            receiveBank: existReceiveBank.name,
+                            sourceBank: existSourceBank.name
+                        }), {
+                            newSourceAssign,
+                            newReceiveAssign
+                        })
                     }
-                    const createReceiveAssign = async (value: NewAssignReceive) => {
-                        const [newReceiveAssign] = await tx.insert(assignReceiveTable).values(value).returning()
-                        return newReceiveAssign
-                    }
-
-                    const [newSourceAssign, newSourceAssignError] = await tryCatch(createSourceAssign({
-                        clerkUserId: userId,
-                        sourceBankId: existSourceBank.id,
-                        trxNameId: existTrxName.id
-                    }))
-
-                    if (newSourceAssignError || !newSourceAssign) return failureResponse('Failed to assigned', newSourceAssignError)
-
-                    const [newReceiveAssign, newReceiveAssignError] = await tryCatch(createReceiveAssign({
-                        clerkUserId: userId,
-                        receiveBankId: existReceiveBank.id,
-                        trxNameId: existTrxName.id
-                    }))
-
-                    if (newReceiveAssignError || !newReceiveAssign) {
-                        tx.rollback()
-                        return failureResponse('Failed to assigned', newReceiveAssignError)
-                    }
-
-                    return successResponse(messageUtils.newAssignMessage(existTrxName.name, {
-                        receiveBank: existReceiveBank.name,
-                        sourceBank: existSourceBank.name
-                    }), {
-                        newSourceAssign,
-                        newReceiveAssign
-                    })
-                }
+                )
             )
-        )
 
-        if (txError) return failureResponse(messageUtils.failedCreateMessage('assign transaction name'), txError)
-        revalidatePath(revalidatePathname)
-        return txResult
+            if (txError) return failureResponse(messageUtils.failedCreateMessage('assign transaction name'), txError)
+            revalidatePath(revalidatePathname)
+            return txResult
+        }
+
+        if (!existSourceAssigned) {
+            return await createSourceAssign(existSourceBank)
+        }
+        
+        if(!existReceiveAssigned){
+            return await createReceiveAssign(existReceiveBank)
+        }
     }
 
     if (sourceBankId) {
@@ -152,21 +210,7 @@ export const createAssignTrxNameAction = async (value: unknown, revalidatePathna
             sourceBank: existSourceBank.name,
         }))
 
-        const createSourceAssign = async (value: NewAssignSource) => {
-            const [newSourceAssign] = await db.insert(assignSourceTable).values(value).returning()
-            return newSourceAssign
-        }
-        const [newSourceAssign, newSourceAssignError] = await tryCatch(createSourceAssign({
-            clerkUserId: userId,
-            sourceBankId: existSourceBank.id,
-            trxNameId: existTrxName.id
-        }))
-
-        if (newSourceAssignError || !newSourceAssign) return failureResponse('Failed to assigned', newSourceAssignError)
-        revalidatePath(revalidatePathname)
-        return successResponse(messageUtils.newAssignMessage(existTrxName.name, {
-            sourceBank: existSourceBank.name,
-        }), { newSourceAssign, newReceiveAssign: null })
+        return await createSourceAssign(existSourceBank)
     }
 
     if (!receiveBankId) return failureResponse(messageUtils.missingFieldValue('receive bank'))
@@ -192,21 +236,7 @@ export const createAssignTrxNameAction = async (value: unknown, revalidatePathna
         sourceBank: existReceiveBank.name,
     }))
 
-    const createReceiveAssign = async (value: NewAssignReceive) => {
-        const [newReceiveAssign] = await db.insert(assignReceiveTable).values(value).returning()
-        return newReceiveAssign
-    }
-    const [newReceiveAssign, newReceiveAssignError] = await tryCatch(createReceiveAssign({
-        clerkUserId: userId,
-        receiveBankId: existReceiveBank.id,
-        trxNameId: existTrxName.id
-    }))
-
-    if (newReceiveAssignError || !newReceiveAssign) return failureResponse('Failed to assigned', newReceiveAssignError)
-    revalidatePath(revalidatePathname)
-    return successResponse(messageUtils.newAssignMessage(existTrxName.name, {
-        receiveBank: existReceiveBank.name
-    }), { newReceiveAssign, newSourceAssign: null })
+    return await createReceiveAssign(existReceiveBank)
 
 
 }
