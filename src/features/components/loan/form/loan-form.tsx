@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { trxType as loanType } from '@/drizzle/schema-helpers'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { Financier, BankWithAssignedTrxName } from '@/drizzle/type'
+import { Financier, LoanTrxName } from '@/drizzle/type'
 import { DateTimePicker } from '@/components/ui/extension/date-picker'
 import { disableCalendarDay } from '@/lib/disable-calendar-day'
 import { InputField, SelectInput, TextAreaField } from '@/components/input'
@@ -20,7 +20,7 @@ import { useModalClose } from '@/hooks/redux'
 import { useRedirect } from '@/hooks/use-redirect'
 import { TextShimmerWave } from '@/components/ui/text-shimmer-wave'
 
-export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks: BankWithAssignedTrxName[] }) => {
+export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], trxNames: LoanTrxName[] }) => {
   //REACT HOOKS
   const [pending, startTransition] = useTransition()
 
@@ -44,14 +44,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
   })
   const { control, handleSubmit, resetField, reset, watch } = form
 
-
-  // CUSTOM HOOKS
-  useRedirect(banks.length < 1, '/', () => {
-    if (banks.length < 1) toast.warning('Please first create a bank!')
-  })
-
   // VARIABLES
-
   const watchBank = () => {
     const selectedSourceValue = watch('sourceBankId')
     const selectedReceiveValue = watch('receiveBankId')
@@ -62,27 +55,30 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
     return ""
   }
 
-  const selectedFinancierValue = watch('financierId')
-  const selectedTypeValue = watch('loanType')
-  const selectedBankValue = watchBank()
+  const selectedFinancierId = watch('financierId')
+  const selectedTrxNameId = watch('trxNameId')
+  const selectedBankId = watchBank()
+  const selectedType = watch('loanType')
 
+  const isDebitLoanType = selectedType === 'Debit'
+  const isCreditLoanType = selectedType === 'Credit'
 
-
-  const selectedFinancier = financiers.find(financier => financier.id === selectedFinancierValue)
-  const selectedBank = banks.find(bank => bank.id === selectedBankValue)
-
-  const condition = !!selectedBank && selectedBank.assignedTransactionsName.length < 1
-  useRedirect(condition, `/accounts/${selectedBank?.id}/assign-trx-name`, () => {
-    if (condition) toast.warning('Please assign transaction name!')
+  // CUSTOM HOOKS
+  useRedirect(trxNames.length < 1, '/', () => {
+    if (trxNames.length < 1) toast.warning('Please first create a bank!')
   })
 
-  const isBoth = selectedFinancier?.financierType === 'Both'
-  const isProvider = selectedFinancier?.financierType === 'Provider' || isBoth
-  const isRecipient = selectedFinancier?.financierType === 'Recipient' || isBoth
 
-  const isDebit = selectedTypeValue === 'Debit'
-  const isCredit = selectedTypeValue === 'Credit'
+  const isDebit = selectedType === 'Debit'
+  const isCredit = selectedType === 'Credit'
+  const selectedFinancier = financiers.find(financier => financier.id === selectedFinancierId)
+  const selectedTrxName = trxNames.find(trxName => trxName.id === selectedTrxNameId)
+  const isBothFinancier = selectedFinancier ? selectedFinancier.financierType === 'Both' : false
+  const isProviderFinancier = selectedFinancier ? selectedFinancier.financierType === 'Provider' && isBothFinancier : false
+  const isRecipientFinancier = selectedFinancier ? selectedFinancier.financierType === 'Recipient' && isBothFinancier : false
 
+  const receiveBanks = (isProviderFinancier && selectedTrxName) ? selectedTrxName.receiveBanks : []
+  const sourceBanks = (isRecipientFinancier && selectedTrxName) ? selectedTrxName.sourceBanks : []
 
   const onSubmitHandler = handleSubmit((value) => {
     startTransition(
@@ -109,7 +105,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
 
 
 
-  if (banks.length < 1) {
+  if (trxNames.length < 1) {
     return null
   }
 
@@ -181,13 +177,13 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                         const isDebit = type === 'Debit'
                         const isCredit = type === 'Credit'
 
-                        const hideCredit = isCredit && !isRecipient && !isBoth
-                        const hideDebit = isDebit && !isProvider && !isBoth
+                        const hideCredit = isCredit && !isRecipientFinancier && !isBothFinancier
+                        const hideDebit = isDebit && !isProviderFinancier && !isBothFinancier
 
                         return (
                           <div
                             key={type}
-                            className={cn("border-2 border-accent w-20 h-10 rounded-sm", selectedTypeValue === type
+                            className={cn("border-2 border-accent w-20 h-10 rounded-sm", selectedType === type
                               ? type === 'Debit'
                                 ? "border-success"
                                 : 'border-destructive'
@@ -216,6 +212,28 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
             )}
           />
 
+          < FormField
+            control={control}
+            name="trxNameId"
+            render={({ field }) => (
+              <SelectInput
+                // {...field}
+                label='Transaction name'
+                placeholder='Select a transaction name'
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+
+                items={
+                  trxNames.map(({ id, name, isActive }) => ({
+                    value: id,
+                    label: name,
+                    disabled: !isActive,
+                  }))
+                }
+              />
+            )}
+          />
+
           {/* bank name */}
 
           {isCredit && (
@@ -231,7 +249,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                     resetField('receiveBankId')
                   }}
                   defaultValue={field.value}
-                  items={banks.map(({ id, name, isActive, balance }) => ({
+                  items={sourceBanks.map(({ sourceBank: { name, id, isActive, balance } }) => ({
                     value: id,
                     label: name,
                     disabled: !isActive,
@@ -258,7 +276,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
                   }}
                   defaultValue={field.value}
 
-                  items={banks.map(({ id, name, isActive, balance }) => ({
+                  items={receiveBanks.map(({ receiveBank: { id, name, isActive, balance } }) => ({
                     value: id,
                     label: name,
                     disabled: !isActive,
@@ -270,25 +288,7 @@ export const LoanForm = ({ financiers, banks }: { financiers: Financier[], banks
             />
           )}
 
-          < FormField
-            control={control}
-            name="trxNameId"
-            render={({ field }) => (
-              <SelectInput
-                // {...field}
-                label='Transaction name'
-                placeholder='Select a transaction name'
-                onValueChange={field.onChange}
-                defaultValue={field.value}
 
-                items={selectedBank?.assignedTransactionsName?.map(({ transactionName: { id, name, isActive } }) => ({
-                  value: id,
-                  label: name,
-                  disabled: !isActive,
-                })) || []}
-              />
-            )}
-          />
 
           {/* amount */}
           <FormField

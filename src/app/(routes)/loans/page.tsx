@@ -28,7 +28,12 @@ const LoansPage = async ({ searchParams }: WithSearchParams) => {
   })
 
   const banks = await db.query.bankAccountTable.findMany({
-    where: (table, { eq }) => eq(table.clerkUserId, userId),
+    where: (table, { eq, and }) => (
+      and(
+        eq(table.clerkUserId, userId),
+        eq(table.isDeleted, false),
+      )
+    ),
     columns: {
       id: true,
       name: true,
@@ -36,23 +41,88 @@ const LoansPage = async ({ searchParams }: WithSearchParams) => {
       isActive: true
     },
     with: {
-      assignedTransactionsName: {
+      sourceTrxNames: {
         columns: {
           id: true,
-          trxNameId: true
         },
         with: {
           transactionName: {
             columns: {
               id: true,
               name: true,
-              isActive: true
+              isActive: true,
+              isDeleted: true
+            }
+          }
+        }
+      },
+      receiveTrxNames: {
+        columns: {
+          id: true,
+        },
+        with: {
+          transactionName: {
+            columns: {
+              id: true,
+              name: true,
+              isActive: true,
+              isDeleted: true,
             }
           }
         }
       }
     }
   })
+
+  const trxNames = await db.query.trxNameTable.findMany({
+    where: (table, { and, eq }) => (
+      and(
+        eq(table.clerkUserId, userId),
+        eq(table.isDeleted, false),
+      )
+    ),
+    with: {
+      receiveBanks: {
+        with: {
+          receiveBank: {
+            columns: {
+              id: true,
+              name: true,
+              isDeleted: true,
+              isActive: true
+            }
+          },
+
+        },
+        columns: {
+          id: true
+        }
+      },
+      sourceBanks: {
+        with: {
+          sourceBank: {
+            columns: {
+              id: true,
+              name: true,
+              isDeleted: true,
+              isActive: true
+            }
+          },
+
+        },
+        columns: {
+          id: true
+        }
+      }
+    },
+    columns: {
+      id: true,
+      name: true,
+      isActive: true
+    }
+  })
+
+
 
 
   const loansCount = await db.$count(loanTable, and(
@@ -83,25 +153,25 @@ const LoansPage = async ({ searchParams }: WithSearchParams) => {
       },
       loanPayments: {
         with: {
-          receiveBank:{
-            columns:{
-              id:true,
-              name:true,
+          receiveBank: {
+            columns: {
+              id: true,
+              name: true,
             }
           },
-          sourceBank:{
-            columns:{
-              id:true,
-              name:true,
+          sourceBank: {
+            columns: {
+              id: true,
+              name: true,
             }
           }
         },
-        columns:{
-          id:true,
-          amount:true,
-          paymentType:true,
-          paymentNote:true,
-          paymentDate:true,
+        columns: {
+          id: true,
+          amount: true,
+          paymentType: true,
+          paymentNote: true,
+          paymentDate: true,
         }
       }
     },
@@ -114,7 +184,7 @@ const LoansPage = async ({ searchParams }: WithSearchParams) => {
     <div>
       <LoanModal
         financiers={financiers}
-        banks={banks}
+        trxNames={trxNames}
       />
       <LoanTable
         loans={loans}

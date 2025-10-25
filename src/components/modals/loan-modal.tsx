@@ -6,7 +6,7 @@ import { LoanForm } from '@/features/components/loan/form'
 import { useModalClose, useModal, } from '@/hooks/redux'
 import { MODAL_TYPE } from '@/constant'
 import { CardWrapper } from '../card-wrapper'
-import { BankWithAssignedTrxName } from '@/drizzle/type'
+import { LoanTrxName } from '@/drizzle/type'
 
 type Financier = {
     id: string;
@@ -16,7 +16,7 @@ type Financier = {
     isBothFinancierBlock: boolean;
 }
 
-export const LoanModal = ({ financiers, banks }: { financiers: Financier[], banks: BankWithAssignedTrxName[] }) => {
+export const LoanModal = ({ financiers, trxNames }: { financiers: Financier[], trxNames: LoanTrxName[] }) => {
 
     const { isOpen, type } = useModal()
     const open = isOpen && type === MODAL_TYPE.LOAN
@@ -32,7 +32,7 @@ export const LoanModal = ({ financiers, banks }: { financiers: Financier[], bank
                 title='Create your loan'
                 description='Fill the below details'
             >
-                <LoanForm financiers={financiers} banks={banks} />
+                <LoanForm financiers={financiers} trxNames={trxNames} />
             </CardWrapper>
         </Modal>
     )

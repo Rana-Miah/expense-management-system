@@ -88,9 +88,6 @@ export const AssignTrxNameForm = (
                         sourceBankId,
                         receiveBankId
                     }, `/accounts/${bank.id}/assign-trx-name`),
-                    (data) => {
-
-                    }
                 )
             }
         )

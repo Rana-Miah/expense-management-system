@@ -1,4 +1,4 @@
-import { assignSourceTable,assignReceiveTable, bankAccountTable, bankAccountTableRelation, itemTable, itemUnitTable, loanFinancierTable, loanPaymentTable, loanTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable, trxTable } from "./schema";
+import { assignSourceTable, assignReceiveTable, bankAccountTable, bankAccountTableRelation, itemTable, itemUnitTable, loanFinancierTable, loanPaymentTable, loanTable, shopKeeperItemTable, shopkeeperPaymentTable, shopkeeperPurchaseTable, shopkeeperTable, trxNameTable, trxTable } from "./schema";
 
 export type NewBank = typeof bankAccountTable.$inferInsert
 export type Bank = typeof bankAccountTable.$inferSelect
@@ -43,12 +43,20 @@ export type ShopkeeperPurchaseInsertValue = typeof shopkeeperPurchaseTable.$infe
 export type ShopkeeperPurchaseSelectValue = typeof shopkeeperPurchaseTable.$inferSelect
 
 
-export interface BankWithAssignedTrxName {
-  id: string
-  name: string
-  isActive: boolean
-  balance: number
-  assignedTransactionsName: AssignedTransactionsName[]
+
+interface LoanBank {
+  id: string;
+  name: string;
+  balance: number;
+  isActive: boolean;
+  isDeleted: boolean;
+}
+export interface LoanTrxName {
+  id: string;
+  name: string;
+  isActive: boolean;
+  sourceBanks: ({ id: string } & { sourceBank: LoanBank })[];
+  receiveBanks: ({ id: string } & { receiveBank: LoanBank })[];
 }
 
 export interface AssignedTransactionsName {
@@ -64,11 +72,11 @@ export interface TransactionName {
 }
 
 export type Financier = {
-    id: string;
-    name: string;
-    financierType: "Provider" | "Recipient" | "Both";
-    isBlock: boolean;
-    isBothFinancierBlock: boolean;
+  id: string;
+  name: string;
+  financierType: "Provider" | "Recipient" | "Both";
+  isBlock: boolean;
+  isBothFinancierBlock: boolean;
 }
 
 type Demo<Key extends keyof LoanFinancierSelectValue = keyof LoanFinancierSelectValue> = Pick<LoanFinancierSelectValue, Key>
