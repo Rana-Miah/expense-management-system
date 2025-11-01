@@ -6,6 +6,7 @@ import { LoanInsertValue, NewTrx } from "@/drizzle/type"
 import { loanCreateFormSchema } from "@/features/schemas/loan/loan-schema"
 import { currentUserId } from "@/lib/current-user-id"
 import { dateFormatter, failureResponse, messageUtils, successResponse, tryCatch } from "@/lib/helpers"
+import { getReceiveAssignedByReceiveBankIdAndTrxNameIdAndClerkUserId, getSourceAssignedBySourceBankIdAndTrxNameIdAndClerkUserId } from "@/services/assign"
 import { getBankByIdAndClerkUserId } from "@/services/bank"
 import { getLoanFinancierByIdAndClerkUserId } from "@/services/loan-financier"
 import { getTrxNameByIdAndClerkUserId } from "@/services/trx-name"
@@ -101,9 +102,17 @@ export const createLoanAction = async (value: unknown) => {
                     const [existReceiveBank, existReceiveBankError] = await tryCatch(getBankByIdAndClerkUserId(receiveBankId, userId))
                     if (existReceiveBankError) return failureResponse(messageUtils.failedGetMessage('exist bank'), existReceiveBankError)
                     if (!existReceiveBank) return failureResponse(messageUtils.notFoundMessage('bank'))
+                    if (existReceiveBank.isDeleted) return failureResponse(messageUtils.deletedRowMessage('bank'))
 
                     //checking financier isBoth blocked or not
                     if (!existReceiveBank.isActive) return failureResponse(messageUtils.notActiveMessage(`Bank ${existReceiveBank.name}`))
+
+                    // checking assigned exist or not
+                    const [existReceiveAssignedBank, existReceiveAssignedBankError] = await tryCatch(
+                        getReceiveAssignedByReceiveBankIdAndTrxNameIdAndClerkUserId(existReceiveBank.id, existTrxName.id, userId)
+                    )
+                    if (existReceiveAssignedBankError) return failureResponse(messageUtils.failedGetMessage('exist assigned bank'), existReceiveAssignedBankError)
+                    if (!existReceiveAssignedBank) return failureResponse(`bank "${existReceiveBank.name}" is not assign with transaction name "${existTrxName.name}"`)
 
                     // create loan
                     const [newLoan, newLoanError] = await tryCatch(createLoan({
@@ -175,6 +184,7 @@ export const createLoanAction = async (value: unknown) => {
 
                 }
 
+                if (!loanType) return failureResponse(messageUtils.missingFieldValue('Loan type'))
                 //credit loan
                 if (existFinancier.isBlock) return failureResponse(`Financier "${existFinancier.name}" is blocked! Your are not allow to give him loan!`)
 
@@ -193,6 +203,14 @@ export const createLoanAction = async (value: unknown) => {
 
                 //checking financier isBoth blocked or not
                 if (!existSourceBank.isActive) return failureResponse(messageUtils.notActiveMessage(`Bank ${existSourceBank.name}`))
+
+                // checking assigned exist or not
+                const [existReceiveAssignedBank, existReceiveAssignedBankError] = await tryCatch(
+                    getSourceAssignedBySourceBankIdAndTrxNameIdAndClerkUserId(existSourceBank.id, existTrxName.id, userId)
+                )
+                if (existReceiveAssignedBankError) return failureResponse(messageUtils.failedGetMessage('exist assigned bank'), existReceiveAssignedBankError)
+                if (!existReceiveAssignedBank) return failureResponse(`bank "${existSourceBank.name}" is not assign with transaction name "${existTrxName.name}"`)
+
 
                 // create loan
                 const [newLoan, newLoanError] = await tryCatch(createLoan({
@@ -249,8 +267,8 @@ export const createLoanAction = async (value: unknown) => {
                     trxNameId: existTrxName.id,
                     trxVariant: 'Internal',
                     type: loanType,
-                    receiveBankId: existSourceBank.id,
-                    trxDescription: generateDescription()
+                    sourceBankId: existSourceBank.id,
+                    trxDescription: generateDescription(),
                 }))
 
                 if (newTrxError || !newTrx) {

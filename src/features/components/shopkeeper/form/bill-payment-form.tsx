@@ -1,5 +1,6 @@
 'use client'
 import { SelectInput } from "@/components/input"
+import { SubmitButton } from "@/components/submit-button"
 import { Button } from "@/components/ui/button"
 import { DateTimePicker } from "@/components/ui/extension/date-picker"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -206,13 +207,11 @@ export const ShopkeeperBillPaymentForm = ({ banks, shopkeeper }: {
                 />
 
                 {/* button */}
-                <div className="flex items-center justify-center w-full">
-                    {
-                        pending ? (
-                            <TextShimmerWave className="w-full">Payment Processing...</TextShimmerWave>
-                        ) : <Button type="submit" className="w-full">Pay now</Button>
-                    }
-                </div>
+                <SubmitButton
+                    buttonLabel="Pay Shopkeeper"
+                    pending={pending}
+                    pendingStateLabel="Payment Processing..."
+                />
             </form>
         </Form >
     )

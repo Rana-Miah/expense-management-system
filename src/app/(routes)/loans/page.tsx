@@ -104,6 +104,7 @@ const LoansPage = async ({ searchParams }: WithSearchParams) => {
             columns: {
               id: true,
               name: true,
+              balance:true,
               isDeleted: true,
               isActive: true
             }

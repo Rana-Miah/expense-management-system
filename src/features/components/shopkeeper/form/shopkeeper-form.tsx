@@ -1,6 +1,7 @@
 'use client'
 
 import { InputField } from "@/components/input"
+import { SubmitButton } from "@/components/submit-button"
 import { Button } from "@/components/ui/button"
 import { Form, FormField } from "@/components/ui/form"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
@@ -98,19 +99,12 @@ export const ShopkeeperForm = () => {
                         />
                     )}
                 />
-                {pending ? (
-                    <div className="flex items-center justify-center w-full">
-                        <TextShimmerWave>Creating Shopkeeper...</TextShimmerWave>
-                    </div>
-                ) :
-                    <Button
-                        type="submit"
-                        className="w-full"
-                    >
-                        Create a Shopkeeper
-                    </Button>
-
-                }
+                
+                <SubmitButton
+                    buttonLabel="Create Shopkeeper"
+                    pending={pending}
+                    pendingStateLabel="Creating Shopkeeper..."
+                />
             </form>
         </Form>
     )

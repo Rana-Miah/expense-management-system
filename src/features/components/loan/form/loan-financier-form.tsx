@@ -23,6 +23,7 @@ import { toast } from "sonner"
 import { generateToasterDescription } from "@/lib/helpers"
 import { useModalClose } from "@/hooks/redux"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
+import { SubmitButton } from "@/components/submit-button"
 
 
 
@@ -194,13 +195,11 @@ export const LoanFinancierForm = () => {
         }
 
         {/* button */}
-        <div className="flex items-center justify-center w-full">
-          {
-            pending ? (
-              <TextShimmerWave className="w-full">Creating loan financier...</TextShimmerWave>
-            ) : (<Button className="w-full" type="submit">Submit</Button>)
-          }
-        </div>
+        <SubmitButton
+          buttonLabel="Create Financier"
+          pending={pending}
+          pendingStateLabel="Creating loan financier..."
+        />
       </form>
     </Form >
   )

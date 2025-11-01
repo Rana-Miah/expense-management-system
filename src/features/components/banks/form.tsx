@@ -16,6 +16,7 @@ import { useModalClose } from "@/hooks/redux"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { toast } from "sonner"
 import { generateToasterDescription } from "@/lib/helpers"
+import { SubmitButton } from "@/components/submit-button"
 // import { TrxNameSelectValue } from "@/drizzle/type"
 
 export const BankForm = () => {
@@ -152,14 +153,11 @@ export const BankForm = () => {
                         )}
                     />
                 } */}
-                <div className="flex items-center justify-center w">
-                    {
-                        pending ? (
-                            <TextShimmerWave className="w-full flex items-center justify-center">Creating Bank...</TextShimmerWave>
-                        ) : (<Button type="submit" className="w-full">Creating Bank</Button>)
-
-                    }
-                </div>
+                <SubmitButton
+                    buttonLabel="Create Bank"
+                    pending={pending}
+                    pendingStateLabel="Creating Bank..."
+                />
             </form>
         </Form>
     )

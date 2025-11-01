@@ -261,7 +261,7 @@ export const DynamicItemCard = ({ index, form, itemUnits, pending }: Props) => {
                 render={({ field }) => (
                     <div className="relative w-full">
                         <InputField
-                            label="Quantity"
+                            label="Total"
                             type="number"
                             placeholder="e.g. 30"
                             value={field.value}

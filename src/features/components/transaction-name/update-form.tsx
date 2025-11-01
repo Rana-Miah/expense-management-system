@@ -17,6 +17,7 @@ import { toast } from "sonner"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
 import { updateTransactionNameAction } from "@/features/actions/transaction-name"
 import { useRouter } from "next/navigation"
+import { SubmitButton } from "@/components/submit-button"
 
 export const TrxNameUpdateForm = ({ trxName }: { trxName: { id: string, name: string, isActive: boolean } }) => {
 
@@ -101,17 +102,12 @@ export const TrxNameUpdateForm = ({ trxName }: { trxName: { id: string, name: st
                         />
                     )}
                 />
-                {
-                    pending ? (<TextShimmerWave className="w-full">Updating...</TextShimmerWave>) : (
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={pending}
-                        >
-                            Update Transaction Name
-                        </Button>
-                    )
-                }
+
+                <SubmitButton
+                    buttonLabel="Save"
+                    pending={pending}
+                    pendingStateLabel="Saving..."
+                />
             </form>
         </Form>
     )

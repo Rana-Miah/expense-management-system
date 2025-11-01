@@ -1,6 +1,7 @@
 'use client'
 
 import { InputField, SwitchInput, TextAreaField } from "@/components/input"
+import { SubmitButton } from "@/components/submit-button"
 import { Button } from "@/components/ui/button"
 import { Form, FormField, } from "@/components/ui/form"
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave"
@@ -113,16 +114,11 @@ export const ShopkeeperUpdateForm = ({ shopkeeper }: { shopkeeper: ShopkeeperSel
                         )}
                     />
                 }
-
-                {
-                    pending?(
-                        <TextShimmerWave className="w-full">Saving...</TextShimmerWave>
-                    ):(
-                        <Button type="submit" className="w-full">
-                            Save
-                        </Button>
-                    )
-                }
+                <SubmitButton
+                    buttonLabel="Save"
+                    pending={pending}
+                    pendingStateLabel="Saving..."
+                />
 
             </form>
         </Form>

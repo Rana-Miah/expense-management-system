@@ -44,19 +44,33 @@ export type ShopkeeperPurchaseSelectValue = typeof shopkeeperPurchaseTable.$infe
 
 
 
-interface LoanBank {
+type ReceiveBank = {
   id: string;
-  name: string;
-  balance: number;
-  isActive: boolean;
-  isDeleted: boolean;
+  receiveBank: {
+    id: string;
+    name: string;
+    isDeleted: boolean;
+    isActive: boolean;
+  };
 }
+
+type SourceBank = {
+  id: string;
+  sourceBank: {
+    id: string;
+    name: string;
+    balance:number;
+    isDeleted: boolean;
+    isActive: boolean;
+  };
+}
+
 export interface LoanTrxName {
   id: string;
   name: string;
   isActive: boolean;
-  sourceBanks: ({ id: string } & { sourceBank: LoanBank })[];
-  receiveBanks: ({ id: string } & { receiveBank: LoanBank })[];
+  sourceBanks: SourceBank[];
+  receiveBanks: ReceiveBank[];
 }
 
 export interface AssignedTransactionsName {

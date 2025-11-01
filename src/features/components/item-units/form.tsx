@@ -1,5 +1,6 @@
 'use client'
 import { InputField } from '@/components/input'
+import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
 import { Form, FormField } from '@/components/ui/form'
 import { TextShimmerWave } from '@/components/ui/text-shimmer-wave'
@@ -54,16 +55,11 @@ export const ItemUnitForm = () => {
                         />
                     )}
                 />
-                <div className="flex items-center justify-center w-full">
-                    {
-                        pending ? (
-                            <TextShimmerWave>Creating Unit...</TextShimmerWave>
-                        ) :
-                            (
-                                <Button type='submit' className='w-full'>Create Unit</Button>
-                            )
-                    }
-                </div>
+                <SubmitButton
+                    buttonLabel="Create Unit"
+                    pending={pending}
+                    pendingStateLabel="Creating Unit..."
+                />
             </form>
         </Form>
     )

@@ -22,6 +22,7 @@ import { TextShimmerWave } from '@/components/ui/text-shimmer-wave'
 import { createLoanPaymentAction } from '@/features/actions/loan-payment/create-loan-payment-action'
 import { generateToasterDescription } from '@/lib/helpers'
 import { toast } from 'sonner'
+import { SubmitButton } from '@/components/submit-button'
 
 
 export const LoanPaymentForm = ({ loan, banks }: {
@@ -53,9 +54,6 @@ export const LoanPaymentForm = ({ loan, banks }: {
   }[]
 }) => {
   const { id, financier, due, loanType, title } = loan
-  const [selectedBankId, setSelectedBankId] = useState<string>("")
-  const [selectedPaymentType, setSelectedPaymentType] = useState<typeof paymentType[number]>()
-  const [amount, setAmount] = useState<number>(0)
   const [pending, startTransition] = useTransition()
 
   const form = useForm<LoanPaymentCreateFormValue>({
@@ -68,7 +66,21 @@ export const LoanPaymentForm = ({ loan, banks }: {
       paymentNote: "",
     }
   })
-  const { control, handleSubmit, } = form
+  const { control, handleSubmit, watch } = form
+
+  const watchBank = () => {
+    const selectedSourceValue = watch('sourceBankId')
+    const selectedReceiveValue = watch('receiveBankId')
+    if (!selectedSourceValue && !selectedReceiveValue) return ""
+
+    if (selectedReceiveValue) return selectedReceiveValue
+    if (selectedSourceValue) return selectedSourceValue
+    return ""
+  }
+
+  const selectedPaymentType = watch('paymentType')
+  const amount = watch('amount')
+  const selectedBankId = watchBank()
 
   const onSubmitHandler = handleSubmit((value) => {
     startTransition(
@@ -152,10 +164,7 @@ export const LoanPaymentForm = ({ loan, banks }: {
             <FormItem>
               <FormLabel>Payment Type</FormLabel>
               <FormControl className="w-full te">
-                <RadioGroup defaultValue={field.value} onValueChange={(value) => {
-                  setSelectedPaymentType(value as typeof paymentType[number])
-                  field.onChange(value)
-                }} className="flex items-center gap-3">
+                <RadioGroup defaultValue={field.value} onValueChange={field.onChange} className="flex items-center gap-3">
                   {
                     paymentType.map(type => {
                       const isReceipt = type === 'Receipt'
@@ -209,10 +218,7 @@ export const LoanPaymentForm = ({ loan, banks }: {
                       }))}
                       placeholder='Select a source bank'
                       label='Source Bank'
-                      onValueChange={(value) => {
-                        field.onChange(value)
-                        setSelectedBankId(value)
-                      }}
+                      onValueChange={field.onChange}
                       disabled={amount > 0}
                       Icon={<Landmark size={16} />}
                     />
@@ -238,10 +244,7 @@ export const LoanPaymentForm = ({ loan, banks }: {
                       placeholder='Select a receive bank'
                       disabled={amount > 0}
                       Icon={<Landmark size={16} />}
-                      onValueChange={(value) => {
-                        field.onChange(value)
-                        setSelectedBankId(value)
-                      }}
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     />
                   )}
@@ -291,10 +294,7 @@ export const LoanPaymentForm = ({ loan, banks }: {
                   label='Payment Amount'
                   type='number'
                   placeholder='e.g. 150'
-                  onChange={(e) => {
-                    setAmount(e.target.valueAsNumber)
-                    field.onChange(e)
-                  }}
+                  onChange={field.onChange}
                   Icon={<DollarSign size={16} className={cn(isCredit ? 'text-success' : 'text-destructive')} />}
                 />
               )}
@@ -338,18 +338,15 @@ export const LoanPaymentForm = ({ loan, banks }: {
         />
 
         {/* button */}
-        {
-          pending ? (
-            <TextShimmerWave className='w-full'>Creating Loan Payment...</TextShimmerWave>
-          ) : (
-            <Button
-              type="submit"
-              className="w-full"
-            >
-              Create a loan
-            </Button>
-          )
-        }
+        <SubmitButton
+          buttonLabel={
+            selectedPaymentType === "Paid" ? "Pay Loan" : "Receive Loan Payment"
+          }
+          pending={pending}
+          pendingStateLabel={
+            selectedPaymentType === "Paid" ? "Paying Loan..." : "Receiving Loan Payment..."
+          }
+        />
       </form>
     </Form>
   )

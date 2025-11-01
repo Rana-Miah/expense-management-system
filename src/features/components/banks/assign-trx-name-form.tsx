@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { actionExecutor } from "@/lib/helpers/action-executor"
+import { SubmitButton } from "@/components/submit-button"
 
 export const AssignTrxNameForm = (
     { bank, trxNames, banks }: {
@@ -228,17 +229,11 @@ export const AssignTrxNameForm = (
                         />
                     )}
 
-                    {
-                        pending ? (
-                            <TextShimmerWave
-                                className="flex items-center justify-center w-full"
-                            >
-                                Assigning...
-                            </TextShimmerWave>
-                        ) : (
-                            <Button type="submit" className="w-full" disabled={pending}>Assign Transaction Name</Button>
-                        )
-                    }
+                    <SubmitButton
+                        buttonLabel="Assign Transaction Name"
+                        pending={pending}
+                        pendingStateLabel="Assigning..."
+                    />
                 </form>
             </Form>
         </CardWrapper>

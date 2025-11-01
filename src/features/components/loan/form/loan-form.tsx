@@ -19,6 +19,7 @@ import { generateToasterDescription } from '@/lib/helpers'
 import { useModalClose } from '@/hooks/redux'
 import { useRedirect } from '@/hooks/use-redirect'
 import { TextShimmerWave } from '@/components/ui/text-shimmer-wave'
+import { SubmitButton } from '@/components/submit-button'
 
 export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], trxNames: LoanTrxName[] }) => {
   //REACT HOOKS
@@ -73,9 +74,9 @@ export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], tr
   const isCredit = selectedType === 'Credit'
   const selectedFinancier = financiers.find(financier => financier.id === selectedFinancierId)
   const selectedTrxName = trxNames.find(trxName => trxName.id === selectedTrxNameId)
-  const isBothFinancier = selectedFinancier ? selectedFinancier.financierType === 'Both' : false
-  const isProviderFinancier = selectedFinancier ? selectedFinancier.financierType === 'Provider' && isBothFinancier : false
-  const isRecipientFinancier = selectedFinancier ? selectedFinancier.financierType === 'Recipient' && isBothFinancier : false
+  const isBothFinancier = selectedFinancier && selectedFinancier.financierType === 'Both'
+  const isProviderFinancier = (selectedFinancier && selectedFinancier.financierType === 'Provider') || isBothFinancier
+  const isRecipientFinancier = (selectedFinancier && selectedFinancier.financierType === 'Recipient') || isBothFinancier
 
   const receiveBanks = (isProviderFinancier && selectedTrxName) ? selectedTrxName.receiveBanks : []
   const sourceBanks = (isRecipientFinancier && selectedTrxName) ? selectedTrxName.sourceBanks : []
@@ -109,6 +110,12 @@ export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], tr
     return null
   }
 
+  console.log({
+    selectedFinancier,
+    isBothFinancier,
+    isProviderFinancier,
+    isRecipientFinancier
+  })
 
   return (
     <Form {...form}>
@@ -171,19 +178,28 @@ export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], tr
                       field.onChange(value)
                       resetField('sourceBankId')
                       resetField('receiveBankId')
+                      resetField('loanType')
                     }} className="flex items-center gap-3">
                     {
                       loanType.map(type => {
                         const isDebit = type === 'Debit'
                         const isCredit = type === 'Credit'
 
-                        const hideCredit = isCredit && !isRecipientFinancier && !isBothFinancier
-                        const hideDebit = isDebit && !isProviderFinancier && !isBothFinancier
 
+                        const hideCredit = isCredit && isRecipientFinancier !== undefined && !isRecipientFinancier
+                        const hideDebit = isDebit && isProviderFinancier !== undefined && !isProviderFinancier
+
+                        console.log({
+                          type,
+                          isDebit,
+                          isCredit,
+                          hideDebit,
+                          hideCredit
+                        })
                         return (
                           <div
                             key={type}
-                            className={cn("border-2 border-accent w-20 h-10 rounded-sm", selectedType === type
+                            className={cn("border-2 border-accent w-20 h-10 rounded-sm disabled:text-accent", selectedType === type
                               ? type === 'Debit'
                                 ? "border-success"
                                 : 'border-destructive'
@@ -191,9 +207,11 @@ export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], tr
                             )}
                             hidden={hideCredit || hideDebit}
                           >
-                            <RadioGroupItem value={type} id={type}
+                            <RadioGroupItem
                               hidden
-                              disabled={hideCredit || hideDebit}
+                              id={type}
+                              value={type}
+                              disabled={pending || hideCredit || hideDebit}
                             />
                             <Label
                               htmlFor={type}
@@ -276,12 +294,10 @@ export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], tr
                   }}
                   defaultValue={field.value}
 
-                  items={receiveBanks.map(({ receiveBank: { id, name, isActive, balance } }) => ({
+                  items={receiveBanks.map(({ receiveBank: { id, name, isActive } }) => ({
                     value: id,
                     label: name,
                     disabled: !isActive,
-                    badgeLabel: balance.toString(),
-                    badgeProp: {}
                   }))}
                 />
               )}
@@ -343,16 +359,11 @@ export const LoanForm = ({ financiers, trxNames }: { financiers: Financier[], tr
         </div>
 
         {/* button */}
-        {
-          pending ? (
-            <TextShimmerWave className='W-full'>Creating Loan...</TextShimmerWave>
-          ) : (<Button
-            type="submit"
-            className="w-full"
-          >
-            Create a loan
-          </Button>)
-        }
+        <SubmitButton
+          buttonLabel="Create Loan"
+          pending={pending}
+          pendingStateLabel="Creating Loan..."
+        />
       </form>
     </Form >
   )
